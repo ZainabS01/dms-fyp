@@ -15,36 +15,63 @@ const StudentDashboard = ({ user, setUser, onLogout }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
 
-  // 1. Fresh Data Fetching Logic
+  // 1. Initial State from localStorage or Props
   const [currentUser, setCurrentUser] = useState(() => {
     const savedUser = localStorage.getItem('user');
-    return savedUser ? JSON.parse(savedUser) : user;
+    try {
+      return savedUser ? JSON.parse(savedUser) : user;
+    } catch (e) {
+      return user;
+    }
   });
 
-  // Keep state in sync with props
+  // 2. FRESH DATA FETCHING (Database se latest data mangwane ke liye)
+  useEffect(() => {
+    const fetchFreshUserData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        // Backend ke /me route se fresh data lein
+        const res = await axios.get('http://localhost:5000/api/auth/me', {
+          headers: { 'x-auth-token': token }
+        });
+
+        if (res.data.success) {
+          const freshUser = res.data.user;
+          setCurrentUser(freshUser);
+          if (setUser) setUser(freshUser);
+          localStorage.setItem('user', JSON.stringify(freshUser));
+          console.log("Dashboard Synced with Database:", freshUser);
+        }
+      } catch (err) {
+        console.error("Could not sync user data:", err);
+      }
+    };
+
+    fetchFreshUserData();
+  }, [setUser]);
+
+  // Keep state in sync if props change
   useEffect(() => {
     if (user) {
       setCurrentUser(user);
     }
   }, [user]);
 
-  // 2. Profile Update Function
+  // 3. Profile Update Function
   const handleUpdateProfile = async (updatedFields) => {
     try {
       const res = await axios.put(`http://localhost:5000/api/users/update/${currentUser._id}`, updatedFields);
       
       if (res.data.success) {
         const updatedUser = res.data.user; 
-        
         setCurrentUser(updatedUser);
         if (setUser) setUser(updatedUser);
         localStorage.setItem('user', JSON.stringify(updatedUser));
-        
-        // Optional: toast.success("Profile Updated!");
       }
     } catch (err) {
       console.error("Update failed:", err);
-      // Fallback update for immediate UI feedback
       const fallbackUser = { ...currentUser, ...updatedFields };
       setCurrentUser(fallbackUser);
       localStorage.setItem('user', JSON.stringify(fallbackUser));
@@ -53,19 +80,21 @@ const StudentDashboard = ({ user, setUser, onLogout }) => {
 
   const handleLogout = () => {
     setShowLogoutModal(false);
-    localStorage.clear(); // Clear everything
+    localStorage.clear(); 
     if (onLogout) onLogout();
     navigate('/login', { replace: true });
   };
 
-  // 3. Security Check: If no user, send back to login
-  useEffect(() => {
-    if (!currentUser) {
-      navigate('/login');
-    }
-  }, [currentUser, navigate]);
+  if (!currentUser) {
+    return (
+      <div className="h-screen flex items-center justify-center bg-slate-50">
+        <p className="text-[#002147] font-bold animate-pulse">Loading Dashboard...</p>
+      </div>
+    );
+  }
 
-  if (!currentUser) return null;
+  // Helper to get nested values
+  const getVal = (field) => currentUser?.[field] || currentUser?.user?.[field] || "N/A";
 
   return (
     <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
@@ -113,11 +142,11 @@ const StudentDashboard = ({ user, setUser, onLogout }) => {
 
             <div className="flex items-center gap-4">
               <div className="text-right">
-                <p className="text-sm font-black text-slate-800 leading-none mb-1">{currentUser.name}</p>
-                <p className="text-[10px] font-bold text-blue-600 tracking-tighter uppercase">{currentUser.rollNo || "Student"}</p>
+                <p className="text-sm font-black text-slate-800 leading-none mb-1">{getVal('name')}</p>
+                <p className="text-[10px] font-bold text-blue-600 tracking-tighter uppercase">{getVal('rollNo') !== "N/A" ? getVal('rollNo') : "Student"}</p>
               </div>
               <div className="w-12 h-12 bg-[#002147] rounded-2xl rotate-3 flex items-center justify-center text-white font-black shadow-lg">
-                {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                {(getVal('name').charAt(0)).toUpperCase()}
               </div>
             </div>
           </div>

@@ -6,7 +6,6 @@ const nodemailer = require('nodemailer');
 const User = require('../models/User');
 const verifyToken = require('../middleware/authMiddleware');
 
-// --- 1. NODEMAILER CONFIGURATION ---
 const transporter = nodemailer.createTransport({
     service: 'gmail',
     host: 'smtp.gmail.com',
@@ -18,7 +17,7 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// --- 2. GET CURRENT USER PROFILE ---
+// --- 1. GET CURRENT USER PROFILE ---
 router.get('/me', verifyToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password'); 
@@ -31,11 +30,11 @@ router.get('/me', verifyToken, async (req, res) => {
     }
 });
 
-// --- 3. LOGIN ROUTE (Initial Authentication) ---
+// --- 2. LOGIN ROUTE (FIXED: Added all fields to response) ---
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await User.findOne({ email: email.toLowerCase() });
+        const user = await User.findOne({ email: email.toLowerCase().trim() });
         
         if (!user) {
             return res.status(400).json({ success: false, message: "Email nahi mila!" });
@@ -45,16 +44,24 @@ router.post('/login', async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ success: false, message: "Password galat hai!" });
         }
+
+        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secretkey', { expiresIn: '24h' });
         
+        // Dashboard ko "N/A" se bachane ke liye saare fields yahan se bhejien
         res.json({ 
             success: true, 
+            token, 
             message: user.role === 'teacher' ? "Please verify PIN" : "Login Successful!",
             requiresPin: user.role === 'teacher', 
             user: { 
                 id: user._id,
                 name: user.name, 
                 role: user.role, 
-                email: user.email
+                email: user.email,
+                // YEH LINES ADD KI GAYI HAIN:
+                rollNo: user.rollNo || "N/A",
+                semester: user.semester || "1st Semester",
+                department: user.department || "GENERAL"
             } 
         });
     } catch (error) {
@@ -62,36 +69,18 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// --- 4. TEACHER PIN LOGIN ---
-router.post('/teacher-pin-login', async (req, res) => {
-    try {
-        const { email, pin } = req.body;
-        const user = await User.findOne({ email: email.toLowerCase() });
-
-        if (!user || user.pin !== pin) {
-            return res.status(400).json({ success: false, message: "Invalid Security PIN!" });
-        }
-
-        const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET || 'secretkey', { expiresIn: '1h' });
-        
-        res.json({ 
-            success: true, 
-            token, 
-            user: { id: user._id, name: user.name, role: user.role, email: user.email } 
-        });
-    } catch (error) {
-        res.status(500).json({ success: false, message: "PIN Verification Failed" });
-    }
-});
-
-// --- 5. REGISTER ROUTE (The Fix) ---
+// --- 3. REGISTER ROUTE (FIXED: Improved Data Sanitization) ---
 router.post('/register', async (req, res) => {
     try {
         const { name, email, password, role, department, rollNo, semester, phone } = req.body;
 
+        if (!email || !password || !name) {
+            return res.status(400).json({ success: false, message: "Please fill all required fields!" });
+        }
+
         let user = await User.findOne({ email: email.toLowerCase() });
         if (user) {
-            return res.status(400).json({ success: false, message: "Email pehle se majood hai!" });
+            return res.status(400).json({ success: false, message: "Email already registered!" });
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -99,46 +88,43 @@ router.post('/register', async (req, res) => {
 
         let generatedPin = null;
         let generatedTeacherId = null;
+        const userRole = role ? role.toLowerCase() : 'student';
 
-        if (role && role.toLowerCase() === 'teacher') {
+        if (userRole === 'teacher') {
             generatedPin = Math.floor(1000 + Math.random() * 9000).toString();
             generatedTeacherId = Math.random().toString(36).substr(2, 8).toUpperCase();
         }
 
         const newUser = new User({
-            name,
-            email: email.toLowerCase(),
+            name: name.trim(),
+            email: email.toLowerCase().trim(),
             password: hashedPassword,
-            role: role || 'student',
-            department,
-            phone, 
-            semester: role === 'teacher' ? "Faculty" : (semester || "8th"), 
-            rollNo: role === 'student' ? rollNo : undefined,
+            role: userRole,
+            department: department ? department.trim().toUpperCase() : "GENERAL",
+            phone: phone ? phone.trim() : "", 
+            semester: userRole === 'student' ? (semester || "1st Semester") : "Faculty", 
+            rollNo: userRole === 'student' ? (rollNo ? rollNo.trim() : "N/A") : undefined,
             teacherId: generatedTeacherId,
             pin: generatedPin,
-            isSetupComplete: true // 👈 Isey true rakhne se Setup screen nahi ayegi
+            isSetupComplete: true 
         });
 
         await newUser.save();
 
-        if (role === 'teacher' && generatedPin) {
+        if (userRole === 'teacher' && generatedPin) {
             const mailOptions = {
                 from: `"DMS Portal" <${process.env.EMAIL_USER}>`,
                 to: email,
                 subject: 'Your Teacher Security PIN',
-                html: `<div style="font-family: Arial; padding: 20px; border: 1px solid #eee;">
-                        <h2>Welcome Teacher, ${name}!</h2>
-                        <p>Registration successful. Your permanent PIN is: <b style="font-size: 20px;">${generatedPin}</b></p>
-                        <p>Login ke baad isi PIN ko use krien.</p>
-                       </div>`
+                html: `<p>Welcome, your Security PIN is: <b>${generatedPin}</b></p>`
             };
-            transporter.sendMail(mailOptions).catch(err => console.error("Email Error:", err.message));
+            transporter.sendMail(mailOptions).catch(err => console.log("Email error ignored"));
         }
 
         return res.status(201).json({ success: true, message: "Registered Successfully!" });
 
     } catch (error) {
-        res.status(500).json({ success: false, message: "Registration failed!" });
+        res.status(500).json({ success: false, message: "Internal Server Error" });
     }
 });
 

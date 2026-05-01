@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
-        unique: true, 
+        unique: true, // Yeh kafi hai, niche wala manual index hata diya hai
         lowercase: true,
         trim: true
     },
@@ -17,7 +17,6 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // Registration form ka "PHONE NO" field
     phone: {
         type: String,
         required: [true, "Phone number is required"]
@@ -31,22 +30,17 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // --- SEMESTER (For Students) / BATCH OR DESIGNATION (For Teachers) ---
     semester: {
         type: String,
-        // Agar teacher register ho raha hai to hum default "Faculty" ya N/A rakh sakte hain
         default: "N/A" 
     },
     rollNo: {
         type: String,
         required: function() { return this.role === 'student'; } 
     },
-    // --- TEACHER SPECIFIC FIELDS ---
-    // Ye ID profile mein "ID: 69EB7994" ki tarah show hogi
     teacherId: {
         type: String,
-        unique: true,
-        sparse: true // Taake students ke liye ye null reh sakay
+        default: null
     },
     pin: {
         type: String,
@@ -61,5 +55,7 @@ const UserSchema = new mongoose.Schema({
         default: Date.now
     }
 });
+
+// Manual index hata diya hai taake "Duplicate schema index" warning khatam ho jaye
 
 module.exports = mongoose.model('User', UserSchema);

@@ -16,6 +16,7 @@ import ForgotPasswordModal from './components/landing-page/ForgotPasswordModal';
 // Dashboard Components
 import StudentDashboard from './components/student/StudentDashboard';
 import TeacherDashboard from './components/teacher/TeacherDashboard'; 
+import AdminDashboard from './components/admin/AdminDashboard';
 
 // --- LayoutHandler: Handles UI flow and Protection Logic ---
 function LayoutHandler({ user, setUser, onLogout }) {

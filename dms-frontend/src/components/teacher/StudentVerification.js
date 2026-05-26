@@ -1,0 +1,93 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { FiCheckCircle, FiXCircle, FiUser } from 'react-icons/fi';
+
+const StudentVerification = () => {
+  const [pendingStudents, setPendingStudents] = useState([]);
+
+  // Data fetch karne ke liye (Sirf wo students jin ka status 'pending' hai)
+  useEffect(() => {
+    const fetchPending = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/admin/students?status=pending');
+        setPendingStudents(res.data);
+      } catch (err) {
+        console.error("Error fetching students:", err);
+      }
+    };
+    fetchPending();
+  }, []);
+
+  const handleAction = async (id, action) => {
+    // Backend update logic yahan aayegi
+    alert(`Student ${action === 'approve' ? 'Verified' : 'Rejected'} Successfully!`);
+    setPendingStudents(pendingStudents.filter(s => s._id !== id));
+  };
+
+  return (
+    <div className="w-full">
+      <div className="mb-10">
+        <h1 className="text-4xl font-black text-[#001f3f] uppercase italic">
+          Student <span className="text-[#d4a017]">Verification</span>
+        </h1>
+        <div className="h-1.5 w-20 bg-[#d4a017] rounded-full mt-2"></div>
+        <p className="text-slate-400 text-xs font-bold mt-4 uppercase tracking-widest">
+          Approve or Reject new student registrations for your department.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {pendingStudents.length > 0 ? (
+          pendingStudents.map((student) => (
+            <div key={student._id} className="bg-white p-8 rounded-[40px] shadow-xl border border-slate-50 relative overflow-hidden group">
+              {/* Decorative Circle */}
+              <div className="absolute -right-5 -top-5 w-20 h-20 bg-slate-50 rounded-full group-hover:bg-[#d4a017]/10 transition-all"></div>
+              
+              <div className="flex items-center gap-4 mb-6">
+                <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-[#001f3f] text-2xl">
+                  <FiUser />
+                </div>
+                <div>
+                  <h3 className="font-black text-[#001f3f] text-lg uppercase tracking-tight">{student.name}</h3>
+                  <p className="text-[10px] font-bold text-blue-500 uppercase">Roll No: {student.rollNo || 'N/A'}</p>
+                </div>
+              </div>
+
+              <div className="space-y-2 mb-8">
+                <div className="flex justify-between text-xs font-bold">
+                  <span className="text-slate-400 uppercase">Department:</span>
+                  <span className="text-[#001f3f]">{student.department}</span>
+                </div>
+                <div className="flex justify-between text-xs font-bold">
+                  <span className="text-slate-400 uppercase">Semester:</span>
+                  <span className="text-[#d4a017]">{student.semester}</span>
+                </div>
+              </div>
+
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => handleAction(student._id, 'approve')}
+                  className="flex-1 bg-[#001f3f] text-white py-4 rounded-2xl font-black text-[10px] uppercase flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-lg shadow-blue-900/20"
+                >
+                  <FiCheckCircle className="text-sm" /> Verify
+                </button>
+                <button 
+                  onClick={() => handleAction(student._id, 'reject')}
+                  className="px-5 bg-red-50 text-red-500 rounded-2xl font-black text-sm hover:bg-red-500 hover:text-white transition-all"
+                >
+                  <FiXCircle />
+                </button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <div className="col-span-full py-20 text-center bg-white rounded-[40px] border-2 border-dashed border-slate-200">
+            <p className="text-slate-400 font-bold uppercase tracking-widest italic">No pending verifications found ✨</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default StudentVerification;

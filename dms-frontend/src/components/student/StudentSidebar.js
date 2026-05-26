@@ -1,112 +1,77 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  FiUser, FiCalendar, FiEdit3, FiAward, 
+  FiMessageSquare, FiBook, FiLogOut, FiMenu, FiX 
+} from 'react-icons/fi';
 
-const Sidebar = ({ setActivePage, activePage, onLogoutTrigger }) => {
-  const [isOpen, setIsOpen] = useState(false); // Mobile menu toggle state
+const StudentSidebar = ({ setActivePage, activePage, onLogoutTrigger }) => {
+  const [isOpen, setIsOpen] = useState(false);
 
   const menuItems = [
-    { key: 'overview', label: 'My Profile', icon: '👤' },
-    { key: 'attendance', label: 'Attendance', icon: '📅' },
-    { key: 'task', label: 'Tasks & Projects', icon: '📝' },
-    { key: 'result', label: 'Academic Result', icon: '🏆' },
-    { key: 'query', label: 'Raise a Query', icon: '❓' },
-    { key: 'data', label: 'Course Data', icon: '📂' },
+    { key: 'overview', label: 'My Profile', icon: <FiUser /> },
+    { key: 'attendance', label: 'Attendance', icon: <FiCalendar /> },
+    { key: 'task', label: 'Tasks & Projects', icon: <FiEdit3 /> },
+    { key: 'result', label: 'Academic Result', icon: <FiAward /> }, 
+    { key: 'queries', label: 'Query Hub', icon: <FiMessageSquare /> }, 
+    { key: 'data', label: 'Course Data', icon: <FiBook /> },
   ];
 
   return (
     <>
-      {/* --- MOBILE TOGGLE BUTTON --- */}
       <div className="lg:hidden fixed top-6 left-6 z-[200]">
-        <button 
-          onClick={() => setIsOpen(!isOpen)}
-          className="p-3 bg-[#002147] text-white rounded-2xl shadow-lg border border-white/10"
-        >
-          {isOpen ? '✕' : '☰'}
+        <button onClick={() => setIsOpen(!isOpen)} className="p-3 bg-[#001f3f] text-white rounded-2xl shadow-lg border border-white/10">
+          {isOpen ? <FiX size={22}/> : <FiMenu size={22}/>}
         </button>
       </div>
 
-      {/* --- SIDEBAR OVERLAY (Mobile) --- */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsOpen(false)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[140] lg:hidden"
-          />
-        )}
-      </AnimatePresence>
-
-      {/* --- MAIN SIDEBAR --- */}
-      <div className={`
-        w-72 bg-[#002147] text-white flex flex-col fixed inset-y-0 left-0 shadow-2xl z-[150] overflow-hidden transition-transform duration-300 ease-in-out
-        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-      `}>
+      <div className={`w-72 bg-[#001f3f] text-white flex flex-col fixed inset-y-0 left-0 z-[150] transition-transform duration-300 ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}>
         
-        {/* 1. LOGO SECTION */}
-        <div className="p-10 text-center border-b border-white/5 flex-shrink-0">
-          <motion.div 
-            whileHover={{ rotate: 10, scale: 1.1 }}
-            className="w-16 h-16 bg-white rounded-[1.25rem] mx-auto mb-4 flex items-center justify-center shadow-xl"
-          >
-            <span className="text-[#002147] font-black text-2xl italic">UOG</span>
-          </motion.div>
-          <p className="text-[10px] font-black tracking-[0.4em] uppercase text-yellow-500 opacity-90">Student Portal</p>
+        {/* --- HEADER-MATCHED LOGO SECTION --- */}
+        <div className="flex flex-col items-center bg-[#001831] border-b border-white/5 flex-shrink-0">
+          {/* Logo container height matches header (h-24) */}
+          <div className="h-24 w-full flex items-center justify-center">
+             <div className="w-16 h-16 bg-white rounded-full p-1 shadow-2xl flex items-center justify-center border-[3px] border-[#d4a017]">
+                <img src="/logo.png" alt="DMS Logo" className="w-full h-full object-contain rounded-full" />
+             </div>
+          </div>
+          <div className="pb-5 text-center">
+             <h1 className="font-black italic uppercase tracking-wider text-lg text-white">DMS Portal</h1>
+             <p className="text-[9px] font-black tracking-[0.4em] uppercase text-[#d4a017] mt-1">Student Role</p>
+          </div>
         </div>
 
-        {/* 2. NAVIGATION MENU */}
-        <nav className="flex-1 mt-6 px-5 space-y-3 overflow-y-auto custom-scrollbar">
+        {/* --- SCROLLABLE MENU --- */}
+        <nav className="flex-1 mt-4 px-6 space-y-1.5 overflow-y-auto custom-scrollbar">
           {menuItems.map((item) => (
-            <button
-              key={item.key}
-              onClick={() => {
-                setActivePage(item.key);
-                setIsOpen(false); // Mobile par click ke baad close ho jaye
-              }}
-              className={`w-full flex items-center p-4 rounded-2xl transition-all duration-300 group relative ${
-                activePage === item.key 
-                ? 'bg-[#EAB308] text-[#002147] font-black shadow-lg shadow-yellow-500/20 scale-105' 
-                : 'hover:bg-white/5 text-blue-100 hover:pl-7'
+            <button 
+              key={item.key} 
+              onClick={() => { setActivePage(item.key); setIsOpen(false); }}
+              className={`w-full flex items-center p-3.5 rounded-2xl transition-all duration-300 relative ${
+                activePage === item.key ? 'bg-[#d4a017] text-[#001f3f] font-black shadow-lg' : 'hover:bg-white/5 text-slate-400 hover:text-white'
               }`}
             >
-              {activePage === item.key && (
-                <motion.div 
-                  layoutId="activeTab"
-                  className="absolute left-0 w-1.5 h-8 bg-[#002147] rounded-r-full"
-                />
-              )}
-              <span className="mr-4 text-xl group-hover:scale-125 transition-transform">
-                {item.icon}
-              </span>
-              <span className="text-[11px] font-black uppercase tracking-wider">
-                {item.label}
-              </span>
+              <span className="mr-4 text-xl">{item.icon}</span>
+              <span className="text-[10px] font-black uppercase tracking-widest">{item.label}</span>
             </button>
           ))}
         </nav>
 
-        {/* 3. LOGOUT SECTION */}
-        <div className="p-6 bg-[#00142d] border-t border-white/5 mt-auto flex-shrink-0">
-          <motion.button 
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onLogoutTrigger} 
-            className="w-full group flex items-center justify-center gap-3 bg-red-600 hover:bg-red-500 p-4 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 text-white shadow-2xl shadow-red-900/40"
-          >
-            <span>Logout Portal</span>
-            <span className="text-xl group-hover:translate-x-1 transition-transform">🚪</span>
-          </motion.button>
+        {/* Logout at Bottom */}
+        <div className="p-6 mt-auto">
+          <button onClick={onLogoutTrigger} className="w-full flex items-center justify-center gap-3 bg-red-500/10 p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-600 hover:text-white transition-all border border-red-500/10">
+            <span>Logout Portal</span> <FiLogOut strokeWidth={3} />
+          </button>
         </div>
 
         <style jsx>{`
-          .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+          .custom-scrollbar::-webkit-scrollbar { width: 3px; }
           .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-          .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 10px; }
+          .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(212, 160, 23, 0.1); border-radius: 10px; }
         `}</style>
       </div>
     </>
   );
 };
 
-export default Sidebar;
+export default StudentSidebar;

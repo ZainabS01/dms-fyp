@@ -7,16 +7,16 @@ const UserSchema = new mongoose.Schema({
         trim: true
     },
     email: {
-        type: String,
-        required: true,
-        unique: true, // Yeh kafi hai, niche wala manual index hata diya hai
-        lowercase: true,
-        trim: true
-    },
-    password: {
-        type: String,
-        required: true
-    },
+    type: String,
+    required: true,
+    unique: true,
+    lowercase: true,
+    trim: true
+},
+password: {
+    type: String,
+    required: true
+},
     phone: {
         type: String,
         required: [true, "Phone number is required"]
@@ -32,11 +32,13 @@ const UserSchema = new mongoose.Schema({
     },
     semester: {
         type: String,
-        default: "N/A" 
+        required: function() { return this.role === 'student'; },
+        default: null 
     },
     rollNo: {
         type: String,
-        required: function() { return this.role === 'student'; } 
+        required: function() { return this.role === 'student'; },
+        trim: true
     },
     teacherId: {
         type: String,
@@ -50,12 +52,14 @@ const UserSchema = new mongoose.Schema({
         type: String,
         default: 'ACTIVE'
     },
+    resetOtp: {
+        type: String,
+        default: ""
+    },
     date: {
         type: Date,
         default: Date.now
     }
 });
-
-// Manual index hata diya hai taake "Duplicate schema index" warning khatam ho jaye
 
 module.exports = mongoose.model('User', UserSchema);

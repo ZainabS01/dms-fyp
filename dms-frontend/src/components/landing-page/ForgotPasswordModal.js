@@ -1,55 +1,85 @@
-import React, { useState } from 'react';
+import React, { useState } from 'react'; 
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
 const ForgotPasswordModal = ({ isOpen, onClose }) => {
-  const [step, setStep] = useState(1); // 1: Email, 2: OTP & New Password
+  const [step, setStep] = useState(1); 
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  // --- STEP 1: OTP BHEJNE KI LOGIC ---
+  // --- PHASE 1: SEND OTP TO GMAIL ---
   const handleSendOTP = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    if (!email) return toast.error("Apni registered email likhein!");
+    
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/forgot-password', { email });
+      const res = await axios.post('http://localhost:5000/api/auth/forgot-password', { 
+        email: email.toLowerCase().trim() 
+      });
+      
       if (res.data.success) {
-        toast.success("OTP sent to your real Gmail account!");
+        toast.success("OTP aapki Gmail par bhej diya gaya hai! Khas tor par Inbox check karein.");
         setStep(2);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Something went wrong!");
+      toast.error(err.response?.data?.message || "Email dhoondne mein masla hua!");
     } finally {
       setLoading(false);
     }
   };
 
-  // --- STEP 2: OTP VERIFY AUR PASSWORD RESET ---
+// --- PHASE 2: MANUAL RESET PASSWORD (BULLETPROOF EMAIL CHECK) ---
   const handleResetPassword = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
+    
+    // Trim definitions
+    const targetEmail = email ? email.toLowerCase().trim() : "";
+    const targetOtp = otp ? String(otp).trim() : "";
+
+    if (!targetEmail) {
+      return toast.error("Email address missing hai! Please 'Edit Email' kar ke dobara likhein.");
+    }
+    if (!newPassword) {
+      return toast.error("Pehle Naya Password likhein!");
+    }
+    if (!targetOtp || targetOtp.length !== 4) {
+      return toast.error("Gmail par aya hua valid 4-digit OTP code likhein!");
+    }
+
     setLoading(true);
     try {
       const res = await axios.post('http://localhost:5000/api/auth/reset-password', { 
-        email, 
-        otp, 
-        newPassword 
+        email: targetEmail, 
+        otp: targetOtp, 
+        newPassword: newPassword 
       });
+
       if (res.data.success) {
-        toast.success("Password updated successfully!");
-        setStep(1);
+        toast.success("Mubarak ho! Password kamyabi se update ho gaya.");
         setEmail('');
         setOtp('');
         setNewPassword('');
-        onClose(); // Modal band kar dein
+        setStep(1);
+        onClose(); 
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Invalid OTP or error!");
+      toast.error(err.response?.data?.message || "Password update nahi ho saka!");
+      setOtp(''); // Safe fallback
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleModalClose = () => {
+    setStep(1);
+    setEmail('');
+    setOtp('');
+    setNewPassword('');
+    onClose();
   };
 
   if (!isOpen) return null;
@@ -61,7 +91,6 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
         animate={{ opacity: 1, scale: 1, y: 0 }}
         className="bg-white w-full max-w-md rounded-[40px] border-[10px] border-white shadow-2xl overflow-hidden"
       >
-        {/* Modal Header */}
         <div className="bg-[#001f3f] p-6 text-center border-b-4 border-[#d4a017]">
           <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">
             {step === 1 ? 'Recover Account' : 'Set New Password'}
@@ -72,75 +101,89 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
         </div>
 
         <div className="p-8">
-          {step === 1 ? (
-            /* --- FORM STEP 1: EMAIL --- */
-            <form onSubmit={handleSendOTP} className="space-y-5">
-              <div className="space-y-2">
-                <label className="text-[11px] font-black text-[#001f3f] uppercase tracking-widest ml-1">Enter Registered Email</label>
-                <input 
-                  type="email" 
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full p-4 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none focus:bg-blue-50"
-                  placeholder="YOURNAME@GMAIL.COM"
-                  required
-                />
-              </div>
-              <button 
-                type="submit" 
-                disabled={loading}
-                className="w-full bg-[#001f3f] text-white py-4 rounded-2xl font-black uppercase italic text-sm shadow-xl hover:bg-[#d4a017] transition-all disabled:opacity-50"
+          <AnimatePresence mode="wait">
+            {step === 1 ? (
+              <motion.form 
+                key="step1"
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 20, opacity: 0 }}
+                onSubmit={handleSendOTP} 
+                className="space-y-5"
               >
-                {loading ? 'Sending OTP...' : 'Send OTP to Gmail'}
-              </button>
-            </form>
-          ) : (
-            /* --- FORM STEP 2: OTP & NEW PASSWORD --- */
-            <form onSubmit={handleResetPassword} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-[11px] font-black text-[#001f3f] uppercase tracking-widest ml-1">Enter 4-Digit OTP</label>
-                <input 
-                  type="text" 
-                  value={otp}
-                  onChange={(e) => setOtp(e.target.value)}
-                  className="w-full p-4 border-2 border-[#d4a017] rounded-2xl font-black text-center text-2xl tracking-[10px] outline-none"
-                  placeholder="0000"
-                  maxLength="4"
-                  required
-                />
-              </div>
-              <div className="space-y-2">
-                <label className="text-[11px] font-black text-[#001f3f] uppercase tracking-widest ml-1">New Password</label>
-                <input 
-                  type="password" 
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full p-4 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none"
-                  placeholder="••••••••"
-                  required
-                />
-              </div>
-              <button 
-                type="submit" 
-                disabled={loading}
-                className="w-full bg-[#001f3f] text-white py-4 rounded-2xl font-black uppercase italic text-sm shadow-xl hover:bg-[#28a745] transition-all"
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-[#001f3f] uppercase tracking-widest ml-1">Registered Email</label>
+                  <input 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full p-4 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none focus:bg-blue-50 transition-all"
+                    placeholder="example@gmail.com"
+                    required
+                  />
+                </div>
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="w-full bg-[#001f3f] text-white py-4 rounded-2xl font-black uppercase italic text-sm shadow-xl hover:bg-[#d4a017] transition-all disabled:opacity-50"
+                >
+                  {loading ? 'Processing...' : 'Verify Gmail'}
+                </button>
+              </motion.form>
+            ) : (
+              <motion.form 
+                key="step2"
+                initial={{ x: -20, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                exit={{ x: 20, opacity: 0 }}
+                onSubmit={handleResetPassword} 
+                className="space-y-4"
               >
-                {loading ? 'Updating...' : 'Update Password'}
-              </button>
-              <button 
-                type="button" 
-                onClick={() => setStep(1)}
-                className="w-full text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-[#001f3f]"
-              >
-                Back to Email
-              </button>
-            </form>
-          )}
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-[#001f3f] uppercase tracking-widest ml-1">New Secure Password</label>
+                  <input 
+                    type="password" 
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    className="w-full p-4 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none focus:border-[#28a745] transition-all"
+                    placeholder="Enter password"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[11px] font-black text-[#001f3f] uppercase tracking-widest ml-1">4-Digit OTP Code</label>
+                  <input 
+                    type="text" 
+                    value={otp} 
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} 
+                    className="w-full p-4 border-2 border-[#d4a017] rounded-2xl font-black text-center text-2xl tracking-[10px] outline-none bg-slate-50"
+                    placeholder="----" 
+                    maxLength="4"
+                    required
+                  />
+                </div>
+                <button 
+                  type="submit" 
+                  disabled={loading}
+                  className="w-full bg-[#28a745] text-white py-4 rounded-2xl font-black uppercase italic text-sm shadow-xl hover:bg-[#218838] transition-all"
+                >
+                  {loading ? 'Updating...' : 'Update Password'}
+                </button>
+                <button 
+                  type="button" 
+                  onClick={() => setStep(1)}
+                  className="w-full text-[10px] font-black text-gray-400 uppercase tracking-widest hover:text-[#001f3f] mt-2"
+                >
+                  Edit Email
+                </button>
+              </motion.form>
+            )}
+          </AnimatePresence>
 
-          {/* Close Button */}
           <button 
-            onClick={onClose}
-            className="w-full mt-4 text-[11px] font-black text-[#001f3f] uppercase tracking-widest py-2 hover:underline"
+            type="button"
+            onClick={handleModalClose}
+            className="w-full mt-6 text-[11px] font-black text-[#001f3f] uppercase tracking-widest py-2 border-t border-gray-100 hover:text-red-500 transition-colors"
           >
             Close Window
           </button>

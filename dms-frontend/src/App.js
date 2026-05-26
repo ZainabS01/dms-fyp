@@ -18,16 +18,17 @@ import StudentDashboard from './components/student/StudentDashboard';
 import TeacherDashboard from './components/teacher/TeacherDashboard'; 
 import AdminDashboard from './components/admin/AdminDashboard';
 
-// --- LayoutHandler: Handles UI flow and Protection Logic ---
+// --- LayoutHandler: UI Flow aur Sidebar/Navbar logic handle karta hai ---
 function LayoutHandler({ user, setUser, onLogout }) {
   const location = useLocation();
+  // Check karta hai ke kya hum dashboard ke kisi bhi page par hain
   const isDashboard = location.pathname.includes('dashboard');
 
   return (
     <div className="app-container">
       <Toaster position="top-center" reverseOrder={false} />
 
-      {/* Navbar sirf landing pages par dikhayen */}
+      {/* Navbar sirf tab dikhayen jab dashboard se bahar hon */}
       {!isDashboard && <Navbar />}
       
       <main className={isDashboard ? "dashboard-layout" : "page-content"}>
@@ -40,18 +41,24 @@ function LayoutHandler({ user, setUser, onLogout }) {
           <Route path="/register" element={<Registration />} />
           <Route path="/forgot-password" element={<ForgotPasswordModal />} />
           
-          {/* LOGIN ROUTE: 
-            Direct redirect nahi kiya gaya. Login component decide karega 
-            ke user ko verification PIN screen par bhejna hai ya dashboard par.
-          */}
           <Route 
             path="/login" 
             element={<Login setUser={setUser} />} 
           />
 
-          {/* PROTECTED TEACHER ROUTE: 
-            Sirf tab access hoga jab user authenticated ho aur role 'teacher' ho.
-          */}
+          {/* PROTECTED ADMIN ROUTE */}
+          <Route 
+            path="/admin-dashboard/*" 
+            element={
+              user && user.role?.toLowerCase() === 'admin' ? (
+                <AdminDashboard user={user} setUser={setUser} onLogout={onLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            } 
+          />
+
+          {/* PROTECTED TEACHER ROUTE */}
           <Route 
             path="/teacher-dashboard/*" 
             element={
@@ -63,8 +70,7 @@ function LayoutHandler({ user, setUser, onLogout }) {
             } 
           />
 
-          {/* PROTECTED STUDENT ROUTE:
-          */}
+          {/* PROTECTED STUDENT ROUTE */}
           <Route 
             path="/student-dashboard/*" 
             element={
@@ -76,11 +82,12 @@ function LayoutHandler({ user, setUser, onLogout }) {
             } 
           />
 
-          {/* Fallback for 404 or unauthorized */}
+          {/* Fallback: Agar koi ghalat URL likhe to Home par bhej dain */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
+      {/* Footer sirf landing pages par dikhayen */}
       {!isDashboard && <Footer />}
     </div>
   );
@@ -88,12 +95,11 @@ function LayoutHandler({ user, setUser, onLogout }) {
 
 // --- Main App Component ---
 function App() {
-  // Persistence logic: localStorage se data uthana
+  // Persistence logic: Page refresh par bhi user login rahega
   const [user, setUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem('user');
       const token = localStorage.getItem('token');
-      // Accurate Check: User aur Token dono hon tabhi login state maintain hogi
       return (savedUser && token) ? JSON.parse(savedUser) : null;
     } catch (error) {
       console.error("Storage error:", error);
@@ -101,12 +107,11 @@ function App() {
     }
   });
 
-  // Jab bhi user state change ho, localStorage update krien
+  // Jab user state change ho (Login/Logout), localStorage sync karein
   useEffect(() => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
     } else {
-      // Logout ki surat mein sab clear krien security ke liye
       localStorage.removeItem('user');
       localStorage.removeItem('token');
     }
@@ -114,7 +119,7 @@ function App() {
 
   const handleLogout = () => {
     setUser(null);
-    localStorage.clear(); // Clear all session data
+    localStorage.clear();
     toast.success("Successfully logged out!", {
         style: { background: '#001f3f', color: '#fff', borderRadius: '15px' }
     });

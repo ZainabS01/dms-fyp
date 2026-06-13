@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiBell, FiX, FiMenu } from 'react-icons/fi';
+import { FiBell, FiMenu } from 'react-icons/fi';
 import { Trash2 } from 'lucide-react';
 import axios from 'axios';
 

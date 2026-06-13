@@ -29,8 +29,8 @@ const ProfileOverview = () => {
       setStudent({
         name: storedUser.name || "Zami",
         dept: storedUser.department || "Computer Science",
-        semester: storedUser.semester || "1st Sem",
-        rollNo: storedUser.rollNo || "BCS-S24-045",
+        semester: finalSem,
+        rollNo: finalRoll,
       });
     }
   }, []);

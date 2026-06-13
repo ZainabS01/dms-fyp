@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import HeroSection from '../components/landing-page/HeroSection';
-import Footer from '../components/landing-page/Footer';
 import { 
   Users, ShieldCheck, Zap, Database, Search, 
   Settings, PenTool, Share2, Star, ChevronLeft, ChevronRight 

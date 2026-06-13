@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import Sidebar from './StudentSidebar';
 import Overview from './StudentOverview';
-import StudentProfileOverview from './StudentProfileOverview';
 import Attendance from './StudentAttendance';
 import Task from './StudentTask';
 import StudentResult from './StudentResult';

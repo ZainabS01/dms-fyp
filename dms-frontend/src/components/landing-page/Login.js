@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import toast, { Toaster } from 'react-hot-toast';
+import toast from 'react-hot-toast';
 import axios from 'axios'; 
 import ForgotPasswordModal from './ForgotPasswordModal'; 
 import { Eye, EyeOff } from 'lucide-react'; 
@@ -27,6 +27,7 @@ const Login = ({ setUser }) => {
     if (otp.length === 4 && loginStep === 2) {
       handleOtpSubmit();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [otp]);
 
   // --- AUTO-VERIFY PIN (Step 3) ---
@@ -34,6 +35,7 @@ const Login = ({ setUser }) => {
     if (pin.length === 4 && loginStep === 3) {
       handlePinSubmit();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pin]);
 
   const resetFields = () => {

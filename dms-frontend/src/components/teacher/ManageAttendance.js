@@ -131,6 +131,7 @@ const ManageAttendance = () => {
 
   useEffect(() => {
     if (view === 'mark') fetchStudentsForMarking();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSemester, selectedDepartment, view]);
 
   useEffect(() => {
@@ -138,6 +139,7 @@ const ManageAttendance = () => {
       fetchAttendanceHistory();
       setExpandedSheetId(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSemester, selectedDepartment, view, reportSubTab]);
 
   useEffect(() => {

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
-  FiBookOpen, FiPlus, FiFolder, FiUpload, FiFileText, 
-  FiChevronDown, FiX, FiDownload, FiEye, FiTrash2, FiEdit2, FiCheckCircle, FiAlertCircle 
+  FiBookOpen, FiPlus, FiFolder, FiUpload, 
+  FiChevronDown, FiX, FiEye, FiTrash2, FiEdit2, FiCheckCircle, FiAlertCircle 
 } from 'react-icons/fi';
 
 const StudentAcademicData = () => {
@@ -34,6 +34,7 @@ const StudentAcademicData = () => {
 
   useEffect(() => {
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDept, selectedSem]);
 
   const fetchData = async () => {

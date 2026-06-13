@@ -11,6 +11,7 @@ const Task = ({ studentData }) => {
     if (studentData?.department && studentData?.semester) {
       fetchTasks();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [studentData]);
 
   const fetchTasks = async () => {

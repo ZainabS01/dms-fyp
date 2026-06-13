@@ -1,5 +1,4 @@
 import React from 'react';
-import { FiMenu, FiX } from 'react-icons/fi';
 
 const StudentSidebar = ({ setActivePage, activePage, onLogoutTrigger, sidebarOpen, toggleSidebar }) => {
 

@@ -10,8 +10,6 @@ const TeacherResult = () => {
   const [studentsList, setStudentsList] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '' });
-  // TeacherResult.js ke top par ye state zaroor honi chahiye
-const [students, setStudents] = useState([]); // setStudents is sourced from here
   // Popup Modal View States for Uploaded PDF DMC
   const [previewUrl, setPreviewUrl] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -44,6 +42,7 @@ const [students, setStudents] = useState([]); // setStudents is sourced from her
 
   useEffect(() => {
     fetchActiveBatch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [department, semester]);
 
   const handleRowTextChange = (id, field, value) => {

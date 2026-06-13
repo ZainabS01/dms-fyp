@@ -15,6 +15,7 @@ const QuerySection = ({ userRole, user }) => {
 
   useEffect(() => {
     fetchQueries();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userRole]);
 
   const fetchQueries = async () => {

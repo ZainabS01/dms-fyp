@@ -66,15 +66,15 @@ const Students = () => {
   });
 
   return (
-    <div className="p-6 max-w-7xl mx-auto min-h-screen bg-slate-50">
+    <div className="p-2 sm:p-6 max-w-7xl mx-auto min-h-screen bg-slate-50">
       {/* --- TOP SEARCH SECTION --- */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-10 bg-white p-6 rounded-[2rem] shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10 bg-white p-4 sm:p-6 rounded-3xl sm:rounded-[2rem] shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="p-4 bg-[#001f3f] text-[#d4a017] rounded-2xl shadow-lg">
-            <FiUsers size={28} />
+          <div className="p-3 sm:p-4 bg-[#001f3f] text-[#d4a017] rounded-2xl shadow-lg shrink-0">
+            <FiUsers size={24} className="sm:w-7 sm:h-7" />
           </div>
           <div>
-            <h2 className="text-2xl font-black text-[#001f3f] uppercase italic leading-none">DMS Portal</h2>
+            <h2 className="text-xl sm:text-2xl font-black text-[#001f3f] uppercase italic leading-none">DMS Portal</h2>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Student Management System</p>
           </div>
         </div>
@@ -86,7 +86,7 @@ const Students = () => {
             placeholder="Search by Name, Roll No, or Department..." 
             value={globalSearch} 
             onChange={(e) => setGlobalSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 ring-[#d4a017] outline-none font-bold text-sm transition-all"
+            className="w-full pl-12 pr-4 py-3 sm:py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 ring-[#d4a017] outline-none font-bold text-sm transition-all"
           />
         </div>
       </div>
@@ -177,21 +177,21 @@ const Students = () => {
       {/* --- STUDENT MODAL (Detailed Record) --- */}
       {selectedStudent && (
         <div className="fixed inset-0 bg-[#001f3f]/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-4xl rounded-[3rem] overflow-hidden shadow-2xl animate-in zoom-in-95">
+          <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl sm:rounded-[3rem] shadow-2xl relative animate-in zoom-in-95 scrollbar-thin">
             {/* Modal Header */}
-            <div className="p-8 border-b border-slate-100 flex justify-between items-start">
+            <div className="p-4 sm:p-8 border-b border-slate-100 flex justify-between items-start gap-4">
               <div>
                 <span className="bg-[#d4a017] text-[#001f3f] text-[10px] font-black px-4 py-1 rounded-full uppercase tracking-widest">{selectedStudent.department}</span>
-                <h2 className="text-3xl font-black text-[#001f3f] uppercase mt-2">{selectedStudent.name}</h2>
+                <h2 className="text-2xl sm:text-3xl font-black text-[#001f3f] uppercase mt-2 leading-tight">{selectedStudent.name}</h2>
                 <p className="text-slate-400 font-bold text-sm">Roll Number: {selectedStudent.rollNo} | Semester {selectedStudent.semester}</p>
               </div>
-              <button onClick={() => setSelectedStudent(null)} className="p-4 bg-slate-100 rounded-full hover:rotate-90 transition-all duration-300"><FiX size={24}/></button>
+              <button onClick={() => setSelectedStudent(null)} className="p-3 sm:p-4 bg-slate-100 rounded-full hover:rotate-90 transition-all duration-300 shrink-0"><FiX size={20} className="sm:w-6 sm:h-6" /></button>
             </div>
 
             {/* Modal Content */}
-            <div className="p-8 grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="p-4 sm:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
               {/* Attendance Section */}
-              <div className="bg-slate-50 p-6 rounded-[2rem]">
+              <div className="bg-slate-50 p-4 sm:p-6 rounded-[2rem]">
                 <div className="flex items-center gap-2 mb-4">
                   <FiActivity className="text-[#d4a017]" />
                   <h4 className="text-xs font-black uppercase text-[#001f3f]">Attendance</h4>
@@ -204,7 +204,7 @@ const Students = () => {
               </div>
 
               {/* Grades Section */}
-              <div className="bg-slate-50 p-6 rounded-[2rem]">
+              <div className="bg-slate-50 p-4 sm:p-6 rounded-[2rem]">
                 <div className="flex items-center gap-2 mb-4">
                   <FiClipboard className="text-[#d4a017]" />
                   <h4 className="text-xs font-black uppercase text-[#001f3f]">Results/GPA</h4>
@@ -217,7 +217,7 @@ const Students = () => {
               </div>
 
               {/* Leave Application Section */}
-              <div className="bg-slate-50 p-6 rounded-[2rem]">
+              <div className="bg-slate-50 p-4 sm:p-6 rounded-[2rem]">
                 <h4 className="text-xs font-black uppercase text-[#001f3f] mb-4">Leave Records</h4>
                 <div className="space-y-3">
                   <div className="p-3 bg-white rounded-xl border-l-4 border-green-500 shadow-sm">
@@ -233,7 +233,7 @@ const Students = () => {
             </div>
 
             {/* Bottom Actions */}
-            <div className="p-8 pt-0 flex gap-4">
+            <div className="p-4 sm:p-8 pt-0 flex flex-col sm:flex-row gap-3 sm:gap-4">
               <button 
                 onClick={() => downloadMarksSheet(selectedStudent)} 
                 className="flex-1 py-4 bg-[#001f3f] text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#d4a017] hover:text-[#001f3f] transition-all"

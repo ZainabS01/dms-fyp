@@ -1,21 +1,21 @@
 const jwt = require('jsonwebtoken');
 
 const verifyToken = (req, res, next) => {
-    // Header se token nikalna (e.g., "Bearer token_yahan_hoga")
+    // Extract token from header (e.g., "Bearer token_here")
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1]; 
 
     if (!token) {
-        return res.status(401).json({ success: false, message: "Pehle Login Krien!" });
+        return res.status(401).json({ success: false, message: "Please Login First!" });
     }
 
     try {
-        // Token ko verify karna
+        // Verify the token
         const verified = jwt.verify(token, process.env.JWT_SECRET || 'secretkey');
-        req.user = verified; // User ki ID ko request object mein save karna
-        next(); // Agle step (Route) par bhejna
+        req.user = verified; // Save user details to request object
+        next(); // Send to next step (Route)
     } catch (err) {
-        res.status(403).json({ success: false, message: "Token Expired ya Invalid hai!" });
+        res.status(403).json({ success: false, message: "Token is Expired or Invalid!" });
     }
 };
 

@@ -1,13 +1,117 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import { Trash2 } from 'lucide-react';
 
-const QuerySection = ({ userRole }) => {
-  const [activeTab, setActiveTab] = useState('inbox'); // 'inbox' ya 'ask'
+const QuerySection = ({ userRole, user }) => {
+  const [activeTab, setActiveTab] = useState('inbox');
+  const [queries, setQueries] = useState([]);
+  const [subject, setSubject] = useState('');
+  const [message, setMessage] = useState('');
+  const [recipient, setRecipient] = useState(userRole === 'admin' ? 'student' : 'admin');
+  const [targetRollNo, setTargetRollNo] = useState(''); // For admin
+  const [replyTexts, setReplyTexts] = useState({});
+  const [modal, setModal] = useState({ isOpen: false, idToDelete: null });
+
+  useEffect(() => {
+    fetchQueries();
+  }, [userRole]);
+
+  const fetchQueries = async () => {
+    try {
+      const rollNo = user?.rollNo || user?.user?.rollNo || '';
+      const res = await axios.get(`http://localhost:5000/api/query/all?role=${userRole}&rollNumber=${rollNo}`);
+      setQueries(res.data);
+    } catch (err) {
+      toast.error("Failed to fetch queries.");
+    }
+  };
+
+  const handleAskQuery = async () => {
+    if (!subject || !message) {
+      toast.error('Please fill subject and message.');
+      return;
+    }
+    
+    let finalRecipient = recipient;
+    if (userRole === 'admin' && recipient === 'student') {
+        if (!targetRollNo) {
+            toast.error('Please provide target Roll No.');
+            return;
+        }
+        finalRecipient = targetRollNo;
+    }
+
+    const payload = {
+        studentName: userRole === 'admin' ? 'Admin' : (user?.name || user?.user?.name || "Unknown"),
+        rollNumber: userRole === 'admin' ? 'Admin' : (user?.rollNo || user?.user?.rollNo || "N/A"),
+        department: user?.department || user?.user?.department || 'N/A',
+        semester: user?.semester || user?.user?.semester || 'N/A',
+        subject,
+        message,
+        recipient: finalRecipient,
+        sender: userRole
+    };
+
+    try {
+        await axios.post('http://localhost:5000/api/query/add', payload);
+        toast.success("Message sent successfully!");
+        setSubject('');
+        setMessage('');
+        setTargetRollNo('');
+        fetchQueries();
+        setActiveTab('inbox');
+    } catch (err) {
+        toast.error("Failed to send message.");
+    }
+  };
+
+  const handleReply = async (id) => {
+    const replyText = replyTexts[id];
+    if (!replyText) {
+      toast.error("Reply cannot be empty.");
+      return;
+    }
+
+    try {
+      await axios.put(`http://localhost:5000/api/query/reply/${id}`, { reply: replyText });
+      toast.success("Replied successfully!");
+      setReplyTexts({ ...replyTexts, [id]: '' });
+      fetchQueries();
+    } catch (err) {
+      toast.error("Failed to reply.");
+    }
+  };
+
+  const confirmDelete = async () => {
+    try {
+      await axios.delete(`http://localhost:5000/api/query/delete/${modal.idToDelete}`);
+      toast.success("Query deleted successfully!");
+      fetchQueries();
+    } catch (err) {
+      toast.error("Failed to delete query.");
+    } finally {
+      setModal({ isOpen: false, idToDelete: null });
+    }
+  };
 
   return (
     <div className="w-full max-w-[1200px]">
-      <div className="flex justify-between items-center mb-10">
+      {modal.isOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 sm:p-8 rounded-3xl shadow-2xl max-w-sm mx-4 w-full text-center">
+            <h3 className="text-xl font-black text-[#001f3f] mb-2">Delete Query?</h3>
+            <p className="text-xs text-slate-500 font-bold mb-6">Are you sure you want to permanently delete this query?</p>
+            <div className="flex gap-3">
+              <button onClick={() => setModal({ isOpen: false, idToDelete: null })} className="flex-1 py-3 bg-slate-100 font-bold rounded-xl text-slate-600 hover:bg-slate-200 transition-colors">Cancel</button>
+              <button onClick={confirmDelete} className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors">Delete</button>
+            </div>
+          </div>
+        </div>
+      )}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
         <div>
-          <h1 className="text-4xl font-black text-[#001f3f] uppercase italic">
+          <h1 className="text-3xl md:text-4xl font-black text-[#001f3f] uppercase italic">
             Query <span className="text-[#d4a017]">Hub</span>
           </h1>
           <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">
@@ -23,76 +127,151 @@ const QuerySection = ({ userRole }) => {
           >
             📥 Inbox
           </button>
-          {userRole !== 'admin' && (
-            <button 
-              onClick={() => setActiveTab('ask')}
-              className={`px-6 py-2 rounded-xl font-black text-[10px] uppercase transition-all ${activeTab === 'ask' ? 'bg-[#d4a017] text-[#001f3f]' : 'text-slate-400'}`}
-            >
-              ✍️ Ask Query
-            </button>
-          )}
+          <button 
+            onClick={() => setActiveTab('ask')}
+            className={`px-6 py-2 rounded-xl font-black text-[10px] uppercase transition-all ${activeTab === 'ask' ? 'bg-[#d4a017] text-[#001f3f]' : 'text-slate-400'}`}
+          >
+            ✍️ {userRole === 'admin' ? 'Send Message' : 'Ask Query'}
+          </button>
         </div>
       </div>
 
       {activeTab === 'ask' ? (
-        /* FORM: For Students and Teachers to ask Admin or Faculty */
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-fadeIn">
-          <div className="bg-[#001f3f] p-12 rounded-[50px] shadow-2xl relative overflow-hidden text-white">
+          <div className="bg-[#001f3f] p-4 sm:p-12 rounded-2xl sm:rounded-[50px] shadow-2xl relative overflow-hidden text-white">
             <h2 className="text-3xl font-black uppercase italic mb-8">Send a <span className="text-[#d4a017]">Message</span></h2>
             <div className="space-y-5 relative z-10">
-              <select className="w-full p-5 bg-white/10 rounded-2xl border-none text-white outline-none">
-                <option className='text-black'>Send To: Admin</option>
-                {userRole === 'student' && <option className='text-black'>Send To: Faculty Member</option>}
+              <select 
+                value={recipient}
+                onChange={(e) => setRecipient(e.target.value)}
+                className="w-full p-5 bg-white/10 rounded-2xl border-none text-white outline-none"
+              >
+                {userRole === 'student' && (
+                    <>
+                        <option value="teacher" className="text-black">Send To: Faculty Member</option>
+                        <option value="admin" className="text-black">Send To: Admin</option>
+                    </>
+                )}
+                {userRole === 'teacher' && <option value="admin" className="text-black">Send To: Admin</option>}
+                {userRole === 'admin' && (
+                    <>
+                        <option value="student" className="text-black">Send To: Student</option>
+                        <option value="teacher" className="text-black">Send To: Teacher</option>
+                    </>
+                )}
               </select>
-              <input type="text" placeholder="Subject / Topic" className="w-full p-5 bg-white/10 rounded-2xl border-none placeholder-white/50" />
-              <textarea placeholder="Describe your issue in detail..." className="w-full p-5 bg-white/10 rounded-2xl border-none h-40"></textarea>
-              <button className="w-full bg-[#d4a017] text-[#001f3f] py-5 rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-white transition-all">Submit Query</button>
+              
+              {userRole === 'admin' && recipient === 'student' && (
+                 <input 
+                    type="text" 
+                    placeholder="Enter Student Roll No" 
+                    value={targetRollNo}
+                    onChange={(e) => setTargetRollNo(e.target.value)}
+                    className="w-full p-5 bg-white/10 rounded-2xl border-none placeholder-white/50 text-white" 
+                 />
+              )}
+
+              <input 
+                type="text" 
+                placeholder="Subject / Topic" 
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+                className="w-full p-5 bg-white/10 rounded-2xl border-none placeholder-white/50 text-white" 
+              />
+              <textarea 
+                placeholder="Describe your issue in detail..." 
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="w-full p-5 bg-white/10 rounded-2xl border-none h-40 text-white"
+              ></textarea>
+              <button 
+                onClick={handleAskQuery}
+                className="w-full bg-[#d4a017] text-[#001f3f] py-5 rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-white transition-all"
+              >
+                Submit Query
+              </button>
             </div>
           </div>
-          <div className="flex flex-col justify-center p-10 bg-white rounded-[50px] border border-slate-100 shadow-sm">
+          <div className="flex flex-col justify-center p-4 sm:p-10 bg-white rounded-2xl sm:rounded-[50px] border border-slate-100 shadow-sm">
              <h3 className="text-xl font-black text-[#001f3f] uppercase mb-4">How it works?</h3>
              <ul className="space-y-4 text-sm text-slate-500 font-medium">
-               <li className="flex gap-3">✅ <p>Your query is directed to the relevant department.</p></li>
+               <li className="flex gap-3">✅ <p>Your query is directed to the relevant department or admin.</p></li>
                <li className="flex gap-3">✅ <p>Responses usually arrive within 24-48 hours.</p></li>
                <li className="flex gap-3">✅ <p>You will see the reply in your Inbox tab.</p></li>
              </ul>
           </div>
         </div>
       ) : (
-        /* INBOX: For everyone to see replies, and for Admin/Teacher to reply */
         <div className="space-y-6 animate-fadeIn">
-          {[1, 2].map((query) => (
-            <div key={query} className="bg-white p-8 rounded-[40px] shadow-lg border border-slate-50 flex flex-col md:flex-row gap-6 items-start">
+          {queries.length === 0 ? (
+             <p className="text-center text-slate-400 italic font-bold">No queries found.</p>
+          ) : (
+          queries.map((query) => (
+            <div key={query._id} className="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-[40px] shadow-lg border border-slate-50 flex flex-col md:flex-row gap-6 items-start">
               <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-                {userRole === 'student' ? '👨‍🏫' : '👤'}
+                {query.studentName === 'Admin' ? '🛡️' : (query.recipient === 'admin' ? '👤' : '👨‍🏫')}
               </div>
               <div className="flex-1">
                 <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-black text-[#001f3f] text-lg uppercase tracking-tight">Issue with Semester Result</h4>
-                  <span className="text-[10px] font-black bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full uppercase">Pending</span>
+                  <h4 className="font-black text-[#001f3f] text-lg uppercase tracking-tight">{query.subject}</h4>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-[10px] font-black px-4 py-1.5 rounded-full uppercase ${query.status === 'RESOLVED' || query.status === 'REPLIED' ? 'bg-green-50 text-green-600' : 'bg-blue-50 text-blue-600'}`}>
+                      {query.status}
+                    </span>
+                    <button onClick={() => setModal({ isOpen: true, idToDelete: query._id })} className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors" title="Delete Query">
+                      <Trash2 size={16} />
+                    </button>
+                  </div>
                 </div>
+                <p className="text-xs text-slate-500 mb-2 font-bold flex flex-wrap gap-2 items-center">
+                  <span className="text-[#001f3f]">From: {query.studentName} {query.rollNumber !== 'N/A' && query.rollNumber !== 'Admin' && `(${query.rollNumber})`}</span>
+                  {query.department !== 'N/A' && (
+                    <>
+                      <span className="text-slate-300">•</span>
+                      <span className="bg-slate-100 px-2 py-0.5 rounded text-[10px] uppercase tracking-widest text-slate-600">{query.department}</span>
+                    </>
+                  )}
+                  {query.semester !== 'N/A' && (
+                    <>
+                      <span className="text-slate-300">•</span>
+                      <span className="bg-slate-100 px-2 py-0.5 rounded text-[10px] uppercase tracking-widest text-slate-600">Sem {query.semester}</span>
+                    </>
+                  )}
+                </p>
                 <p className="text-sm text-slate-500 font-medium leading-relaxed">
-                  "Respected Sir, I have a concern regarding my marks in the mid-term exam..."
+                  "{query.message}"
                 </p>
                 
-                {/* Reply Section (Visible to Admin or Teacher) */}
-                {(userRole === 'admin' || userRole === 'teacher') && (
-                  <div className="mt-6 flex gap-3">
-                    <input type="text" placeholder="Type your reply..." className="flex-1 p-4 bg-slate-50 rounded-xl text-sm border-none focus:ring-1 focus:ring-[#d4a017]" />
-                    <button className="bg-[#001f3f] text-white px-8 rounded-xl font-black text-[10px] uppercase">Reply</button>
+                {/* Reply Section (Visible to Admin or Teacher if not resolved) */}
+                {(userRole === 'admin' || userRole === 'teacher') && query.status !== 'RESOLVED' && query.studentName !== 'Admin' && (
+                  <div className="mt-6 flex flex-col sm:flex-row gap-3">
+                    <input 
+                      type="text" 
+                      placeholder="Type your reply..." 
+                      value={replyTexts[query._id] || ''}
+                      onChange={(e) => setReplyTexts({ ...replyTexts, [query._id]: e.target.value })}
+                      className="flex-1 p-4 bg-slate-50 rounded-xl text-sm border-none focus:ring-1 focus:ring-[#d4a017] w-full" 
+                    />
+                    <button 
+                      onClick={() => handleReply(query._id)}
+                      className="bg-[#001f3f] text-white px-8 py-4 sm:py-0 rounded-xl font-black text-[10px] uppercase hover:bg-blue-900 transition-colors w-full sm:w-auto"
+                    >
+                      Reply
+                    </button>
                   </div>
                 )}
 
-                {/* History (Visible to Student as response) */}
-                {userRole === 'student' && (
+                {/* History (Visible to Student/Teacher as response) */}
+                {query.reply && (
                   <div className="mt-4 p-4 bg-green-50 rounded-2xl border-l-4 border-green-500">
-                    <p className="text-[10px] font-black text-green-600 uppercase">Response from Admin:</p>
-                    <p className="text-xs text-slate-600 mt-1 italic font-medium">"Please visit the examination office with your roll no."</p>
+                    <p className="text-[10px] font-black text-green-600 uppercase">Response:</p>
+                    <p className="text-xs text-slate-600 mt-1 italic font-medium">"{query.reply}"</p>
                   </div>
                 )}
               </div>
             </div>
-          ))}
+          ))
+          )}
         </div>
       )}
     </div>

@@ -1,16 +1,16 @@
 const mongoose = require('mongoose');
 
-// 1. Files ke liye alag schema (takay har file ki apni ID ho)
+// 1. Separate schema for files (so that each file has its own ID)
 const FileSchema = new mongoose.Schema({
   fileName: { type: String, required: true },
   fileUrl: { type: String, required: true },
   uploadedAt: { type: Date, default: Date.now }
 });
 
-// 2. Category ke liye schema (Books, Notes wagera)
+// 2. Schema for category (Books, Notes, etc.)
 const CategorySchema = new mongoose.Schema({
   name: { type: String, required: true },
-  files: [FileSchema] // Upar wala file schema yahan use ho raha hai
+  files: [FileSchema] // The above file schema is used here
 });
 
 // 3. Main Subject Schema
@@ -18,7 +18,7 @@ const SubjectSchema = new mongoose.Schema({
   department: { 
     type: String, 
     required: true,
-    index: true // Search fast karne ke liye
+    index: true // To make search faster
   },
   semester: { 
     type: String, 
@@ -28,8 +28,8 @@ const SubjectSchema = new mongoose.Schema({
   code: { 
     type: String, 
     required: true, 
-    unique: true, // Code hamesha unique hona chahiye
-    uppercase: true // Taake query mein masla na ho
+    unique: true, // Code must always be unique
+    uppercase: true // To prevent case-related issues in queries
   },
   title: { 
     type: String, 
@@ -37,9 +37,9 @@ const SubjectSchema = new mongoose.Schema({
   },
   cr: { 
     type: String, 
-    default: "0" // Credit Hours ka option
+    default: "0" // Option for credit hours
   },
-  categories: [CategorySchema] // Sub-folders ka array
-}, { timestamps: true }); // Taake pata chale subject kab create hua
+  categories: [CategorySchema] // Array of sub-folders
+}, { timestamps: true }); // To track when the subject was created
 
 module.exports = mongoose.model('Subject', SubjectSchema);

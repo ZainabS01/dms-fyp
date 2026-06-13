@@ -2,17 +2,13 @@ const express = require('express');
 const router = express.Router();
 const Attendance = require('../models/Attendance');
 const User = require('../models/User');
+const Application = require('../models/Application'); // Make sure this model exists
 
-// --- 1. GET REGISTERED STUDENTS (SMART EXTRACTOR FOR DEPT & SEMESTER) ---
+// --- 1. GET REGISTERED STUDENTS ---
 router.get('/fetch-students', async (req, res) => {
     try {
         const { department, semester } = req.query;
-        console.log(`🔍 Fetching Filtered Students -> Dept: ${department}, Semester: ${semester}`);
-
-        // Base search object targeting only active students
-        let searchCriteria = {
-            role: { $regex: new RegExp('^student$', 'i') }
-        };
+        let searchCriteria = { role: { $regex: new RegExp('^student$', 'i') } };
 
         if (department) {
             searchCriteria.department = { $regex: new RegExp(`^${department.trim()}$`, 'i') };
@@ -20,12 +16,9 @@ router.get('/fetch-students', async (req, res) => {
 
         if (semester) {
             const cleanSem = semester.trim();
-            // Extraction logic: "1st Semester" se sirf number "1" nikalega
             const semesterNumber = cleanSem.match(/\d+/); 
-            
             if (semesterNumber) {
                 const num = semesterNumber[0];
-                // $or condition matches either complete string "1st Semester" or just numeric "1"
                 searchCriteria.$or = [
                     { semester: { $regex: new RegExp(`^${cleanSem}$`, 'i') } },
                     { semester: { $regex: new RegExp(`^${num}$`, 'i') } },
@@ -41,114 +34,117 @@ router.get('/fetch-students', async (req, res) => {
             .sort({ rollNo: 1 })
             .lean();
 
-        console.log(`| Total Filtered Students Found: ${students.length}`);
-
-        return res.json({ 
-            success: true, 
-            count: students.length,
-            students 
-        });
-
+        return res.json({ success: true, count: students.length, students });
     } catch (error) {
-        console.error("Backend student fetch error:", error);
-        return res.status(500).json({ success: false, message: "Server error while fetching users." });
+        return res.status(500).json({ success: false, message: "Server error" });
     }
 });
 
-// --- 2. SUBMIT / RECORD ATTENDANCE MATRIX (PERMANENT DB STORE) ---
+// --- 2. SUBMIT ATTENDANCE ---
 router.post('/submit', async (req, res) => {
     try {
         const { department, semester, date, records } = req.body;
-
-        console.log("📥 Storing finalized attendance entry:", { department, semester, date, entriesCount: records?.length });
-
-        if (!department || !semester || !records || records.length === 0) {
-            return res.status(400).json({ 
-                success: false, 
-                message: "Missing parameters! Department, semester, or records array is missing." 
-            });
-        }
-
         const targetDate = date || new Date().toISOString().split('T')[0];
-        const cleanDept = department.trim();
-        const cleanSem = semester.trim();
-
-        // Safe cleanup to drop duplicates on the same day, department, and semester setup
+        
         await Attendance.deleteMany({
             date: targetDate,
-            department: { $regex: new RegExp(`^${cleanDept}$`, 'i') },
-            semester: { $regex: new RegExp(`^${cleanSem}$`, 'i') }
+            department: { $regex: new RegExp(`^${department.trim()}$`, 'i') },
+            semester: { $regex: new RegExp(`^${semester.trim()}$`, 'i') }
         });
 
-        // Insert new structural snapshot log mapping cleanly to DB schema rules
         const newAttendance = new Attendance({
-            department: cleanDept,
-            semester: cleanSem,
+            department: department.trim(),
+            semester: semester.trim(),
             date: targetDate,
             records: records.map(r => ({
                 studentId: r.studentId,
-                status: r.status.toUpperCase() // Converts to standard 'PRESENT', 'ABSENT', 'LEAVE'
+                status: r.status.toUpperCase()
             }))
         });
 
         await newAttendance.save();
-        console.log("✨ Attendance records successfully committed inside MongoDB Database.");
 
-        return res.json({ 
-            success: true, 
-            message: "Attendance recorded successfully!" 
+        // Create notification for students
+        const Notice = require('../models/Notice');
+        await Notice.create({
+            title: `Attendance Marked`,
+            content: `Attendance for ${department.trim()} - ${semester.trim()} has been updated for ${targetDate}.`,
+            target: 'student',
+            type: 'Attendance',
+            link: 'attendance'
         });
 
+        return res.json({ success: true, message: "Attendance recorded!" });
     } catch (error) {
-        console.error("❌ CRITICAL DB LOG EXCEPTION:", error);
-        return res.status(500).json({ 
-            success: false, 
-            message: "Database insertion failed: " + error.message 
-        });
+        return res.status(500).json({ success: false, message: error.message });
     }
 });
 
-// --- 3. VIEW HISTORY REPORT WITH FLEXIBLE PATTERN MATCHING ---
+// --- 3. VIEW HISTORY REPORT ---
 router.get('/report', async (req, res) => {
     try {
         const { department, semester, startDate, endDate } = req.query;
-        
-        let queryCriteria = {
-            date: { $gte: startDate, $lte: endDate }
-        };
+        let queryCriteria = { date: { $gte: startDate, $lte: endDate } };
 
-        if (department) {
-            queryCriteria.department = { $regex: new RegExp(`^${department.trim()}$`, 'i') };
-        }
-        
-        if (semester) {
-            const cleanSem = semester.trim();
-            const semesterNumber = cleanSem.match(/\d+/);
-            
-            if (semesterNumber) {
-                const num = semesterNumber[0];
-                queryCriteria.$or = [
-                    { semester: { $regex: new RegExp(`^${cleanSem}$`, 'i') } },
-                    { semester: { $regex: new RegExp(`^${num}$`, 'i') } },
-                    { semester: { $regex: new RegExp(`^${num}(st|nd|rd|th)\\s*Semester$`, 'i') } }
-                ];
-            } else {
-                queryCriteria.semester = { $regex: new RegExp(`^${cleanSem}$`, 'i') };
-            }
-        }
+        if (department) queryCriteria.department = { $regex: new RegExp(`^${department.trim()}$`, 'i') };
+        if (semester) queryCriteria.semester = { $regex: new RegExp(`^${semester.trim()}$`, 'i') };
 
         const attendanceData = await Attendance.find(queryCriteria)
             .populate('records.studentId', 'name rollNo')
             .sort({ date: -1 })
             .lean();
 
-        return res.json({
-            success: true,
-            attendanceData
-        });
+        return res.json({ success: true, attendanceData });
     } catch (error) {
-        console.error("History fetching error:", error);
-        return res.status(500).json({ success: false, message: "Error fetching reports log." });
+        return res.status(500).json({ success: false, message: "Error fetching reports" });
+    }
+});
+
+// --- 4. MY ATTENDANCE ---
+router.get('/my-attendance', async (req, res) => {
+    try {
+        const { studentId } = req.query; 
+        
+        const attendanceData = await Attendance.find({ 
+            "records.studentId": studentId 
+        });
+
+        if (attendanceData.length === 0) {
+            return res.status(200).json([]); 
+        }
+
+        res.status(200).json(attendanceData);
+    } catch (error) {
+        res.status(500).json({ message: "Server Error" });
+    }
+});
+router.post('/submit-leave', async (req, res) => {
+    console.log("📥 Received request body:", req.body); // Verify this in the terminal
+    try {
+        const { studentId, subject, reason, startDate, endDate } = req.body;
+        
+        const newApp = new Application({ 
+            studentId, 
+            subject, 
+            reason, 
+            startDate, 
+            endDate, 
+            status: 'PENDING' 
+        });
+        
+        await newApp.save();
+        res.status(201).json({ success: true });
+    } catch (error) {
+        console.error("❌ Backend Error:", error); // Details of the error will appear here
+        res.status(500).json({ success: false, message: error.message });
+    }
+});
+router.get('/leave-history/:studentId', async (req, res) => {
+    try {
+        const history = await Application.find({ studentId: req.params.studentId }).sort({ createdAt: -1 });
+        res.status(200).json(history);
+    } catch (error) {
+        res.status(500).json({ success: false, message: "History fetch error" });
     }
 });
 

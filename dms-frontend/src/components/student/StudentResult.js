@@ -1,52 +1,106 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+import { FiDownload } from 'react-icons/fi';
+import jsPDF from 'jspdf';
 
-const Result = () => {
-  const results = [
-    { code: 'SC-341', title: 'Theory of Programming Languages', cr: '3.0', grade: 'A', points: '4.00' },
-    { code: 'SQ-302', title: 'Software Quality Assurance', cr: '3.0', grade: 'B+', points: '3.33' },
-    { code: 'CC-413', title: 'Information Security', cr: '3.0', grade: 'A-', points: '3.67' },
-  ];
+const StudentResult = ({ studentData }) => {
+  const [results, setResults] = useState([]);
+  const API_BASE_URL = "http://localhost:5000/api"; 
+
+  // Dono case handling (rollNo ya rollno)
+  const activeRollNo = studentData?.rollNo || studentData?.rollno;
+  const activeName = studentData?.name || "Student";
+
+  useEffect(() => {
+    const fetchStudentResults = async () => {
+      // Agar data parent se abhi aa rha ha, to shuru me khali request rok dega
+      if (!activeRollNo) {
+        console.log("Waiting for Student Roll Number to load...");
+        return;
+      }
+
+      try {
+        console.log(`Sending API Request for Roll No: ${activeRollNo}`);
+        const res = await axios.get(`${API_BASE_URL}/results/my-results/${activeRollNo}`);
+        console.log("Response data received:", res.data);
+        setResults(res.data);
+      } catch (err) {
+        console.error("Result fetch error:", err);
+      }
+    };
+
+    fetchStudentResults();
+  }, [activeRollNo]); // Safe dependency check trigger
+
+  const downloadResultPDF = (res) => {
+    const doc = new jsPDF();
+    doc.setFontSize(20);
+    doc.text("UNIVERSITY RESULT CARD", 60, 20);
+    doc.setFontSize(12);
+    doc.text(`Name: ${activeName}`, 20, 40);
+    doc.text(`Roll No: ${activeRollNo}`, 20, 50);
+    doc.text(`Department: ${res.department || 'N/A'}`, 20, 60);
+    doc.text(`Semester: ${res.semester}`, 20, 70);
+    doc.line(20, 80, 190, 80);
+    doc.setFontSize(16);
+    doc.text(`GPA: ${res.gpa}`, 20, 100);
+    doc.text(`CGPA: ${res.cgpa}`, 20, 115);
+    doc.save(`Result_${activeRollNo}.pdf`);
+  };
 
   return (
-    <div className="bg-white p-8 rounded-[2.5rem] shadow-xl border border-slate-100">
-      <div className="flex justify-between items-center mb-8 px-2">
-        <h3 className="text-xl font-black text-[#002147] uppercase tracking-tighter">Academic Transcript / Semester 8</h3>
-        <button className="bg-[#EAB308] text-[#002147] px-5 py-2 rounded-xl font-black text-[10px] uppercase shadow-md hover:scale-105 transition">Download PDF</button>
-      </div>
+    <div className="p-6">
+      <h2 className="text-2xl font-black mb-6 text-[#002147]">ACADEMIC HISTORY</h2>
+      
+      {results.length > 0 ? (
+        results.map((res) => (
+          <div key={res._id} className="bg-white p-6 rounded-3xl shadow-sm border mb-4 border-slate-100">
+            <h4 className="font-bold text-lg text-slate-700">SEMESTER: {res.semester}</h4>
+            <p className="text-[#002147] font-semibold mb-4">GPA: {res.gpa} | CGPA: {res.cgpa}</p>
+            
+            <div className="flex flex-col md:flex-row gap-3">
+              <button 
+                onClick={() => downloadResultPDF(res)}
+                className="bg-[#002147] text-white px-4 py-2 rounded-xl text-sm flex items-center font-bold hover:bg-slate-800 transition"
+              >
+                <FiDownload className="mr-2" /> Download Result Card
+              </button>
 
-      <div className="overflow-hidden rounded-3xl border border-slate-100 shadow-sm">
-        <table className="w-full text-center">
-          <thead className="bg-slate-50 border-b">
-            <tr className="text-[10px] font-black uppercase text-slate-400 tracking-widest">
-              <th className="p-5">Code</th>
-              <th className="p-5 text-left">Course Title</th>
-              <th className="p-5">Cr.Hr</th>
-              <th className="p-5">Grade</th>
-              <th className="p-5 text-[#002147]">Points</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 text-sm">
-            {results.map((res, i) => (
-              <tr key={i} className="hover:bg-amber-50/30 transition">
-                <td className="p-5 font-mono text-slate-500">{res.code}</td>
-                <td className="p-5 text-left font-bold text-slate-700">{res.title}</td>
-                <td className="p-5 font-bold text-slate-400">{res.cr}</td>
-                <td className="p-5"><span className="bg-[#002147] text-[#EAB308] w-10 h-10 flex items-center justify-center rounded-lg mx-auto font-black italic">{res.grade}</span></td>
-                <td className="p-5 font-black text-slate-800">{res.points}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      <div className="mt-8 flex justify-end p-2">
-        <div className="bg-[#002147] text-white px-8 py-4 rounded-3xl flex items-center gap-6 shadow-2xl ring-8 ring-blue-50">
-          <span className="text-[10px] font-bold uppercase tracking-widest opacity-60">Current CGPA</span>
-          <span className="text-3xl font-black italic text-[#EAB308]">3.82</span>
+              {res.dmcFile && (
+                <button 
+                  onClick={async () => {
+                    try {
+                      const fileUrl = `http://localhost:5000/${res.dmcFile}`;
+                      const response = await fetch(fileUrl);
+                      const blob = await response.blob();
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.style.display = 'none';
+                      a.href = url;
+                      a.download = `DMC_${activeRollNo}.pdf`; 
+                      document.body.appendChild(a);
+                      a.click();
+                      window.URL.revokeObjectURL(url);
+                      a.remove();
+                    } catch (error) {
+                      window.open(`http://localhost:5000/${res.dmcFile}`, '_blank');
+                    }
+                  }}
+                  className="bg-green-600 text-white px-4 py-2 rounded-xl text-sm flex items-center font-bold hover:bg-green-700 transition"
+                >
+                  <FiDownload className="mr-2" /> Download Original DMC
+                </button>
+              )}
+            </div>
+          </div>
+        ))
+      ) : (
+        <div className="bg-white p-6 rounded-3xl border border-dashed text-center text-gray-500">
+          No results found yet for Roll No: {activeRollNo || "Loading..."}
         </div>
-      </div>
+      )}
     </div>
   );
 };
 
-export default Result;
+export default StudentResult;

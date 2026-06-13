@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 
+
 // Landing Page Components
 import Navbar from './components/landing-page/Navbar';
 import Home from './pages/Home'; 
@@ -18,17 +19,16 @@ import StudentDashboard from './components/student/StudentDashboard';
 import TeacherDashboard from './components/teacher/TeacherDashboard'; 
 import AdminDashboard from './components/admin/AdminDashboard';
 
-// --- LayoutHandler: UI Flow aur Sidebar/Navbar logic handle karta hai ---
+
+// --- LayoutHandler: Handles UI Flow and Sidebar/Navbar logic ---
 function LayoutHandler({ user, setUser, onLogout }) {
   const location = useLocation();
-  // Check karta hai ke kya hum dashboard ke kisi bhi page par hain
+  // Checks if we are on any dashboard page
   const isDashboard = location.pathname.includes('dashboard');
 
   return (
     <div className="app-container">
-      <Toaster position="top-center" reverseOrder={false} />
-
-      {/* Navbar sirf tab dikhayen jab dashboard se bahar hon */}
+      {/* Show Navbar only when outside the dashboard */}
       {!isDashboard && <Navbar />}
       
       <main className={isDashboard ? "dashboard-layout" : "page-content"}>
@@ -82,12 +82,12 @@ function LayoutHandler({ user, setUser, onLogout }) {
             } 
           />
 
-          {/* Fallback: Agar koi ghalat URL likhe to Home par bhej dain */}
+          {/* Fallback: Redirect to Home if path doesn't match */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
-      {/* Footer sirf landing pages par dikhayen */}
+      {/* Show Footer only on landing pages */}
       {!isDashboard && <Footer />}
     </div>
   );
@@ -95,7 +95,7 @@ function LayoutHandler({ user, setUser, onLogout }) {
 
 // --- Main App Component ---
 function App() {
-  // Persistence logic: Page refresh par bhi user login rahega
+  // Persistence logic: User stays logged in on page refresh
   const [user, setUser] = useState(() => {
     try {
       const savedUser = localStorage.getItem('user');
@@ -107,7 +107,7 @@ function App() {
     }
   });
 
-  // Jab user state change ho (Login/Logout), localStorage sync karein
+  // Sync localStorage when user state changes (Login/Logout)
   useEffect(() => {
     if (user) {
       localStorage.setItem('user', JSON.stringify(user));
@@ -127,9 +127,25 @@ function App() {
 
   return (
     <Router>
+      <Toaster position="top-center" reverseOrder={false} />
       <LayoutHandler user={user} setUser={setUser} onLogout={handleLogout} />
     </Router>
   );
 }
 
 export default App;
+
+
+// import React from 'react';
+// import { BrowserRouter, Routes, Route } from 'react-router-dom';
+
+// function App() {
+//   return (
+//     <BrowserRouter>
+//       <div className="App">
+//         <h1>Testing: Website is working!</h1>
+//       </div>
+//     </BrowserRouter>
+//   );
+// }
+// export default App;

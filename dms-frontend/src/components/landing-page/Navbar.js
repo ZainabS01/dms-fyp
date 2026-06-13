@@ -18,15 +18,15 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="fixed top-0 w-full z-[100] bg-white shadow-sm px-4 md:px-16 py-3 flex justify-between items-center border-b border-gray-100">
+    <nav className="fixed top-0 w-full z-[100] bg-white shadow-sm px-4 md:px-16 py-4 flex justify-between items-center border-b border-gray-100">
       
       {/* 1. Circular Logo Section */}
       <Link to="/" className="flex items-center">
-        <div className="w-14 h-14 md:w-20 md:h-20 shrink-0">
+        <div className="h-12 md:h-[60px] shrink-0 flex items-center justify-center my-auto">
           <img 
             src="/logo.png" 
             alt="DMS Logo" 
-            className="w-full h-full object-contain"
+            className="h-full w-auto object-contain"
           />
         </div>
       </Link>

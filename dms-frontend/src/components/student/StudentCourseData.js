@@ -15,11 +15,11 @@ const StudentCourseData = ({ selectedDept, selectedSem }) => {
         setLoading(true);
         
         // --- CRITICAL FIX ---
-        // Agar props empty hain toh manually wahi string likhein jo Teacher side par use ki thi
+        // If props are empty, manually specify the string used on the Teacher side
         const dept = selectedDept || "Computer Science"; 
         const sem = selectedSem || "8th Sem";
 
-        console.log(`Fetching for: ${dept} and ${sem}`); // Debugging ke liye
+        console.log(`Fetching for: ${dept} and ${sem}`); // For debugging
 
         const res = await axios.get(`http://localhost:5000/api/subjects/${dept}/${sem}`);
         setSubjects(res.data);
@@ -97,17 +97,17 @@ const StudentCourseData = ({ selectedDept, selectedSem }) => {
         <div className="fixed inset-0 bg-[#001f3f]/95 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
           <div className="bg-white w-full max-w-5xl max-h-[90vh] rounded-[3.5rem] overflow-hidden shadow-2xl relative flex flex-col border border-white/20">
             
-            <div className="p-10 bg-slate-50/50 border-b flex justify-between items-center">
+            <div className="p-4 sm:p-10 bg-slate-50/50 border-b flex justify-between items-center gap-4">
               <div>
                 <p className="text-[10px] font-black text-[#d4a017] uppercase tracking-[0.4em] mb-1">Subject Resources</p>
-                <h3 className="text-2xl font-black text-[#001f3f] uppercase italic leading-none">{selectedSubject.title}</h3>
+                <h3 className="text-xl sm:text-2xl font-black text-[#001f3f] uppercase italic leading-tight">{selectedSubject.title}</h3>
               </div>
-              <button onClick={() => setSelectedSubject(null)} className="p-4 bg-white text-slate-400 hover:text-red-500 rounded-2xl shadow-sm transition-all border border-slate-100 hover:rotate-90">
-                <FiX size={24} />
+              <button onClick={() => setSelectedSubject(null)} className="p-3 sm:p-4 bg-white text-slate-400 hover:text-red-500 rounded-2xl shadow-sm transition-all border border-slate-100 hover:rotate-90 shrink-0">
+                <FiX size={20} className="sm:w-6 sm:h-6" />
               </button>
             </div>
 
-            <div className="p-10 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 custom-scrollbar">
+            <div className="p-4 sm:p-10 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 custom-scrollbar">
               {selectedSubject.categories?.map((cat) => (
                 <div key={cat._id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-6 border-b border-slate-50 pb-4">

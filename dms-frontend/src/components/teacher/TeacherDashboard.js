@@ -7,14 +7,19 @@ import TeacherProfile from './TeacherProfile';
 import QuerySection from './QuerySection';
 import StudentVerification from './StudentVerification';
 import StudentAcademicData from './StudentAcademicData'; 
-import Students from './Students';  
+import Students from './Students';   
 import TeacherResult from './TeacherResult'; 
 import Tasks from './Tasks';
 import Timetable from './Timetable';
+import TeacherHeader from './TeacherHeader';
+import NexiChat from '../nexi/AiChat';
 
-const TeacherDashboard = () => {
+const TeacherDashboard = ({ user }) => { // 'user' prop is received here
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // Defined 'teacher' variable to avoid errors
+  const teacher = user;
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
@@ -22,30 +27,18 @@ const TeacherDashboard = () => {
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'dashboard': 
-        return <TeacherOverview setActiveTab={setActiveTab} />;
-      case 'students': 
-        return <Students />;
-      case 'verification': 
-        return <StudentVerification />;
-      case 'attendance': 
-        return <ManageAttendance />;
-      case 'queries': 
-        return <QuerySection userRole="teacher" />; 
-      case 'tasks': 
-        return <Tasks />;
-      case 'timetable': 
-        return <Timetable />;
-      case 'profile': 
-        return <TeacherProfile />;
-      
-      // Sidebar se aane wali activeTab key 'academic_data' ko handle kiya
-      case 'academic_data': 
-        return <StudentAcademicData />; // Aapki original file ka component data load hoga
-      case 'upload_results': 
-        return <TeacherResult />;
-      default: 
-        return <TeacherOverview setActiveTab={setActiveTab} />;
+      case 'dashboard': return <TeacherOverview setActiveTab={setActiveTab} />;
+      case 'students': return <Students />;
+      case 'verification': return <StudentVerification />;
+      case 'attendance': return <ManageAttendance />;
+      case 'queries': return <QuerySection userRole="teacher" user={teacher} />;
+      case 'nexi': return <NexiChat user={teacher} setActiveTab={setActiveTab} backTab="dashboard" />;
+      case 'tasks': return <Tasks />;
+      case 'timetable': return <Timetable />;
+      case 'profile': return <TeacherProfile />;
+      case 'academic_data': return <StudentAcademicData />;
+      case 'upload_results': return <TeacherResult />;
+      default: return <TeacherOverview setActiveTab={setActiveTab} />;
     }
   };
 
@@ -55,12 +48,12 @@ const TeacherDashboard = () => {
       {/* Mobile Sidebar Overlay */}
       {sidebarOpen && (
         <div 
-          className="fixed inset-0 z-40 bg-black/40 md:hidden transition-opacity duration-300"
+          className="fixed inset-0 z-[150] bg-black/40 md:hidden transition-opacity duration-300"
           onClick={toggleSidebar}
         />
       )}
-
-      {/* Sidebar execution passing navigation handlers */}
+ 
+      {/* Sidebar */}
       <TeacherSidebar 
         activeTab={activeTab} 
         setActiveTab={(tab) => {
@@ -70,47 +63,29 @@ const TeacherDashboard = () => {
         sidebarOpen={sidebarOpen} 
         toggleSidebar={toggleSidebar} 
       />
-
-      {/* Main Container Layer */}
-      <main className="flex-1 ml-0 md:ml-64 h-full overflow-y-auto custom-scrollbar transition-all duration-300 ease-in-out">
+ 
+      {/* Main Container */}
+      <main className={`flex-1 ml-0 md:ml-64 h-full flex flex-col transition-all duration-300 ease-in-out ${activeTab === 'nexi' ? 'overflow-hidden' : 'overflow-y-auto custom-scrollbar'}`}>
         
-        {/* Responsive Header */}
-        <div className="sticky top-0 z-30 p-4 md:p-6 lg:p-8 bg-[#f1f3f6]/80 backdrop-blur-md">
-          <header className="flex justify-between items-center bg-white p-4 md:p-5 rounded-[1.5rem] md:rounded-[2rem] shadow-sm border-b-4 border-[#001f3f] gap-2">
-            
-            <div className="flex items-center gap-3">
-              {/* Responsive Mobile Hamburger Toggle button */}
-              <button 
-                onClick={toggleSidebar}
-                className="p-2 rounded-xl bg-slate-100 text-[#001f3f] md:hidden hover:bg-slate-200 transition-colors focus:outline-none"
-                aria-label="Toggle Menu"
-              >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
-
-              <h2 className="text-sm sm:text-base md:text-xl font-black text-[#001f3f] uppercase italic tracking-tighter truncate">
-                Teacher Portal / <span className="text-[#d4a017]">{activeTab.replace('_', ' ')}</span>
-              </h2>
-            </div>
-
-            <div className="flex items-center shrink-0">
-              <span className="bg-[#001f3f] text-white px-3 py-1.5 md:px-5 md:py-2 rounded-full text-[9px] md:text-[10px] font-black tracking-widest shadow-lg shadow-[#001f3f]/20 whitespace-nowrap">
-                SESSION 2026
-              </span>
-            </div>
-          </header>
+        {/* Sticky Header Area */}
+        <div className={`sticky top-0 z-30 bg-[#f1f3f6]/80 backdrop-blur-md flex-shrink-0 ${activeTab === 'nexi' ? 'p-1.5 sm:p-3 md:p-4' : 'p-2 sm:p-4 md:p-6 lg:p-8'}`}>
+           <TeacherHeader 
+             activeTab={activeTab} 
+             teacherName={teacher?.name || "TEACHER"} 
+             onOpenNexi={() => setActiveTab('nexi')}
+             setActiveTab={setActiveTab}
+             toggleSidebar={toggleSidebar}
+           />
         </div>
 
         {/* Display Current Tab Panel Container */}
-        <div className="px-4 md:px-6 lg:px-8 pb-12">
+        <div className={`px-2 sm:px-4 md:px-6 lg:px-8 ${activeTab === 'nexi' ? 'flex-1 pb-4 min-h-0 overflow-hidden flex flex-col' : 'pb-12'}`}>
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className="max-w-[1600px] mx-auto"
+            className={`mx-auto w-full ${activeTab === 'nexi' ? 'flex-1 h-full flex flex-col max-w-none' : 'max-w-[1600px]'}`}
           >
             {renderContent()}
           </motion.div>

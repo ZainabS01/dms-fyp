@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast, { Toaster } from 'react-hot-toast';
 import axios from 'axios';
@@ -15,7 +15,22 @@ const Registration = () => {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
-  const [department, setDepartment] = useState('');
+  const location = useLocation();
+  const [department, setDepartment] = useState(location.state?.selectedDept || '');
+  const [departmentsList, setDepartmentsList] = useState([]);
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    const fetchDepartments = async () => {
+      try {
+        const res = await axios.get('http://localhost:5000/api/departments');
+        setDepartmentsList(res.data);
+      } catch (err) {
+        console.error("Failed to load departments");
+      }
+    };
+    fetchDepartments();
+  }, []);
   const [rollNo, setRollNo] = useState('');
   const [phone, setPhone] = useState('+92');
   const [semester, setSemester] = useState('');
@@ -77,20 +92,19 @@ const Registration = () => {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#001f3f] flex items-center justify-center pt-[200px] pb-24 px-6 overflow-x-hidden">
-      <Toaster position="top-center" reverseOrder={false} />
+    <div className="relative min-h-screen w-full bg-[#001f3f] flex items-center justify-center pt-[150px] pb-16 px-6 overflow-x-hidden">
       
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="relative z-10 w-full max-w-[1200px] bg-[#f1f3f6] border-[15px] md:border-[22px] border-white rounded-[50px] md:rounded-[80px] shadow-[0_50px_100px_rgba(0,0,0,0.6)] flex flex-col lg:flex-row overflow-hidden"
+        className="relative z-10 w-full max-w-[900px] bg-white border-[8px] md:border-[10px] border-white rounded-[20px] md:rounded-[30px] shadow-[0_50px_100px_rgba(0,0,0,0.6)] flex flex-col lg:flex-row overflow-hidden"
       >
         {/* Left Side: Sidebar */}
-        <div className="w-full lg:w-[45%] p-10 flex flex-col items-center justify-center bg-[#f8fafc] border-b-4 lg:border-b-0 lg:border-r-4 border-white text-center">
-          <div className="w-40 h-40 md:w-52 md:h-52 rounded-full bg-white shadow-2xl border-4 border-[#001f3f] p-3 mb-10 flex items-center justify-center overflow-hidden">
+        <div className="w-full lg:w-[45%] p-4 flex flex-col items-center justify-center bg-white border-b-4 lg:border-b-0 lg:border-r-4 border-gray-100 text-center">
+          <div className="w-32 h-32 md:w-44 md:h-44 rounded-full bg-white shadow-2xl border-4 border-[#001f3f] p-3 mb-8 flex items-center justify-center overflow-hidden">
              <img src="/logo.png" alt="DMS Logo" className="w-full h-full object-contain" />
           </div>
-          <div className="bg-[#001f3f] text-white rounded-[40px] p-8 w-full max-w-[420px] shadow-2xl border-b-[6px] border-[#d4a017]">
+          <div className="bg-[#001f3f] text-white rounded-[40px] p-6 w-full max-w-[380px] shadow-lg">
             <h2 className="text-xl font-black mb-4 uppercase italic">Welcome To DMS</h2>
             <p className="text-[11px] font-bold text-blue-100/70 mb-8">Efficient Departmental Management System.</p>
             <div className="flex flex-wrap justify-center gap-3">
@@ -102,7 +116,7 @@ const Registration = () => {
         </div>
 
         {/* Right Side: Form */}
-        <div className="w-full lg:w-[55%] bg-white p-8 md:p-16 flex flex-col justify-center">
+        <div className="w-full lg:w-[55%] bg-white p-5 md:p-8 flex flex-col justify-center">
           <AnimatePresence mode="wait">
             {!isVerifying && (
               <motion.div key="reg-form" initial={{ opacity: 1 }} exit={{ opacity: 0, x: -20 }} className="w-full max-w-[500px] mx-auto">
@@ -131,7 +145,7 @@ const Registration = () => {
                   {/* Email Field */}
                   <div className="space-y-1">
                     <label className="text-[11px] font-black text-[#001f3f] uppercase ml-1 tracking-widest">Email Address</label>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3.5 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none focus:bg-blue-50 transition-all" placeholder="EMAIL@DMS.COM" required />
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none focus:bg-blue-50 transition-all" placeholder="EMAIL@DMS.COM" required />
                   </div>
 
                   <AnimatePresence>
@@ -140,11 +154,11 @@ const Registration = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div>
                             <label className="text-[10px] font-black text-[#001f3f] uppercase ml-1 tracking-widest">Full Name</label>
-                            <input type="text" placeholder="FULL NAME" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-3.5 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none" required />
+                            <input type="text" placeholder="FULL NAME" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-3 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none" required />
                           </div>
                           <div>
                             <label className="text-[10px] font-black text-[#001f3f] uppercase ml-1 tracking-widest">Phone No</label>
-                            <input type="text" placeholder="PHONE NO" value={phone} onChange={handlePhoneChange} className="w-full p-3.5 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none" required />
+                            <input type="text" placeholder="PHONE NO" value={phone} onChange={handlePhoneChange} className="w-full p-3 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none" required />
                           </div>
                         </div>
 
@@ -152,11 +166,11 @@ const Registration = () => {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                               <label className="text-[10px] font-black text-[#001f3f] uppercase ml-1 tracking-widest">Roll No</label>
-                              <input type="text" placeholder="6 DIGITS" value={rollNo} onChange={handleRollChange} className="w-full p-3.5 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none" required />
+                              <input type="text" placeholder="6 DIGITS" value={rollNo} onChange={handleRollChange} className="w-full p-3 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none" required />
                             </div>
                             <div>
                               <label className="text-[10px] font-black text-[#001f3f] uppercase ml-1 tracking-widest">Semester</label>
-                              <select value={semester} onChange={(e) => setSemester(e.target.value)} className="w-full p-3.5 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm bg-white" required>
+                              <select value={semester} onChange={(e) => setSemester(e.target.value)} className="w-full p-3 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm bg-white" required>
                                 <option value="">CHOOSE</option>
                                 {[1,2,3,4,5,6,7,8].map(n => <option key={n} value={n}>{n} Semester</option>)}
                               </select>
@@ -167,7 +181,7 @@ const Registration = () => {
                         <div>
                           <label className="text-[10px] font-black text-[#001f3f] uppercase ml-1 tracking-widest">Password</label>
                           <div className="relative mt-1">
-                            <input type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3.5 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none" required />
+                            <input type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none" required />
                             <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-3.5 text-xl opacity-50">{showPassword ? "🙈" : "👁️"}</button>
                           </div>
                           <div className="text-right mt-1">
@@ -177,16 +191,15 @@ const Registration = () => {
 
                         <div>
                           <label className="text-[10px] font-black text-[#001f3f] uppercase ml-1 tracking-widest">Department</label>
-                          <select value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full p-3.5 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm bg-white" required>
+                          <select value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full p-3 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm bg-white" required>
                             <option value="">SELECT DEPARTMENT</option>
-                            <option value="COMPUTER SCIENCE">COMPUTER SCIENCE</option>
-                            <option value="IT">IT</option>
-                            <option value="SOFTWARE ENGINEERING">SOFTWARE ENGINEERING</option>
-                            <option value="Testing">Testing</option>
+                            {departmentsList.map(dept => (
+                              <option key={dept._id} value={dept.name}>{dept.name}</option>
+                            ))}
                           </select>
                         </div>
 
-                        <button type="submit" disabled={loading} className="w-full bg-[#001f3f] text-white py-4 rounded-2xl font-black uppercase italic tracking-[0.2em] text-sm hover:bg-[#d4a017] transition-all shadow-xl">
+                        <button type="submit" disabled={loading} className="w-full bg-[#001f3f] text-white py-3 rounded-2xl font-black uppercase italic tracking-[0.2em] text-sm hover:bg-[#d4a017] transition-all shadow-xl">
                           {loading ? "Registering..." : `Create ${userRole} Account`}
                         </button>
                       </motion.div>
@@ -197,9 +210,9 @@ const Registration = () => {
             )}
           </AnimatePresence>
 
-          <button type="button" onClick={() => navigate('/login')} className="w-full border-2 border-[#001f3f] text-[#001f3f] py-4 rounded-2xl font-black uppercase italic tracking-[0.2em] text-sm hover:bg-gray-100 transition-all mt-4">
-            Already have account? Login
-          </button>
+          <p className="text-center mt-6 text-slate-400 text-[11px] font-bold uppercase">
+            Already have an account? <span className="text-[#d4a017] cursor-pointer hover:underline" onClick={() => navigate('/login')}>Login</span>
+          </p>
         </div>
       </motion.div>
       <ForgotPasswordModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />

@@ -13,7 +13,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
   // --- PHASE 1: SEND OTP TO GMAIL ---
   const handleSendOTP = async (e) => {
     if (e) e.preventDefault();
-    if (!email) return toast.error("Apni registered email likhein!");
+    if (!email) return toast.error("Please write your registered email!");
     
     setLoading(true);
     try {
@@ -22,11 +22,11 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
       });
       
       if (res.data.success) {
-        toast.success("OTP aapki Gmail par bhej diya gaya hai! Khas tor par Inbox check karein.");
+        toast.success("OTP has been sent to your Gmail! Please check your Inbox.");
         setStep(2);
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Email dhoondne mein masla hua!");
+      toast.error(err.response?.data?.message || "Problem searching for email!");
     } finally {
       setLoading(false);
     }
@@ -41,13 +41,13 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
     const targetOtp = otp ? String(otp).trim() : "";
 
     if (!targetEmail) {
-      return toast.error("Email address missing hai! Please 'Edit Email' kar ke dobara likhein.");
+      return toast.error("Email address is missing! Please 'Edit Email' and write it again.");
     }
     if (!newPassword) {
-      return toast.error("Pehle Naya Password likhein!");
+      return toast.error("Please enter a new password first!");
     }
     if (!targetOtp || targetOtp.length !== 4) {
-      return toast.error("Gmail par aya hua valid 4-digit OTP code likhein!");
+      return toast.error("Please enter the valid 4-digit OTP code received on your Gmail!");
     }
 
     setLoading(true);
@@ -59,7 +59,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
       });
 
       if (res.data.success) {
-        toast.success("Mubarak ho! Password kamyabi se update ho gaya.");
+        toast.success("Congratulations! Password successfully updated.");
         setEmail('');
         setOtp('');
         setNewPassword('');
@@ -67,7 +67,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
         onClose(); 
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Password update nahi ho saka!");
+      toast.error(err.response?.data?.message || "Password could not be updated!");
       setOtp(''); // Safe fallback
     } finally {
       setLoading(false);

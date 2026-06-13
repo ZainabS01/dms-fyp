@@ -164,7 +164,7 @@ const StudentAcademicData = () => {
   };
 
   return (
-    <div className="p-4 md:p-6 bg-[#f8fafc] min-h-screen relative font-sans">
+    <div className="p-2 sm:p-4 md:p-6 bg-[#f8fafc] min-h-screen relative font-sans">
       <DeleteConfirmModal />
       
       {toast.show && (
@@ -175,8 +175,8 @@ const StudentAcademicData = () => {
       )}
 
       {/* Header Section */}
-      <div className="bg-white p-6 rounded-[2.5rem] shadow-sm flex flex-col lg:flex-row justify-between items-center gap-4 mb-10 border border-slate-100">
-        <div className="flex items-center gap-4">
+      <div className="bg-white p-4 sm:p-6 rounded-3xl sm:rounded-[2.5rem] shadow-sm flex flex-col lg:flex-row justify-between items-center gap-4 mb-10 border border-slate-100">
+        <div className="flex items-center gap-4 self-start lg:self-auto">
           <div className="p-3 bg-[#001f3f] rounded-2xl text-[#d4a017] shadow-lg"><FiBookOpen size={24} /></div>
           <div>
             <h3 className="text-lg font-black text-[#001f3f] uppercase italic">Teacher Portal / <span className="text-[#d4a017]">Data</span></h3>
@@ -184,14 +184,14 @@ const StudentAcademicData = () => {
           </div>
         </div>
         
-        <div className="flex flex-wrap justify-center gap-3 w-full lg:w-auto">
-          <select value={selectedDept} onChange={(e)=>setSelectedDept(e.target.value)} className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 font-bold text-[#001f3f] text-[11px] outline-none">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-stretch sm:items-center gap-3 w-full lg:w-auto">
+          <select value={selectedDept} onChange={(e)=>setSelectedDept(e.target.value)} className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 font-bold text-[#001f3f] text-[11px] outline-none w-full sm:w-auto">
             {['Computer Science', 'Software Engineering', 'Information Technology'].map(dept => <option key={dept}>{dept}</option>)}
           </select>
-          <select value={selectedSem} onChange={(e)=>setSelectedSem(e.target.value)} className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 font-bold text-[#001f3f] text-[11px] outline-none">
+          <select value={selectedSem} onChange={(e)=>setSelectedSem(e.target.value)} className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 font-bold text-[#001f3f] text-[11px] outline-none w-full sm:w-auto">
             {['1st Sem', '2nd Sem', '3rd Sem', '4th Sem', '5th Sem', '6th Sem', '7th Sem', '8th Sem'].map(sem => <option key={sem}>{sem}</option>)}
           </select>
-          <button onClick={()=>setShowSubjectModal(true)} className="bg-[#d4a017] text-[#001f3f] px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 shadow-md">
+          <button onClick={()=>setShowSubjectModal(true)} className="bg-[#d4a017] text-[#001f3f] px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-md w-full sm:w-auto">
               <FiPlus strokeWidth={3}/> Add Subject
           </button>
         </div>
@@ -240,12 +240,12 @@ const StudentAcademicData = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                   {sub.categories?.map(cat => (
-                    <div key={cat._id} className="bg-white p-6 rounded-[2.5rem] border border-slate-200 shadow-sm relative group transition-all hover:shadow-lg">
+                    <div key={cat._id} className="bg-white p-4 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 shadow-sm relative group transition-all hover:shadow-lg">
                       <div className="flex justify-between items-start mb-6">
                         <div className="p-3 bg-slate-50 rounded-2xl text-[#d4a017]"><FiFolder /></div>
                         <div className="flex gap-2">
-                           <button onClick={() => { setEditingFolder({id: cat._id, name: cat.name, subCode: sub.code}); setEditFolderModal(true); }} className="p-1.5 text-blue-400 opacity-0 group-hover:opacity-100 transition-all hover:scale-110"><FiEdit2 size={14}/></button>
-                           <button onClick={() => setConfirmModal({show: true, type: 'folder', id: cat._id, subCode: sub.code, title: cat.name})} className="p-1.5 text-red-400 opacity-0 group-hover:opacity-100 transition-all hover:scale-110"><FiTrash2 size={14}/></button>
+                           <button onClick={() => { setEditingFolder({id: cat._id, name: cat.name, subCode: sub.code}); setEditFolderModal(true); }} className="p-1.5 text-blue-400 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:scale-110"><FiEdit2 size={14}/></button>
+                           <button onClick={() => setConfirmModal({show: true, type: 'folder', id: cat._id, subCode: sub.code, title: cat.name})} className="p-1.5 text-red-400 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:scale-110"><FiTrash2 size={14}/></button>
                            <span className="text-[9px] font-black text-slate-300 uppercase bg-slate-50 px-3 py-1.5 rounded-full">Files: {cat.files?.length || 0}</span>
                         </div>
                       </div>

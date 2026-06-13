@@ -9,15 +9,15 @@ const ProfileOverview = () => {
   });
 
   useEffect(() => {
-    // 1. Data uthayen
+    // 1. Get the data
     const rawData = localStorage.getItem('user');
-    console.log("LocalStorage Data:", rawData); // Check karein console mein kya aa raha hai
+    console.log("LocalStorage Data:", rawData); // Check the console to see what is returned
 
     if (rawData) {
       const storedUser = JSON.parse(rawData);
       
-      // 2. Yahan hum strict checking kar rahay hain
-      // Agar value "N/A" hai ya undefined hai, toh direct hamari value show ho
+      // 2. Here we perform strict checking
+      // If the value is "N/A" or undefined, show our default value
       const finalSem = (!storedUser.semester || storedUser.semester === "N/A" || storedUser.semester === "") 
                        ? "1st Sem" 
                        : storedUser.semester;

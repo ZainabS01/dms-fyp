@@ -29,16 +29,16 @@ const About = () => {
           whileInView="visible"
           viewport={{ once: true }}
           variants={fadeIn}
-          className="bg-[#001f3f] text-white py-16 px-6 text-center w-full"
+          className="bg-[#001f3f] text-white py-8 md:py-12 px-6 text-center w-full"
         >
-          <h1 className="text-3xl md:text-5xl font-bold mb-4 uppercase ">About The Department Management System</h1>
-          <p className="text-gray-300 max-w-1xl mx-auto text-sm md:text-lg font-bold uppercase">
+          <h1 className="text-2xl md:text-4xl font-bold mb-3 uppercase ">About The Department Management System</h1>
+          <p className="text-gray-300 max-w-1xl mx-auto text-xs md:text-sm font-bold uppercase">
             Learn more about the system and the purpose behind its development.
           </p>
         </motion.section>
 
         {/* 2. White Content Area */}
-        <div className="bg-white px-6 md:px-16 py-12 space-y-20 w-full">
+        <div className="bg-white px-6 md:px-16 py-6 md:py-10 space-y-8 md:space-y-12 w-full">
           
           {/* What is DMS? Section */}
           <motion.div 
@@ -46,10 +46,10 @@ const About = () => {
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeIn}
-            className="border-4 border-[#001f3f] p-8 md:p-12 rounded-3xl text-center shadow-lg bg-gray-50"
+            className="border-4 border-[#001f3f] p-5 md:p-8 rounded-3xl text-center shadow-lg bg-gray-50"
           >
-            <h2 className="text-2xl md:text-4xl font-black text-[#001f3f] mb-6 underline decoration-4 underline-offset-8 uppercase">What is DMS?</h2>
-            <p className="text-gray-700 text-justify text-sm md:text-lg font-bold leading-relaxed max-w-4xl mx-auto uppercase">
+            <h2 className="text-xl md:text-3xl font-black text-[#001f3f] mb-4 underline decoration-4 underline-offset-8 uppercase">What is DMS?</h2>
+            <p className="text-gray-700 text-justify text-xs md:text-sm font-bold leading-relaxed max-w-4xl mx-auto uppercase">
               The Department Management System (DMS) is a simple, smart, and efficient 
               platform designed to digitalize all academic and administrative processes 
               within the department. This system helps teachers, students, and 
@@ -59,53 +59,53 @@ const About = () => {
           </motion.div>
 
           {/* Vision & Mission Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} className="order-2 md:order-1">
-              <h2 className="text-3xl font-black text-[#001f3f] mb-4 uppercase">Our Vision</h2>
-              <p className="text-gray-600 font-bold uppercase text-sm leading-relaxed">
+              <h2 className="text-2xl md:text-3xl font-black text-[#001f3f] mb-3 uppercase">Our Vision</h2>
+              <p className="text-gray-600 font-bold uppercase text-xs md:text-sm leading-relaxed">
                 Our vision is to create a modern, fully digital department where information is organized, transparent, and always accessible. We aim to use technology to improve communication, decision-making, and overall academic efficiency.
               </p>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} className="order-1 md:order-2">
-              <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=500" alt="Vision" className="rounded-[2rem] border-4 border-[#001f3f] shadow-xl w-full h-64 object-cover" />
+              <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=500" alt="Vision" className="rounded-[2rem] border-4 border-[#001f3f] shadow-xl w-full h-40 md:h-56 object-cover" />
             </motion.div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=500" alt="Mission" className="rounded-[2rem] border-4 border-[#001f3f] shadow-xl w-full h-64 object-cover" />
+              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=500" alt="Mission" className="rounded-[2rem] border-4 border-[#001f3f] shadow-xl w-full h-40 md:h-56 object-cover" />
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-              <h2 className="text-3xl font-black text-[#001f3f] mb-4 uppercase">Our Mission</h2>
-              <p className="text-gray-600 font-bold uppercase text-sm leading-relaxed text-justify">
+              <h2 className="text-2xl md:text-3xl font-black text-[#001f3f] mb-3 uppercase">Our Mission</h2>
+              <p className="text-gray-600 font-bold uppercase text-xs md:text-sm leading-relaxed text-justify">
                 Our mission is to simplify and digitalize all departmental tasks for faster, accurate, and smooth management. We aim to provide a smart system that supports teachers, students, and administrators with easy access to reliable information.
               </p>
             </motion.div>
           </div>
 
           {/* Meet My Mates Section */}
-          <section className="bg-slate-400 -mx-6 md:-mx-16 py-16 px-6 text-center">
-            <h2 className="text-3xl md:text-5xl font-black text-[#001f3f] mb-2 uppercase ">Meet My Mates</h2>
-            <p className="text-[#001f3f] font-bold mb-12 uppercase opacity-80">The brains and passion behind the development of this system</p>
+          <section className="bg-slate-400 -mx-6 md:-mx-16 py-8 md:py-10 px-6 text-center">
+            <h2 className="text-2xl md:text-4xl font-black text-[#001f3f] mb-2 uppercase ">Meet My Mates</h2>
+            <p className="text-[#001f3f] font-bold mb-8 uppercase opacity-80 text-xs md:text-sm">The brains and passion behind the development of this system</p>
             
             <motion.div 
               variants={staggerContainer}
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
-              className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-5xl mx-auto"
+              className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto"
             >
               {[
                 { name: "Zainab", role: "Frontend Developer" },
                 { name: "Khadija", role: "Backend Developer" },
                 { name: "Bisma", role: "UI/UX Designer" }
               ].map((mate, index) => (
-                <motion.div key={index} variants={fadeIn} className="bg-white p-6 rounded-3xl border-b-8 border-[#001f3f] shadow-2xl hover:-translate-y-2 transition-transform">
-                  <div className="w-24 h-24 bg-gray-200 rounded-full mx-auto mb-4 border-4 border-[#d4a017] overflow-hidden">
-                    <img src={`https://i.pravatar.cc/150?u=${mate.name}`} alt={mate.name} />
+                <motion.div key={index} variants={fadeIn} className="bg-white p-5 rounded-3xl border-b-4 border-[#001f3f] shadow-xl hover:-translate-y-2 transition-transform">
+                  <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-3 border-4 border-[#d4a017] overflow-hidden">
+                    <img src={`https://i.pravatar.cc/150?u=${mate.name}`} alt={mate.name} className="w-full h-full object-cover" />
                   </div>
-                  <h3 className="text-xl font-black text-[#001f3f] uppercase">{mate.name}</h3>
-                  <p className="text-xs font-bold text-gray-500 uppercase italic">{mate.role}</p>
+                  <h3 className="text-lg md:text-xl font-black text-[#001f3f] uppercase">{mate.name}</h3>
+                  <p className="text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-wide">{mate.role}</p>
                 </motion.div>
               ))}
             </motion.div>

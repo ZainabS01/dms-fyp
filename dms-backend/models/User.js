@@ -48,6 +48,10 @@ password: {
         type: String,
         default: null 
     },
+    isHOD: {
+        type: Boolean,
+        default: false
+    },
     status: {
         type: String,
         default: 'ACTIVE'

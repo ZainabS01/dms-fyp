@@ -11,33 +11,28 @@ router.get('/students-list', async (req, res) => {
       return res.status(400).json({ message: "Parameters missing" });
     }
 
-    // 1. Clean department for matching (e.g., "Computer Science" matches "COMPUTER SCIENCE")
+    // 1. Clean department
     const cleanDept = department.trim();
     let deptQuery = { $regex: new RegExp("^" + cleanDept + "$", "i") };
 
-    // 2. Extract number safely from input (e.g., "1st Semester" -> "1", "8th Semester" -> "8")
+    // 2. Extract number safely
     const numMatch = semester.match(/\d+/);
     const targetSemNumber = numMatch ? numMatch[0] : semester.trim();
 
-    // Regex that covers all formats: "1", "1st", "1st Semester" case-insensitively
+    // Regex for semester
     let semQuery = { 
       $regex: new RegExp(`^${targetSemNumber}$|^${targetSemNumber}(st|nd|rd|th)|\\b${targetSemNumber}\\b`, "i") 
     };
 
-    // 3. Main query object to search inside Users collection
-    // 💥 FIXED: Using Case-Insensitive Regex for 'Student' Role to match "Student" or "student"
-    let userCriteria = {
-      role: { $regex: /^student$/i }, 
+    // --- FIX: Apply filter here ---
+    // First, only fetch students who belong to this department and semester
+    const students = await User.find({ 
+      role: 'student',
       department: deptQuery,
-      semester: semQuery
-    };
+      semester: semQuery 
+    }).select('rollNo name department semester email');
 
-    console.log("🔍 [Debug Log] Fetching with Criteria:", JSON.stringify(userCriteria));
-
-    // Find all matching students registered in your system
-    const students = await User.find(userCriteria).select('rollNo name department semester email');
-    
-    console.log(`📊 [Debug Log] Found ${students.length} matching students from DB.`);
+    console.log("🔍 Debug: Students found for this filter:", students.length);
 
     // 4. Find any results already posted for this criteria
     const savedResults = await Result.find({
@@ -45,9 +40,9 @@ router.get('/students-list', async (req, res) => {
       semester: semQuery
     });
 
-    // 5. Build dynamic ledger array to prevent blank input values on page refresh
+    // 5. Build integrated ledger
     const integratedLedger = students.map(student => {
-      const match = savedResults.find(r => r.rollNo === student.rollNo);
+      const match = savedResults.find(r => String(r.rollNo) === String(student.rollNo));
       return {
         _id: student._id,
         rollNo: student.rollNo || 'N/A',
@@ -65,5 +60,4 @@ router.get('/students-list', async (req, res) => {
     res.status(500).send("Server Error");
   }
 });
-
 module.exports = router;

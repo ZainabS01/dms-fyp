@@ -10,7 +10,8 @@ const TeacherResult = () => {
   const [studentsList, setStudentsList] = useState([]); 
   const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState({ show: false, message: '' });
-  
+  // TeacherResult.js ke top par ye state zaroor honi chahiye
+const [students, setStudents] = useState([]); // setStudents is sourced from here
   // Popup Modal View States for Uploaded PDF DMC
   const [previewUrl, setPreviewUrl] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -23,7 +24,7 @@ const TeacherResult = () => {
       setLoading(true);
       try {
         const response = await axios.get(`${API_BASE_URL}/student/students-list`, {
-          params: { department, semester }
+          params: { department: department, semester: semester}
         });
         if (Array.isArray(response.data)) {
           setStudentsList(response.data);
@@ -63,36 +64,46 @@ const TeacherResult = () => {
   };
 
   // 💾 SAVE & UPDATE OPERATOR (Saves Data to DB)
-  const saveOrUpdateRow = async (student) => {
-    if (!student.gpa || !student.cgpa) {
-      showToast(`🛑 Enter GPA and CGPA values for ${student.name}`);
-      return;
+// SIRF YE FUNCTION UPDATE KAREIN (TeacherResult.js mein)
+const saveOrUpdateRow = async (student) => {
+  if (!student.gpa || !student.cgpa) {
+    showToast(`🛑 Enter GPA and CGPA values for ${student.name}`);
+    return;
+  }
+
+  try {
+    const formData = new FormData();
+    formData.append('university', university);
+    formData.append('department', department);
+    formData.append('semester', semester);
+    formData.append('rollNo', student.rollNo);
+    formData.append('name', student.name);
+    formData.append('gpa', student.gpa);
+    formData.append('cgpa', student.cgpa);
+    if (student.selectedFile) formData.append('dmcFile', student.selectedFile);
+
+    const res = await axios.post(`${API_BASE_URL}/results/upload`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
+
+    if (res.status === 200 || res.status === 201) {
+      showToast(`✨ Record synced for ${student.rollNo}!`);
+
+      // UI UPDATE: Manually update UI so the file name does not disappear
+      setStudentsList(prev => prev.map(s => 
+        s.rollNo === student.rollNo ? { 
+           ...s, 
+           dmcFile: res.data.dmcFile, // Backend se aaya hua naya path
+           selectedFile: null // Upload hone ke baad local file state clear
+        } : s
+      ));
+      
+      // fetchActiveBatch(); // Keep this commented or uncommented as needed
     }
-
-    try {
-      const formData = new FormData();
-      formData.append('university', university);
-      formData.append('department', department);
-      formData.append('semester', semester);
-      formData.append('rollNo', student.rollNo);
-      formData.append('name', student.name);
-      formData.append('gpa', student.gpa);
-      formData.append('cgpa', student.cgpa);
-      if (student.selectedFile) formData.append('dmcFile', student.selectedFile);
-
-      const res = await axios.post(`${API_BASE_URL}/results/upload`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-
-      if (res.status === 200 || res.status === 201) {
-        showToast(`✨ Record synced & locked for ${student.rollNo}!`);
-        fetchActiveBatch(); 
-      }
-    } catch (err) {
-      showToast("❌ Server communication breakdown.");
-    }
-  };
-
+  } catch (err) {
+    showToast("❌ Server communication breakdown.");
+  }
+};
   // 👁️ VIEW UPLOADED DMC PDF TRIGGER
   const triggerDmcView = (student) => {
     if (student.localPreview) {
@@ -203,7 +214,7 @@ const TeacherResult = () => {
   };
 
   return (
-    <div className="w-full space-y-6 p-4 md:p-6 relative">
+    <div className="w-full space-y-6 p-2 sm:p-6 relative">
       {/* Toast Alert Notification */}
       {toast.show && (
         <div className="fixed top-5 right-5 z-[100] bg-[#001f3f] text-white px-6 py-4 rounded-xl shadow-xl text-xs font-bold border border-[#d4a017]">
@@ -212,14 +223,14 @@ const TeacherResult = () => {
       )}
 
       {/* FILTER PANEL */}
-      <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-4">
+      <div className="bg-white p-4 sm:p-6 rounded-3xl sm:rounded-[2rem] shadow-sm border border-slate-100">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
           <h2 className="text-lg font-black text-[#001f3f] uppercase tracking-tight flex items-center gap-2">
             <span className="w-3 h-6 bg-[#d4a017] rounded-full inline-block"></span>
             TEACHER PORTAL / RESULTS MANAGEMENT
           </h2>
           {studentsList.length > 0 && (
-            <button onClick={exportSemesterPDF} className="px-4 py-2 bg-gradient-to-r from-[#001f3f] to-slate-800 text-white text-xs font-bold rounded-xl hover:opacity-90 transition-all shadow-md flex items-center gap-2">
+            <button onClick={exportSemesterPDF} className="px-4 py-2 bg-gradient-to-r from-[#001f3f] to-slate-800 text-white text-xs font-bold rounded-xl hover:opacity-90 transition-all shadow-md flex items-center gap-2 w-full sm:w-auto justify-center">
               📄 Export Semester PDF
             </button>
           )}
@@ -234,23 +245,23 @@ const TeacherResult = () => {
             <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">Department</label>
             <select value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full px-4 py-3 bg-[#f1f3f6] text-[#001f3f] font-bold text-xs rounded-xl focus:outline-none border-2 border-transparent focus:border-[#d4a017]">
               <option value="">Select Department</option>
-              <option value="Computer Science">Computer Science</option>
-              <option value="Information Technology">Information Technology</option>
-              <option value="Software Engineering">Software Engineering</option>
+              <option value="COMPUTER SCIENCE">Computer Science</option>
+              <option value="INFORMATION TECHNOLOGY">Information Technology</option>
+              <option value="SOFTWARE ENGINEERING">Software Engineering</option>
             </select>
           </div>
           <div>
             <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">Semester</label>
             <select value={semester} onChange={(e) => setSemester(e.target.value)} className="w-full px-4 py-3 bg-[#f1f3f6] text-[#001f3f] font-bold text-xs rounded-xl focus:outline-none border-2 border-transparent focus:border-[#d4a017]">
               <option value="">Select Semester</option>
-              <option value="1st Semester">1st Semester</option>
-              <option value="2nd Semester">2nd Semester</option>
-              <option value="3rd Semester">3rd Semester</option>
-              <option value="4th Semester">4th Semester</option>
-              <option value="5th Semester">5th Semester</option>
-              <option value="6th Semester">6th Semester</option>
-              <option value="7th Semester">7th Semester</option>
-              <option value="8th Semester">8th Semester</option>
+              <option value="1">1st Semester</option>
+              <option value="2">2nd Semester</option>
+              <option value="3">3rd Semester</option>
+              <option value="4">4th Semester</option>
+              <option value="5">5th Semester</option>
+              <option value="6">6th Semester</option>
+              <option value="7">7th Semester</option>
+              <option value="8">8th Semester</option>
             </select>
           </div>
         </div>
@@ -258,7 +269,7 @@ const TeacherResult = () => {
 
       {/* RENDER TABLE COMPONENT */}
       {department && semester && (
-        <div className="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100">
+        <div className="bg-white p-4 sm:p-6 rounded-3xl sm:rounded-[2rem] shadow-sm border border-slate-100">
           <h3 className="text-sm font-black text-[#001f3f] uppercase tracking-tight mb-4">
             📋 LIVE STUDENT RECORD LEDGER ({department.toUpperCase()} - {semester.toUpperCase()})
           </h3>

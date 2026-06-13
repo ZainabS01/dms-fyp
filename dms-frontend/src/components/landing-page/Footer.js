@@ -39,15 +39,19 @@ const Footer = () => {
         {/* Brand Column */}
         <div className="md:col-span-2 space-y-4">
           <Link to="/" onClick={handleScrollToTop} className="flex items-center gap-2">
-            <div className="w-10 h-10 bg-[#002147] rounded-full flex items-center justify-center text-white font-bold text-xl">
-              D
+            <div className="w-10 h-10 shrink-0">
+              <img
+                src="/logo.png"
+                alt="DMS Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <span className="font-bold text-[#002147] text-lg uppercase">
               Department Management System
             </span>
           </Link>
           <p className="text-gray-500 text-sm leading-relaxed max-w-xs">
-            A comprehensive solution for modern institutions to manage students, 
+            A comprehensive solution for modern institutions to manage students,
             faculty, and administration with real-time insights and security.
           </p>
         </div>
@@ -76,13 +80,23 @@ const Footer = () => {
           <h4 className="font-bold text-[#002147] mb-4 text-sm uppercase tracking-wider underline decoration-2 underline-offset-4">Support</h4>
           <ul className="space-y-2 text-gray-500 text-sm font-bold uppercase">
             <li>
-              <Link to="/help" onClick={handleScrollToTop} className="hover:text-[#002147] transition-colors">Help Center</Link>
+              <Link to="/contact" onClick={handleScrollToTop} className="hover:text-[#002147] transition-colors">Help Center</Link>
             </li>
             <li>
-              <Link to="/faq" onClick={handleScrollToTop} className="hover:text-[#002147] transition-colors">FAQ</Link>
+              <Link
+                to="/contact"
+                onClick={() => {
+                  setTimeout(() => {
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                  }, 100);
+                }}
+                className="hover:text-[#002147] transition-colors"
+              >
+                FAQ
+              </Link>
             </li>
             <li>
-              <Link to="/docs" onClick={handleScrollToTop} className="hover:text-[#002147] transition-colors">Documentation</Link>
+              <a href="/DMS_Documentation.pdf" download className="hover:text-[#002147] transition-colors">Documentation</a>
             </li>
           </ul>
         </div>
@@ -91,8 +105,18 @@ const Footer = () => {
         <div>
           <h4 className="font-bold text-[#002147] mb-4 text-sm uppercase tracking-wider underline decoration-2 underline-offset-4">Contact Us</h4>
           <ul className="space-y-2 text-gray-500 text-sm font-bold">
-            <li className="break-all">info@dms.edu</li>
-            <li>+92 301 610 1870</li>
+            <li className="break-all hover:text-[#002147] transition-colors">
+              <a 
+                href="https://mail.google.com/mail/?view=cm&fs=1&to=departmentmanagementsystem300@gmail.com" 
+                target="_blank" 
+                rel="noopener noreferrer"
+              >
+                departmentmanagementsystem300@gmail.com
+              </a>
+            </li>
+            <li className="hover:text-[#002147] transition-colors">
+              <a href="tel:+923016101870">+92 301 610 1870</a>
+            </li>
             <li className="uppercase underline underline-offset-4">CS Department, FYP Lab</li>
           </ul>
         </div>

@@ -1,102 +1,137 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
+import { Trash2 } from 'lucide-react';
 
-const QuerySection = ({ userRole }) => {
-  const [activeTab, setActiveTab] = useState('inbox'); // 'inbox' ya 'ask'
+const QuerySection = ({ user }) => {
+  const [formData, setFormData] = useState({
+    studentName: '', rollNumber: '', department: '', semester: '', subject: '', message: '', recipient: 'teacher'
+  });
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [modal, setModal] = useState({ isOpen: false, idToDelete: null });
+
+  // Dropdown Options
+  const DEPARTMENTS = ["Computer Science", "Software Engineering", "Business", "Physics", "Mathematics"];
+  const SEMESTERS = ["1", "2", "3", "4", "5", "6", "7", "8"];
+
+  const fetchHistory = useCallback(async () => {
+    try {
+      const roll = user?.rollNo || user?.rollno || '';
+      const res = await axios.get(`http://localhost:5000/api/query/all?rollNumber=${encodeURIComponent(roll)}`);
+      setHistory(res.data.reverse()); 
+    } catch (err) { toast.error("Could not load history"); }
+  }, [user]);
+
+  useEffect(() => { fetchHistory(); }, [fetchHistory]);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.department || !formData.semester) {
+        toast.error("Please select Department and Semester!");
+        return;
+    }
+    setLoading(true);
+    try {
+      await axios.post('http://localhost:5000/api/query/add', formData);
+      toast.success("Query Sent!");
+      setFormData({ ...formData, subject: '', message: '' }); // Form reset
+      fetchHistory();
+    } catch (err) { toast.error("Error sending query"); }
+    setLoading(false);
+  };
+
+  const confirmDelete = async () => {
+    try {
+        await axios.delete(`http://localhost:5000/api/query/delete/${modal.idToDelete}`);
+        toast.success("Deleted successfully!");
+        fetchHistory();
+    } catch (err) { toast.error("Delete failed"); } 
+    finally { setModal({ isOpen: false, idToDelete: null }); }
+  };
 
   return (
-    <div className="w-full max-w-[1200px]">
-      <div className="flex justify-between items-center mb-10">
-        <div>
-          <h1 className="text-4xl font-black text-[#001f3f] uppercase italic">
-            Query <span className="text-[#d4a017]">Hub</span>
-          </h1>
-          <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">
-            {userRole === 'admin' ? 'Manage System Queries' : 'Ask & Track Your Queries'}
-          </p>
+    <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 font-sans">
+      {/* Modal and History Logic remains unchanged */}
+      {modal.isOpen && (
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center">
+            <h3 className="text-xl font-black text-[#001f3f] mb-2">Delete Query?</h3>
+            <p className="text-xs text-slate-500 font-bold mb-6">Are you sure you want to permanently delete this query?</p>
+            <div className="flex gap-3">
+              <button onClick={() => setModal({ isOpen: false, idToDelete: null })} className="flex-1 py-3 bg-slate-100 font-bold rounded-xl text-slate-600 hover:bg-slate-200 transition-colors">Cancel</button>
+              <button onClick={confirmDelete} className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors">Delete</button>
+            </div>
+          </div>
         </div>
+      )}
 
-        {/* Tab Switcher */}
-        <div className="flex bg-white p-2 rounded-2xl shadow-md">
-          <button 
-            onClick={() => setActiveTab('inbox')}
-            className={`px-6 py-2 rounded-xl font-black text-[10px] uppercase transition-all ${activeTab === 'inbox' ? 'bg-[#001f3f] text-white' : 'text-slate-400'}`}
-          >
-            📥 Inbox
-          </button>
-          {userRole !== 'admin' && (
-            <button 
-              onClick={() => setActiveTab('ask')}
-              className={`px-6 py-2 rounded-xl font-black text-[10px] uppercase transition-all ${activeTab === 'ask' ? 'bg-[#d4a017] text-[#001f3f]' : 'text-slate-400'}`}
-            >
-              ✍️ Ask Query
-            </button>
-          )}
-        </div>
+      <div className="bg-white p-4 sm:p-8 rounded-[2rem] shadow-sm border border-slate-100 mb-10">
+        <h2 className="text-2xl font-black text-[#001f3f] mb-6">ASK A QUESTION</h2>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <select className="w-full p-4 bg-slate-50 rounded-xl font-bold border border-slate-200 outline-none" value={formData.recipient} onChange={(e) => setFormData({...formData, recipient: e.target.value})}>
+            <option value="teacher">Teacher</option>
+            <option value="admin">Admin</option>
+          </select>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <input className="p-4 bg-slate-50 rounded-xl border border-slate-200" placeholder="Name" onChange={(e) => setFormData({...formData, studentName: e.target.value})} value={formData.studentName} required />
+            <input className="p-4 bg-slate-50 rounded-xl border border-slate-200" placeholder="Roll No" onChange={(e) => setFormData({...formData, rollNumber: e.target.value})} value={formData.rollNumber} required />
+            
+            {/* NEW DROPDOWNS */}
+            <select className="p-4 bg-slate-50 rounded-xl border border-slate-200" value={formData.department} onChange={(e) => setFormData({...formData, department: e.target.value})} required>
+                <option value="">Select Dept</option>
+                {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
+            </select>
+            <select className="p-4 bg-slate-50 rounded-xl border border-slate-200" value={formData.semester} onChange={(e) => setFormData({...formData, semester: e.target.value})} required>
+                <option value="">Select Sem</option>
+                {SEMESTERS.map(s => <option key={s} value={s}>{s}</option>)}
+            </select>
+          </div>
+
+          <input className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200" placeholder="Subject" onChange={(e) => setFormData({...formData, subject: e.target.value})} value={formData.subject} required />
+          <textarea className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 h-32" placeholder="Message" onChange={(e) => setFormData({...formData, message: e.target.value})} value={formData.message} required />
+          <button disabled={loading} className="w-full py-4 bg-[#001f3f] text-white rounded-xl font-black">{loading ? "SUBMITTING..." : "SUBMIT QUERY"}</button>
+        </form>
       </div>
 
-      {activeTab === 'ask' ? (
-        /* FORM: For Students and Teachers to ask Admin or Faculty */
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-fadeIn">
-          <div className="bg-[#001f3f] p-12 rounded-[50px] shadow-2xl relative overflow-hidden text-white">
-            <h2 className="text-3xl font-black uppercase italic mb-8">Send a <span className="text-[#d4a017]">Message</span></h2>
-            <div className="space-y-5 relative z-10">
-              <select className="w-full p-5 bg-white/10 rounded-2xl border-none text-white outline-none">
-                <option className='text-black'>Send To: Admin</option>
-                {userRole === 'student' && <option className='text-black'>Send To: Faculty Member</option>}
-              </select>
-              <input type="text" placeholder="Subject / Topic" className="w-full p-5 bg-white/10 rounded-2xl border-none placeholder-white/50" />
-              <textarea placeholder="Describe your issue in detail..." className="w-full p-5 bg-white/10 rounded-2xl border-none h-40"></textarea>
-              <button className="w-full bg-[#d4a017] text-[#001f3f] py-5 rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-white transition-all">Submit Query</button>
-            </div>
-          </div>
-          <div className="flex flex-col justify-center p-10 bg-white rounded-[50px] border border-slate-100 shadow-sm">
-             <h3 className="text-xl font-black text-[#001f3f] uppercase mb-4">How it works?</h3>
-             <ul className="space-y-4 text-sm text-slate-500 font-medium">
-               <li className="flex gap-3">✅ <p>Your query is directed to the relevant department.</p></li>
-               <li className="flex gap-3">✅ <p>Responses usually arrive within 24-48 hours.</p></li>
-               <li className="flex gap-3">✅ <p>You will see the reply in your Inbox tab.</p></li>
-             </ul>
-          </div>
+   <div className="space-y-4">
+  <h3 className="text-lg font-black text-[#001f3f]">QUERY HISTORY</h3>
+  {history.map((q) => (
+    <div key={q._id} className="bg-white p-4 sm:p-6 rounded-2xl border border-slate-100 shadow-sm">
+      <div className="flex justify-between items-start gap-4 mb-2">
+        <div>
+          <p className="font-bold text-[#001f3f] text-lg leading-tight">{q.subject}</p>
+          <p className="text-[10px] font-bold text-slate-400 uppercase">To: {q.recipient} • From: {q.studentName} • {q.department} • SEM: {q.semester}</p>
         </div>
-      ) : (
-        /* INBOX: For everyone to see replies, and for Admin/Teacher to reply */
-        <div className="space-y-6 animate-fadeIn">
-          {[1, 2].map((query) => (
-            <div key={query} className="bg-white p-8 rounded-[40px] shadow-lg border border-slate-50 flex flex-col md:flex-row gap-6 items-start">
-              <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center text-2xl shadow-inner">
-                {userRole === 'student' ? '👨‍🏫' : '👤'}
-              </div>
-              <div className="flex-1">
-                <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-black text-[#001f3f] text-lg uppercase tracking-tight">Issue with Semester Result</h4>
-                  <span className="text-[10px] font-black bg-blue-50 text-blue-600 px-4 py-1.5 rounded-full uppercase">Pending</span>
-                </div>
-                <p className="text-sm text-slate-500 font-medium leading-relaxed">
-                  "Respected Sir, I have a concern regarding my marks in the mid-term exam..."
-                </p>
-                
-                {/* Reply Section (Visible to Admin or Teacher) */}
-                {(userRole === 'admin' || userRole === 'teacher') && (
-                  <div className="mt-6 flex gap-3">
-                    <input type="text" placeholder="Type your reply..." className="flex-1 p-4 bg-slate-50 rounded-xl text-sm border-none focus:ring-1 focus:ring-[#d4a017]" />
-                    <button className="bg-[#001f3f] text-white px-8 rounded-xl font-black text-[10px] uppercase">Reply</button>
-                  </div>
-                )}
+        <button onClick={() => setModal({ isOpen: true, idToDelete: q._id })} className="text-red-500 hover:bg-red-50 p-1.5 rounded-full transition-colors shrink-0" title="Delete Query">
+           <Trash2 size={16} />
+        </button>
+      </div>
+      
+      {/* Student ka message */}
+      <p className="text-sm text-slate-600 mt-2 bg-slate-50 p-3 rounded-xl">{q.message}</p>
 
-                {/* History (Visible to Student as response) */}
-                {userRole === 'student' && (
-                  <div className="mt-4 p-4 bg-green-50 rounded-2xl border-l-4 border-green-500">
-                    <p className="text-[10px] font-black text-green-600 uppercase">Response from Admin:</p>
-                    <p className="text-xs text-slate-600 mt-1 italic font-medium">"Please visit the examination office with your roll no."</p>
-                  </div>
-                )}
-              </div>
-            </div>
-          ))}
+      {/* RESPONSE SECTION */}
+      {q.reply && (
+        <div className={`${q.recipient === 'admin' ? 'bg-blue-50 border-blue-200 text-blue-800' : 'bg-green-50 border-green-200 text-green-800'} border p-4 rounded-xl text-sm mt-3 animate-in fade-in duration-300`}>
+          <div className={`flex items-center font-bold text-xs uppercase tracking-wider mb-1 ${q.recipient === 'admin' ? 'text-blue-700' : 'text-green-700'}`}>
+            {q.recipient === 'admin' ? "🏛️ ADMIN'S RESPONSE:" : "✨ TEACHER'S RESPONSE:"}
+          </div>
+          <p className="font-medium">{q.reply}</p>
+        </div>
+      )}
+
+      {/* 3. If no reply has been received yet */}
+      {!q.reply && (
+        <div className="text-[11px] font-bold text-amber-600 bg-amber-50 px-3 py-1.5 rounded-lg w-max mt-3">
+          ⏳ Pending Response
         </div>
       )}
     </div>
+  ))}
+</div>
+    </div>
   );
 };
-
 export default QuerySection;

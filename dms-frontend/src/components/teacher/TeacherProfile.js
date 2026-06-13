@@ -3,14 +3,14 @@ import axios from 'axios';
 
 const TeacherProfile = () => {
   const [profile, setProfile] = useState(null);
-  const [error, setError] = useState(null); // 👈 Naya state error handle karne ke liye
+  const [error, setError] = useState(null); // 👈 New state to handle errors
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const token = localStorage.getItem('token');
         
-        // Check krien token hai ya nahi
+        // Check if token exists
         if (!token) {
           setError("Session expired. Please login again.");
           return;
@@ -20,7 +20,7 @@ const TeacherProfile = () => {
           headers: { Authorization: `Bearer ${token}` }
         });
 
-        // Debugging ke liye console check krien
+        // For debugging, check the console
         console.log("Profile Data:", res.data);
 
         if (res.data.success) {
@@ -30,13 +30,13 @@ const TeacherProfile = () => {
         }
       } catch (err) {
         console.error("Fetch Error:", err.response?.data || err.message);
-        setError("Backend se connection nahi ho saka.");
+        setError("Could not connect to the backend.");
       }
     };
     fetchProfile();
   }, []);
 
-  // 1. Agar koi error aaye to wo show krien bajaye infinite loading ke
+  // 1. If an error occurs, show it instead of infinite loading
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] text-red-600 font-bold">
@@ -51,7 +51,7 @@ const TeacherProfile = () => {
     );
   }
 
-  // 2. Jab tak data load na ho
+  // 2. Until data is loaded
   if (!profile) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">

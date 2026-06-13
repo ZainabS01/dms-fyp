@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const TimetableSchema = new mongoose.Schema({
     department: String,
     semester: String,
-    fileUrl: String, // Yahan file ka path ya link save hoga
+    fileUrl: String, // The file path or link will be saved here
     createdAt: { type: Date, default: Date.now }
 });
 

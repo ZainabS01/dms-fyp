@@ -77,21 +77,15 @@ const Login = ({ setUser }) => {
         
         // Role check
         if (userData.role.toLowerCase() !== userRole.toLowerCase()) {
-           toast.error(`Aap as a ${userRole} registered nahi hain!`);
+           toast.error(`You are not registered as a ${userRole}!`);
            setLoading(false);
            return;
         }
 
-        // Multi-factor check for Teacher
-        if (userData.role.toLowerCase() === 'teacher') {
-            const otpRes = await axios.post('http://localhost:5000/api/auth/send-otp', { email: lowerEmail });
-            if (otpRes.data.success) {
-                toast.success("Password Verified! OTP sent to Gmail.");
-                setLoginStep(2);
-            }
-        } else {
-            // Direct login for students
-            completeLogin(res.data);
+        // Multi-factor check for All Roles
+        if (res.data.requiresOtp) {
+            toast.success(res.data.message || "OTP sent to your Gmail.");
+            setLoginStep(2);
         }
       }
     } catch (err) {
@@ -107,9 +101,9 @@ const Login = ({ setUser }) => {
     setLoading(true);
     
     try {
-      // Note: Backend par 'reset-password' wala logic hi OTP verify karne ke liye use ho sakta hai 
-      // ya aap aik dedicated 'verify-otp' route bhi bana sakti hain.
-      // Filhaal hum admin ke liye simulation aur teacher ke liye state handle kar rahe hain.
+      // Note: The 'reset-password' logic on the backend can be used to verify OTP,
+      // or you can create a dedicated 'verify-otp' route.
+      // Currently, we simulate admin login and handle state for teachers.
       
       if (userRole.toLowerCase() === 'admin') {
           // Admin secure check logic
@@ -119,14 +113,24 @@ const Login = ({ setUser }) => {
             token: "admin-secure-session-" + Date.now()
           };
           completeLogin(adminData);
-      } else if (userRole.toLowerCase() === 'teacher') {
-          // Hum OTP verify assume karke PIN step par ja rahe hain
-          // Backend PIN login mein OTP verify ka logic bhi add kiya ja sakta hai
-          toast.success("OTP Verified! Enter Security PIN.");
-          setLoginStep(3);
+      } else {
+          const res = await axios.post('http://localhost:5000/api/auth/verify-login-otp', {
+              email: email.toLowerCase(),
+              otp: otp
+          });
+
+          if (res.data.success) {
+              if (userRole.toLowerCase() === 'teacher') {
+                  toast.success("OTP Verified! Enter Security PIN.");
+                  setLoginStep(3);
+              } else {
+                  // Direct login for students after OTP
+                  completeLogin(res.data);
+              }
+          }
       }
     } catch (err) {
-      toast.error("OTP Verification Failed!");
+      toast.error(err.response?.data?.message || "OTP Verification Failed!");
       setOtp('');
     } finally {
       setLoading(false);
@@ -171,15 +175,14 @@ const Login = ({ setUser }) => {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#001f3f] flex items-center justify-center pt-[150px] pb-30 px-10">
-      <Toaster />
-      <motion.div className="w-full max-w-[1100px] bg-white rounded-[40px] shadow-2xl flex flex-col lg:flex-row overflow-hidden min-h-[600px]">
+    <div className="relative min-h-screen w-full bg-[#001f3f] flex items-center justify-center pt-[130px] pb-12 px-6">
+      <motion.div className="w-full max-w-[850px] bg-white rounded-[20px] shadow-2xl flex flex-col lg:flex-row overflow-hidden min-h-[400px]">
         
-        <div className="w-full lg:w-[45%] bg-[#f8fafc] p-10 flex items-center justify-center border-r border-gray-100">
-          <img src="/login.png" alt="Login" className="w-full max-w-[350px]" />
+        <div className="w-full lg:w-[45%] bg-white p-4 flex items-center justify-center border-r border-gray-100">
+          <img src="/login.png" alt="Login" className="w-full max-w-[300px]" />
         </div>
 
-        <div className="w-full lg:w-[55%] p-12 flex flex-col justify-center">
+        <div className="w-full lg:w-[55%] p-6 flex flex-col justify-center">
           <AnimatePresence mode="wait">
             {loginStep === 1 && (
               <motion.div key="step1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
@@ -192,19 +195,19 @@ const Login = ({ setUser }) => {
                 </div>
 
                 <h2 className="text-3xl font-black text-[#001f3f] text-center uppercase italic">Login Portal</h2>
-                <div className="h-1.5 w-16 bg-[#d4a017] mx-auto mb-10 rounded-full"></div>
+                <div className="h-1.5 w-16 bg-[#d4a017] mx-auto mb-6 rounded-full"></div>
 
                 <form onSubmit={handleLogin} className="space-y-5">
                   <div>
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] ml-1 mb-1 block">Gmail Address</label>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-4 bg-slate-50 border-2 rounded-2xl outline-none focus:border-[#d4a017] transition-all font-bold" placeholder="Enter your email" required />
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 bg-slate-50 border-2 rounded-2xl outline-none focus:border-[#d4a017] transition-all font-bold" placeholder="Enter your email" required />
                   </div>
 
                   {userRole !== 'Admin' && (
                     <div className="relative">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] ml-1 mb-1 block">Password</label>
                       <div className="relative">
-                        <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-4 bg-slate-50 border-2 rounded-2xl outline-none focus:border-[#d4a017] transition-all font-bold" placeholder="••••••••" required />
+                        <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 bg-slate-50 border-2 rounded-2xl outline-none focus:border-[#d4a017] transition-all font-bold" placeholder="••••••••" required />
                         <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#001f3f]">
                           {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                         </button>
@@ -215,7 +218,7 @@ const Login = ({ setUser }) => {
                     </div>
                   )}
 
-                  <button type="submit" disabled={loading} className="w-full bg-[#001f3f] text-white py-4 rounded-2xl font-black uppercase tracking-widest shadow-xl hover:bg-[#002d5a] transition-all active:scale-95 disabled:opacity-50">
+                  <button type="submit" disabled={loading} className="w-full bg-[#001f3f] text-white py-3 rounded-2xl font-black uppercase tracking-widest shadow-xl hover:bg-[#002d5a] transition-all active:scale-95 disabled:opacity-50">
                     {loading ? "Verifying..." : `Next: ${userRole} Login`}
                   </button>
                 </form>

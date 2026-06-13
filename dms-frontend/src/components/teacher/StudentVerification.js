@@ -5,7 +5,7 @@ import { FiCheckCircle, FiXCircle, FiUser } from 'react-icons/fi';
 const StudentVerification = () => {
   const [pendingStudents, setPendingStudents] = useState([]);
 
-  // Data fetch karne ke liye (Sirf wo students jin ka status 'pending' hai)
+  // To fetch data (Only those students whose status is 'pending')
   useEffect(() => {
     const fetchPending = async () => {
       try {
@@ -19,9 +19,18 @@ const StudentVerification = () => {
   }, []);
 
   const handleAction = async (id, action) => {
-    // Backend update logic yahan aayegi
-    alert(`Student ${action === 'approve' ? 'Verified' : 'Rejected'} Successfully!`);
-    setPendingStudents(pendingStudents.filter(s => s._id !== id));
+    try {
+      const res = await axios.put(`http://localhost:5000/api/admin/students/${id}/${action}`);
+      if (res.data.success) {
+        alert(`Student ${action === 'approve' ? 'Verified' : 'Rejected'} Successfully!`);
+        setPendingStudents(pendingStudents.filter(s => s._id !== id));
+      } else {
+        alert(res.data.message || 'Action failed!');
+      }
+    } catch (err) {
+      console.error("Error processing student action:", err);
+      alert('Error connecting to server.');
+    }
   };
 
   return (

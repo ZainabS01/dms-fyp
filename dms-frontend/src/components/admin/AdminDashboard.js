@@ -1,98 +1,100 @@
-import React from 'react';
-import { Routes, Route } from 'react-router-dom';
-import AdminSidebar from './AdminSidebar';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
-// Pages
+import AdminSidebar from './AdminSidebar';
+import AdminHeader from './AdminHeader';
+import AdminOverview from './AdminOverview';
+import AdminProfile from './AdminProfile';
+
+import StudentManagement from './StudentManagement';
 import FacultyManagement from './FacultyManagement';
-import AttendanceOversight from './AttendanceOversight';
-import Noticeboard from './NoticeBoard';  
-import StudentManagement from './StudentManagement';  
 import TeacherVerification from './TeacherVerification';
 import QuerySection from './QuerySection';
+import Noticeboard from './NoticeBoard';
+import NexiChat from '../nexi/AiChat';
+import DepartmentManagement from './DepartmentManagement';
 
-const AdminDashboard = () => {
+const AdminDashboard = ({ user }) => {
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Stats View Component (Main Home Screen of Dashboard)
-  const StatsView = () => {
-    const stats = [
-      { title: 'Total Students', value: '450', color: 'border-blue-500' },
-      { title: 'Total Faculty', value: '32', color: 'border-green-500' },
-      { title: 'Present Today', value: '88%', color: 'border-[#d4a017]' },
-      { title: 'Pending Tasks', value: '05', color: 'border-purple-500' },
-    ];
+  const adminInfo = user || { name: "SUPER ADMIN", role: "ADMIN" };
 
-    return (
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }} 
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-[1400px] mx-auto"
-      >
-        <header className="flex justify-between items-center mb-10">
-          <div>
-            <h1 className="text-4xl font-black text-[#001f3f] uppercase italic tracking-tighter">
-              System <span className="text-[#d4a017]">Overview</span>
-            </h1>
-            <div className="h-1.5 w-20 bg-[#d4a017] rounded-full mt-1"></div>
-          </div>
-        </header>
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {stats.map((stat, index) => (
-            <motion.div 
-              whileHover={{ y: -10 }} 
-              key={index} 
-              className={`bg-white p-8 rounded-[35px] shadow-xl border-b-[10px] ${stat.color} transition-all`}
-            >
-              <p className="text-[11px] font-black text-slate-400 uppercase tracking-[0.2em]">{stat.title}</p>
-              <h2 className="text-5xl font-black text-[#001f3f] mt-3 tracking-tighter">{stat.value}</h2>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Hero Section / Banner */}
-        <div className="mt-12 bg-[#001f3f] p-16 rounded-[50px] text-white relative overflow-hidden shadow-2xl">
-          <div className="relative z-10">
-            <h2 className="text-5xl font-black uppercase italic tracking-tighter leading-tight">
-              Department Control <br /> 
-              <span className="text-[#d4a017]">Management Panel</span>
-            </h2>
-            <p className="mt-4 text-slate-400 font-medium max-w-md">
-              Access real-time analytics, manage faculty records, and monitor student performance from a centralized hub.
-            </p>
-            <button className="mt-10 bg-[#d4a017] hover:bg-white text-[#001f3f] px-12 py-5 rounded-2xl font-black uppercase text-[12px] tracking-widest transition-all shadow-lg">
-              Generate System Report
-            </button>
-          </div>
-          
-          {/* Background Decorative Circle */}
-          <div className="absolute -right-20 -top-20 w-80 h-80 bg-blue-900/20 rounded-full blur-3xl"></div>
-        </div>
-      </motion.div>
-    );
+  const renderContent = () => {
+    switch (activeTab) {
+      case 'dashboard': return <AdminOverview setActiveTab={setActiveTab} />;
+      case 'student_management': return <StudentManagement />;
+      case 'faculty_management': return <FacultyManagement />;
+      case 'teacher_verification': return <TeacherVerification />;
+      case 'queries': return <QuerySection userRole="admin" user={adminInfo} />;
+      case 'notice_board': return <Noticeboard />;
+      case 'profile': return <AdminProfile user={adminInfo} />;
+      case 'nexi': return <NexiChat user={adminInfo} setActiveTab={setActiveTab} backTab="dashboard" />;
+      case 'department_management': 
+        return <DepartmentManagement />;
+      default: return <AdminOverview setActiveTab={setActiveTab} />;
+    }
   };
 
   return (
-    <div className="flex bg-[#f8fafc] min-h-screen">
-      {/* Sidebar: Iski width AdminSidebar mein 'w-72' honi chahiye */}
-      <AdminSidebar activeTab="Dashboard" />
+    <div className="flex h-screen w-full bg-[#f1f3f6] overflow-hidden font-sans relative">
       
-      {/* Main Content: ml-72 sidebar ki jagah chorrne ke liye zaroori hai */}
-      <main className="flex-1 ml-72 p-12 overflow-x-hidden">
-        <Routes>
-          {/* Default view jab /admin-dashboard khule */}
-          <Route index element={<StatsView />} />
-          
-          {/* Sub-pages */}
-          <Route path="faculty-management" element={<FacultyManagement />} />
-          <Route path="student-management" element={<StudentManagement />} />
-          <Route path="attendance-oversight" element={<AttendanceOversight />} />
-          <Route path="notice-board" element={<Noticeboard />} />
-          <Route path="teacher-verification" element={<TeacherVerification />} />
-          <Route path="queries" element={<QuerySection />} />
-        </Routes>
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-[150] bg-black/40 md:hidden transition-opacity duration-300"
+          onClick={toggleSidebar}
+        />
+      )}
+ 
+      {/* Sidebar */}
+      <AdminSidebar 
+        activeTab={activeTab} 
+        setActiveTab={(tab) => {
+          setActiveTab(tab);
+          setSidebarOpen(false); 
+        }} 
+        sidebarOpen={sidebarOpen} 
+        toggleSidebar={toggleSidebar} 
+      />
+ 
+      {/* Main Container */}
+      <main className={`flex-1 ml-0 md:ml-64 h-full flex flex-col transition-all duration-300 ease-in-out ${activeTab === 'nexi' ? 'overflow-hidden' : 'overflow-y-auto custom-scrollbar'}`}>
+        
+        {/* Sticky Header Area */}
+        <div className={`sticky top-0 z-30 bg-[#f1f3f6]/80 backdrop-blur-md flex-shrink-0 ${activeTab === 'nexi' ? 'p-1.5 sm:p-3 md:p-4' : 'p-2 sm:p-4 md:p-6 lg:p-8'}`}>
+           <AdminHeader 
+             activeTab={activeTab} 
+             adminName={adminInfo.name} 
+             onOpenNexi={() => setActiveTab('nexi')}
+             setActiveTab={setActiveTab}
+             toggleSidebar={toggleSidebar}
+           />
+        </div>
+
+        {/* Display Current Tab Panel Container */}
+        <div className={`px-2 sm:px-4 md:px-6 lg:px-8 ${activeTab === 'nexi' ? 'flex-1 pb-4 min-h-0 overflow-hidden flex flex-col' : 'pb-12'}`}>
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 15 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut" }}
+            className={`mx-auto w-full ${activeTab === 'nexi' ? 'flex-1 h-full flex flex-col max-w-none' : 'max-w-[1600px]'}`}
+          >
+            {renderContent()}
+          </motion.div>
+        </div>
       </main>
+
+      <style jsx>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+      `}</style>
     </div>
   );
 };

@@ -171,7 +171,7 @@ const ManageAttendance = () => {
       );
 
       if (response.data.success) {
-        setMessage({ type: 'success', text: 'Attendance successfully save ho gayi hai!' });
+        setMessage({ type: 'success', text: 'Attendance successfully saved!' });
         setTimeout(() => {
           setView('history');
           setMessage({ type: '', text: '' });
@@ -195,7 +195,7 @@ const ManageAttendance = () => {
       });
 
       if (response.data.success) {
-        setMessage({ type: 'success', text: `Application successfully ${newStatus.toLowerCase()} ho gayi!` });
+        setMessage({ type: 'success', text: `Application successfully ${newStatus.toLowerCase()}!` });
         fetchLeaveApplications();
         setTimeout(() => setMessage({ type: '', text: '' }), 2000);
       }
@@ -221,13 +221,41 @@ const ManageAttendance = () => {
     doc.save(`Attendance_${sheet.date}.pdf`);
   };
 
-  const downloadApplicationPDF = (app) => {
+const downloadApplicationPDF = (application) => {
     const doc = new jsPDF();
+    
+    // Title
     doc.setFont("helvetica", "bold");
-    doc.text("LEAVE APPLICATION REPORT", 14, 20);
-    doc.save(`Leave_Application_${app.studentId?.rollNo || 'Record'}.pdf`);
-  };
+    doc.setFontSize(22);
+    doc.text("LEAVE APPLICATION REPORT", 105, 20, { align: "center" });
+    doc.line(20, 25, 190, 25); // Line divider
 
+    // Details
+    doc.setFontSize(12);
+    doc.setFont("helvetica", "normal");
+    const details = [
+        `Student Name: ${application.studentId?.name || "N/A"}`,
+        `Roll No: ${application.studentId?.rollNo || "N/A"}`,
+        `Subject: ${application.subject}`,
+        `Duration: ${application.startDate} to ${application.endDate}`,
+        `Status: ${application.status}`
+    ];
+    
+    let y = 40;
+    details.forEach(line => {
+        doc.text(line, 20, y);
+        y += 10;
+    });
+
+    // Reason Box
+    doc.setFont("helvetica", "bold");
+    doc.text("Reason:", 20, y + 10);
+    doc.setFont("helvetica", "normal");
+    const splitReason = doc.splitTextToSize(application.reason, 170);
+    doc.text(splitReason, 20, y + 20);
+
+    doc.save(`Application_${application.studentId?.rollNo}.pdf`);
+};
   return (
     <div className="w-full min-h-screen p-3 md:p-6 bg-transparent text-slate-800 antialiased box-border overflow-x-hidden">
       
@@ -352,7 +380,7 @@ const ManageAttendance = () => {
             <div className="text-center py-12 text-xs font-bold text-gray-400">Syncing with database logs...</div>
           ) : historySheets.length === 0 ? (
             <div className="text-center py-8 bg-amber-50 text-amber-800 text-xs font-bold rounded-2xl border border-dashed border-amber-200 uppercase tracking-wide">
-              Is selected duration ({reportSubTab}) ka koi saved data nahi mila!
+              No saved data found for the selected duration ({reportSubTab})!
             </div>
           ) : (
             <div className="w-full overflow-x-auto border border-gray-100 rounded-2xl shadow-inner scrollbar-thin">
@@ -421,9 +449,9 @@ const ManageAttendance = () => {
       {/* --- LEAVE APPLICATIONS LAYOUT --- */}
       {view === 'applications' && (
         <div className="w-full bg-white p-3 sm:p-6 rounded-2xl shadow-xl border border-gray-100 max-w-7xl mx-auto">
-          <div className="flex justify-between items-center border-b pb-4 mb-5 gap-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 mb-5 gap-3">
             <button onClick={() => setView('menu')} className="text-xs uppercase font-bold text-blue-900 hover:text-blue-700 transition-colors whitespace-nowrap">← Main Menu</button>
-            <h4 className="text-[10px] sm:text-xs font-black bg-[#001f3f] text-white px-3 py-1.5 rounded-full tracking-wider uppercase truncate">Active Leaves Hub</h4>
+            <h4 className="text-[10px] sm:text-xs font-black bg-[#001f3f] text-white px-3 py-1.5 rounded-full tracking-wider uppercase truncate self-start sm:self-auto">Active Leaves Hub</h4>
           </div>
 
           {message.text && (
@@ -436,7 +464,7 @@ const ManageAttendance = () => {
             <div className="text-center py-12 text-xs font-bold text-gray-400">Loading incoming applications data...</div>
           ) : applications.length === 0 ? (
             <div className="text-center py-10 text-xs text-amber-600 bg-amber-50 rounded-2xl border border-dashed border-amber-200 font-bold uppercase tracking-wide">
-              Abhi tak kisi bache ne application submit nahi ki.
+              No student has submitted an application yet.
             </div>
           ) : (
             <div className="w-full overflow-x-auto border border-gray-100 rounded-2xl shadow-inner scrollbar-thin">

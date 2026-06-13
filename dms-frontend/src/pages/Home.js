@@ -1,12 +1,56 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import HeroSection from '../components/landing-page/HeroSection';
 import Footer from '../components/landing-page/Footer';
 import { 
   Users, ShieldCheck, Zap, Database, Search, 
-  Settings, PenTool, Share2, Star 
+  Settings, PenTool, Share2, Star, ChevronLeft, ChevronRight 
 } from 'lucide-react';
 
 const Home = () => {
+  const [insights, setInsights] = useState(() => {
+    const savedInsights = localStorage.getItem('dmsInsights');
+    return savedInsights ? JSON.parse(savedInsights) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('dmsInsights', JSON.stringify(insights));
+  }, [insights]);
+
+  const [formData, setFormData] = useState({
+    name: '',
+    rating: 5,
+    text: ''
+  });
+
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  const nextSlide = () => {
+    if (currentIndex < insights.length - 3) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+
+  const prevSlide = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+
+  const handleReviewSubmit = (e) => {
+    e.preventDefault();
+    if (!formData.name || !formData.text) return;
+    
+    const newInsight = {
+      name: formData.name,
+      date: new Date().toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }),
+      rating: formData.rating,
+      text: formData.text
+    };
+
+    setInsights([newInsight, ...insights]);
+    setFormData({ name: '', rating: 5, text: '' });
+  };
+
   return (
     <div className="min-h-screen bg-white">
       {/* 1. TOP SECTION (Blue Background Frame) */}
@@ -18,15 +62,15 @@ const Home = () => {
       <div className="bg-white">
         
         {/* Why We Built This System? */}
-        <section className="py-20 px-6 md:px-20 text-center max-w-7xl mx-auto">
-          <h2 className="text-3xl md:text-5xl font-black text-[#001f3f] mb-4 uppercase tracking-tighter">
+        <section className="py-8 md:py-10 px-6 md:px-16 text-center max-w-7xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-black text-[#001f3f] mb-3 uppercase tracking-tighter">
             Why We Built This System?
           </h2>
-          <p className="text-gray-500 mb-16 font-bold text-base max-w-2xl mx-auto">
+          <p className="text-gray-500 mb-8 font-bold text-xs md:text-sm max-w-2xl mx-auto">
             To simplify academic operations by centralizing student and department data management.
           </p>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               { icon: <Database />, title: "Student Data Reduction", text: "Centralized storage ensures no duplicate records across departments." },
               { icon: <Users />, title: "Transparency & Accuracy", text: "Real-time updates for grades, attendance and administrative tasks." },
@@ -35,11 +79,11 @@ const Home = () => {
               { icon: <Settings />, title: "Centralized Department Control", text: "Complete control over all departmental activities from a single dashboard." },
               { icon: <ShieldCheck />, title: "Secure & Reliable System", text: "Built with industry-standard security to keep sensitive data safe." }
             ].map((item, index) => (
-              <div key={index} className="border-2 border-[#001f3f] p-10 rounded-[2.5rem] hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group bg-white flex flex-col items-center">
-                <div className="bg-[#001f3f] text-white w-16 h-16 rounded-full flex items-center justify-center mb-6 group-hover:bg-blue-800 transition-colors">
+              <div key={index} className="border-2 border-[#001f3f] p-6 rounded-[2rem] hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group bg-white flex flex-col items-center">
+                <div className="bg-[#001f3f] text-white w-12 h-12 rounded-full flex items-center justify-center mb-4 group-hover:bg-blue-800 transition-colors">
                   {item.icon}
                 </div>
-                <h3 className="font-black text-[#001f3f] text-xl mb-4">{item.title}</h3>
+                <h3 className="font-black text-[#001f3f] text-lg mb-3">{item.title}</h3>
                 <p className="text-sm text-gray-500 font-bold leading-relaxed">{item.text}</p>
               </div>
             ))}
@@ -47,34 +91,34 @@ const Home = () => {
         </section>
 
         {/* What We Stand For */}
-        <section className="py-20 px-6 md:px-20 flex flex-col lg:flex-row items-center gap-16 max-w-7xl mx-auto">
-          <div className="lg:w-1/2 space-y-10 text-left">
-            <h2 className="text-5xl font-black text-yellow-500 tracking-tight">What We Stand For</h2>
+        <section className="py-8 md:py-10 px-6 md:px-16 flex flex-col lg:flex-row items-center gap-6 md:gap-8 max-w-7xl mx-auto">
+          <div className="lg:w-1/2 space-y-6 text-left">
+            <h2 className="text-2xl md:text-3xl font-black text-yellow-500 tracking-tight">What We Stand For</h2>
             {[
               { title: "Innovation & Simplicity", desc: "Developing easy-to-use tools that solve complex academic problems." },
               { title: "Trust & Transparency", desc: "Ensuring all academic records are accurate, reliable and secure." },
               { title: "Growth & Collaboration", desc: "Fostering an environment where departments can work together effortlessly." }
             ].map((item, i) => (
-              <div key={i} className="border-l-8 border-yellow-400 p-8 rounded-r-2xl bg-gray-50 hover:bg-yellow-50 transition-colors cursor-default shadow-sm">
-                <h3 className="font-black text-[#001f3f] text-2xl mb-2">{item.title}</h3>
-                <p className="text-base text-gray-600 font-bold">{item.desc}</p>
+              <div key={i} className="border-l-8 border-yellow-400 p-6 md:p-8 rounded-r-2xl bg-gray-50 hover:bg-yellow-50 transition-colors cursor-default shadow-sm">
+                <h3 className="font-black text-[#001f3f] text-xl mb-2">{item.title}</h3>
+                <p className="text-sm md:text-base text-gray-600 font-bold">{item.desc}</p>
               </div>
             ))}
           </div>
-          <div className="lg:w-1/2">
+          <div className="lg:w-1/2 w-full mt-8 lg:mt-0">
             <img 
               src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800" 
               alt="Team" 
-              className="rounded-[3rem] w-full h-[500px] object-cover shadow-2xl border-8 border-yellow-500"
+              className="rounded-[2rem] w-full h-[300px] md:h-[400px] object-cover shadow-2xl border-4 md:border-8 border-yellow-500"
             />
           </div>
         </section>
 
         {/* How It Works */}
-        <section className="bg-gray-50 py-20 px-6 md:px-16 text-center">
+        <section className="bg-gray-50 py-8 md:py-10 px-6 md:px-16 text-center">
           <div className="max-w-7xl mx-auto">
-            <h2 className="text-4xl font-black text-[#001f3f] mb-4 uppercase">How It Works</h2>
-            <p className="text-gray-500 mb-16 text-sm font-black italic">Simple features designed to simplify every step of academic management.</p>
+            <h2 className="text-2xl md:text-3xl font-black text-[#001f3f] mb-2 uppercase">How It Works</h2>
+            <p className="text-gray-500 mb-8 text-xs md:text-sm font-black tracking-wide">Simple features designed to simplify every step of academic management.</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
               {[
@@ -96,51 +140,92 @@ const Home = () => {
         </section>
 
         {/* Student Insights */}
-        <section className="py-24 px-6 md:px-20 text-center max-w-7xl mx-auto">
-          <h2 className="text-4xl font-black text-[#001f3f] mb-16 uppercase tracking-tighter">Student Insights</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              { name: "Laiba Khan", date: "Jan 12, 2026", text: "This system has made it so easy to track my records. Highly recommended!" },
-              { name: "Hamza", date: "Feb 05, 2026", text: "The interface is so simple and the data is always accurate. Great job!" },
-              { name: "Zainab", date: "Mar 20, 2026", text: "Accessing department info was never this easy. It saved me so much time." }
-            ].map((rev, i) => (
-              <div key={i} className="bg-white border-2 border-blue-900 p-10 rounded-[3.5rem] relative text-left shadow-lg hover:shadow-2xl transition-all">
-                <div className="flex justify-between items-center mb-6">
-                  <span className="font-black text-blue-950 text-xl">{rev.name}</span>
-                  <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{rev.date}</span>
-                </div>
-                <div className="flex text-yellow-500 mb-6 gap-1">
-                  {[...Array(5)].map((_, star) => <Star key={star} size={18} fill="currentColor"/>)}
-                </div>
-                <p className="text-[15px] font-bold text-gray-700 italic leading-relaxed">"{rev.text}"</p>
+        <section className="py-8 md:py-10 px-6 md:px-16 text-center max-w-7xl mx-auto">
+          <h2 className="text-2xl md:text-3xl font-black text-[#001f3f] mb-6 uppercase tracking-tighter">Student Insights</h2>
+          {insights.length === 0 ? (
+            <p className="text-gray-500 font-bold">No insights yet. Be the first to share your thoughts!</p>
+          ) : (
+            <div className="relative">
+              {insights.length > 3 && (
+                <button 
+                  onClick={prevSlide}
+                  disabled={currentIndex === 0}
+                  className={`absolute left-[-10px] md:left-[-40px] top-1/2 -translate-y-1/2 z-10 p-3 rounded-full shadow-xl transition-all duration-300 ${currentIndex === 0 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-[#001f3f] text-white hover:bg-[#d4a017] hover:scale-110'}`}
+                >
+                  <ChevronLeft size={24} />
+                </button>
+              )}
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {insights.slice(currentIndex, currentIndex + 3).map((rev, i) => (
+                  <div key={i} className="bg-white border-2 border-blue-900 p-8 rounded-3xl relative text-left shadow-lg hover:shadow-2xl transition-all flex flex-col justify-between">
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-black text-blue-950 text-lg">{rev.name}</span>
+                        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{rev.date}</span>
+                      </div>
+                      <div className="flex mb-4 gap-1">
+                        {[...Array(5)].map((_, star) => (
+                          <Star 
+                            key={star} 
+                            size={16} 
+                            className={star < (rev.rating || 5) ? "text-yellow-500" : "text-gray-200"}
+                            fill="currentColor"
+                          />
+                        ))}
+                      </div>
+                      <p className="text-sm font-bold text-gray-700 leading-relaxed">"{rev.text}"</p>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+
+              {insights.length > 3 && (
+                <button 
+                  onClick={nextSlide}
+                  disabled={currentIndex >= insights.length - 3}
+                  className={`absolute right-[-10px] md:right-[-40px] top-1/2 -translate-y-1/2 z-10 p-3 rounded-full shadow-xl transition-all duration-300 ${currentIndex >= insights.length - 3 ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-[#001f3f] text-white hover:bg-[#d4a017] hover:scale-110'}`}
+                >
+                  <ChevronRight size={24} />
+                </button>
+              )}
+            </div>
+          )}
         </section>
 
         {/* Contact Form */}
-        <section className="pb-32 px-6 md:px-16">
-          <div className="bg-[#f8fafc] border-[3px] border-[#001f3f] rounded-[4rem] p-10 md:p-20 max-w-5xl mx-auto shadow-2xl">
-            <h2 className="text-3xl md:text-5xl font-black text-[#001f3f] text-center mb-4 uppercase">Tell Us What You Think</h2>
-            <p className="text-center text-gray-500 text-sm font-bold mb-16 italic">Your feedback helps us grow and improve every feature we offer.</p>
+        <section className="pb-12 px-6 md:px-16">
+          <div className="bg-[#f8fafc] border-[1.5px] border-[#001f3f] rounded-2xl p-6 md:p-8 max-w-2xl mx-auto shadow-lg">
+            <h2 className="text-xl md:text-2xl font-black text-[#001f3f] text-center mb-1 uppercase tracking-tight">Tell Us What You Think</h2>
+            <p className="text-center text-gray-500 text-[10px] font-bold mb-6 tracking-wide">Your feedback helps us grow and improve every feature we offer.</p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 mb-10 text-left">
-              {["Your Name", "Email", "Status", "Rating"].map((label, idx) => (
-                <div key={idx} className="flex flex-col gap-3">
-                  <label className="text-sm font-black text-[#001f3f] ml-6">{label}</label>
-                  <input type="text" className="w-full border-2 border-[#001f3f] rounded-2xl py-5 px-8 focus:ring-4 focus:ring-blue-100 outline-none font-bold shadow-inner" />
+            <form onSubmit={handleReviewSubmit}>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 text-left">
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-black text-[#001f3f] ml-2 uppercase tracking-wide">Your Name</label>
+                  <input type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full border-[1.5px] border-[#001f3f] rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-100 outline-none font-bold shadow-inner text-xs bg-white" required />
                 </div>
-              ))}
-            </div>
-            <div className="flex flex-col gap-3 text-left mb-16">
-              <label className="text-sm font-black text-[#001f3f] ml-6">What You Think</label>
-              <textarea className="w-full border-2 border-[#001f3f] rounded-[3rem] p-8 min-h-[200px] focus:ring-4 focus:ring-blue-100 outline-none font-bold shadow-inner"></textarea>
-            </div>
-            <div className="text-center">
-              <button className="bg-[#001f3f] text-white px-20 py-6 rounded-[2rem] font-black text-2xl hover:scale-105 transition-all shadow-2xl active:scale-95">
-                Submit Now
-              </button>
-            </div>
+                <div className="flex flex-col gap-1">
+                  <label className="text-[10px] font-black text-[#001f3f] ml-2 uppercase tracking-wide">Rating</label>
+                  <select value={formData.rating} onChange={e => setFormData({...formData, rating: Number(e.target.value)})} className="w-full border-[1.5px] border-[#001f3f] rounded-lg py-2 px-3 focus:ring-2 focus:ring-blue-100 outline-none font-bold shadow-inner text-xs bg-white cursor-pointer">
+                    <option value="5">5 Stars</option>
+                    <option value="4">4 Stars</option>
+                    <option value="3">3 Stars</option>
+                    <option value="2">2 Stars</option>
+                    <option value="1">1 Star</option>
+                  </select>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1 text-left mb-6">
+                <label className="text-[10px] font-black text-[#001f3f] ml-2 uppercase tracking-wide">What You Think</label>
+                <textarea required value={formData.text} onChange={e => setFormData({...formData, text: e.target.value})} className="w-full border-[1.5px] border-[#001f3f] rounded-xl p-3 min-h-[80px] focus:ring-2 focus:ring-blue-100 outline-none font-bold shadow-inner text-xs bg-white"></textarea>
+              </div>
+              <div className="text-center">
+                <button type="submit" className="bg-[#001f3f] text-white px-8 py-2.5 rounded-lg font-black text-xs uppercase tracking-widest hover:bg-[#d4a017] transition-all shadow-md active:scale-95">
+                  Submit Now
+                </button>
+              </div>
+            </form>
           </div>
         </section>
       </div>

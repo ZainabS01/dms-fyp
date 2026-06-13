@@ -3,16 +3,16 @@ const mongoose = require('mongoose');
 const applicationSchema = new mongoose.Schema({
     studentId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // 👈 Student ka data link karne ke liye
+        ref: 'User', // 👈 For linking student data
         required: true
     },
     subject: {
         type: String,
-        required: [true, "Application ka subject likhna zaroori hai."]
+        required: [true, "Application subject is required."]
     },
     reason: {
         type: String,
-        required: [true, "Leave ki wajah (reason) likhna zaroori hai."]
+        required: [true, "Leave reason is required."]
     },
     startDate: {
         type: String, // Format: YYYY-MM-DD

@@ -16,9 +16,18 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // 1. GET ALL SUBJECTS (Semester wise)
+const { buildDeptRegex, buildSemRegex } = require('../utils/queryHelpers');
+
 router.get('/:dept/:sem', async (req, res) => {
     try {
-        const data = await Subject.find({ department: req.params.dept, semester: req.params.sem });
+        let filter = {};
+        const deptRegex = buildDeptRegex(req.params.dept);
+        if (deptRegex) filter.department = deptRegex;
+
+        const semRegex = buildSemRegex(req.params.sem);
+        if (semRegex) filter.semester = semRegex;
+
+        const data = await Subject.find(filter);
         res.json(data);
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -49,7 +58,7 @@ router.put('/edit/:oldCode', async (req, res) => {
             { code, title },
             { new: true }
         );
-        if (!updated) return res.status(404).json({ message: "Subject nahi mila" });
+        if (!updated) return res.status(404).json({ message: "Subject not found" });
         res.json(updated);
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -58,7 +67,7 @@ router.put('/edit/:oldCode', async (req, res) => {
 router.delete('/delete/:id', async (req, res) => {
     try {
         const deleted = await Subject.findByIdAndDelete(req.params.id);
-        if (!deleted) return res.status(404).json({ message: "Subject nahi mila" });
+        if (!deleted) return res.status(404).json({ message: "Subject not found" });
         res.json({ message: "Subject Deleted Successfully" });
     } catch (e) { res.status(500).json({ error: e.message }); }
 });
@@ -68,7 +77,7 @@ router.post('/category/add', async (req, res) => {
     try {
         const { subCode, categoryName } = req.body;
         const subject = await Subject.findOne({ code: subCode });
-        if (!subject) return res.status(404).json({ error: "Subject code galat hai" });
+        if (!subject) return res.status(404).json({ error: "Incorrect Subject code" });
 
         subject.categories.push({ name: categoryName, files: [] });
         await subject.save();
@@ -82,7 +91,7 @@ router.put('/category/rename', async (req, res) => {
         const { subCode, catId, newName } = req.body;
         const subject = await Subject.findOne({ code: subCode });
         const category = subject.categories.id(catId);
-        if (!category) return res.status(404).json({ error: "Folder nahi mila" });
+        if (!category) return res.status(404).json({ error: "Folder not found" });
 
         category.name = newName;
         await subject.save();

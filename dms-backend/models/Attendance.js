@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Application = require('../models/Application');
 
 const attendanceSchema = new mongoose.Schema({
     department: { 
@@ -20,7 +21,7 @@ const attendanceSchema = new mongoose.Schema({
     records: [{
         studentId: { 
             type: mongoose.Schema.Types.ObjectId, 
-            ref: 'User', // 👈 Yeh aapke users table/model ka name hai
+            ref: 'User', // 👈 This is the name of your users table/model
             required: true 
         },
         status: { 

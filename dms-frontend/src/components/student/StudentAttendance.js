@@ -16,7 +16,7 @@ const Attendance = () => {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  const BACKEND_URL = "http://localhost:5000";
+  const BACKEND_URL = `${process.env.REACT_APP_API_URL}`;
 
   const fetchAttendance = async () => {
     const user = JSON.parse(localStorage.getItem('user'));

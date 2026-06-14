@@ -52,7 +52,7 @@ const Contact = () => {
         recipient: target.toLowerCase()
       };
 
-      await axios.post('http://localhost:5000/api/query/add', queryData);
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/query/add`, queryData);
 
       setSubmittedTo(target);
       setShowDropdown(false);

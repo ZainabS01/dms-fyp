@@ -13,7 +13,7 @@ const Tasks = () => {
 
     const fetchTasks = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/tasks/list');
+            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/tasks/list`);
             setTasks(res.data);
         } catch (err) {
             console.error("Fetch Error:", err);
@@ -22,7 +22,7 @@ const Tasks = () => {
 
     const handleCreateTask = async () => {
         try {
-            await axios.post('http://localhost:5000/api/tasks/add', formData);
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/tasks/add`, formData);
             fetchTasks();
             toast.success("Task Created Successfully!");
             setFormData({ title: '', description: '', taskType: 'Assignment', dueDate: '', department: '', semester: '' });
@@ -34,10 +34,10 @@ const Tasks = () => {
     const handleAction = async (taskId, studentId, payload, actionType) => {
         try {
             if (actionType === 'DELETE') {
-                await axios.delete(`http://localhost:5000/api/tasks/delete/${taskId}`);
+                await axios.delete(`${process.env.REACT_APP_API_URL}/api/tasks/delete/${taskId}`);
                 toast.error("Task Deleted Successfully!");
             } else {
-                await axios.put(`http://localhost:5000/api/tasks/feedback/${taskId}/${studentId}`, payload);
+                await axios.put(`${process.env.REACT_APP_API_URL}/api/tasks/feedback/${taskId}/${studentId}`, payload);
                 toast.success("Feedback Updated Successfully!");
             }
             fetchTasks();
@@ -104,7 +104,7 @@ const Tasks = () => {
                                             <div>
                                                 <p className="font-black text-sm text-[#001f3f] uppercase">{sub.studentName}</p>
                                                 <p className="text-[10px] font-bold text-slate-400 uppercase mt-0.5">Status: <span className={sub.status === 'Checked' ? 'text-green-600' : 'text-[#d4a017]'}>{sub.status}</span></p>
-                                                <a href={`http://localhost:5000/uploads/${sub.fileUrl}`} target="_blank" rel="noreferrer" className="text-blue-600 font-bold underline text-[10px] uppercase mt-2 inline-block">
+                                                <a href={`${process.env.REACT_APP_API_URL}/uploads/${sub.fileUrl}`} target="_blank" rel="noreferrer" className="text-blue-600 font-bold underline text-[10px] uppercase mt-2 inline-block">
                                                     📥 Download Submission
                                                 </a>
                                             </div>

@@ -23,7 +23,7 @@ const Registration = () => {
     window.scrollTo(0, 0);
     const fetchDepartments = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/departments');
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/departments`);
         setDepartmentsList(res.data);
       } catch (err) {
         console.error("Failed to load departments");
@@ -74,7 +74,7 @@ const Registration = () => {
     };
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', userData);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/register`, userData);
       
       if (response.data.success) {
         toast.success(response.data.message || "Registered Successfully!");

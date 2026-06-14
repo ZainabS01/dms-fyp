@@ -42,7 +42,7 @@ const StudentDashboard = ({ user, setUser, onLogout }) => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const userRes = await axios.get('http://localhost:5000/api/auth/me', {
+        const userRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
           headers: { 'x-auth-token': token }
         });
 
@@ -53,7 +53,7 @@ const StudentDashboard = ({ user, setUser, onLogout }) => {
           localStorage.setItem('user', JSON.stringify(freshUser));
         }
 
-        const academicRes = await axios.get('http://localhost:5000/api/student/academic-record', {
+        const academicRes = await axios.get(`${process.env.REACT_APP_API_URL}/api/student/academic-record`, {
           headers: { 'x-auth-token': token }
         });
         
@@ -70,7 +70,7 @@ const StudentDashboard = ({ user, setUser, onLogout }) => {
 
   const handleUpdateProfile = async (updatedFields) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/users/update/${currentUser._id}`, updatedFields);
+      const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/users/update/${currentUser._id}`, updatedFields);
       if (res.data.success) {
         const updatedUser = res.data.user; 
         setCurrentUser(updatedUser);

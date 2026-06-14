@@ -23,7 +23,7 @@ const DepartmentManagement = () => {
 
   const fetchDepartments = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/departments');
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/departments`);
       setDepartments(res.data);
     } catch (err) {
       toast.error("Failed to load departments");
@@ -39,7 +39,7 @@ const DepartmentManagement = () => {
     try {
       if (editId) {
         // Edit mode
-        const res = await axios.put(`http://localhost:5000/api/departments/${editId}`, {
+        const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/departments/${editId}`, {
           name, icon, description, highlights
         });
         if (res.data.success) {
@@ -49,7 +49,7 @@ const DepartmentManagement = () => {
         }
       } else {
         // Create mode
-        const res = await axios.post('http://localhost:5000/api/departments', {
+        const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/departments`, {
           name, icon, description, highlights
         });
         if (res.data.success) {
@@ -89,7 +89,7 @@ const DepartmentManagement = () => {
     if (!window.confirm("Are you sure you want to delete this department?")) return;
     
     try {
-      const res = await axios.delete(`http://localhost:5000/api/departments/${id}`);
+      const res = await axios.delete(`${process.env.REACT_APP_API_URL}/api/departments/${id}`);
       if (res.data.success) {
         toast.success("Department deleted!");
         setDepartments(departments.filter(d => d._id !== id));

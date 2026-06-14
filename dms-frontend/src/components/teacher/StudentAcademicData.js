@@ -39,7 +39,7 @@ const StudentAcademicData = () => {
 
   const fetchData = async () => {
     try {
-      const res = await axios.get(`http://localhost:5000/api/subjects/${selectedDept}/${selectedSem}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/subjects/${selectedDept}/${selectedSem}`);
       setSubjects(res.data);
     } catch (err) { console.error("Fetch Error:", err); }
   };
@@ -47,7 +47,7 @@ const StudentAcademicData = () => {
   const handleAddSubject = async () => {
     if (!newSub.code || !newSub.title) return;
     try {
-      await axios.post('http://localhost:5000/api/subjects/add', {
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/subjects/add`, {
         ...newSub, department: selectedDept, semester: selectedSem
       });
       showToast("Subject Added!");
@@ -59,7 +59,7 @@ const StudentAcademicData = () => {
 
   const handleUpdateSubject = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/subjects/edit/${editingSubject.oldCode}`, {
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/subjects/edit/${editingSubject.oldCode}`, {
         code: editingSubject.code,
         title: editingSubject.title
       });
@@ -71,7 +71,7 @@ const StudentAcademicData = () => {
 
   const handleDeleteSubject = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/api/subjects/delete/${id}`);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/subjects/delete/${id}`);
       showToast("Subject Deleted", "error");
       fetchData();
     } catch (err) { showToast("Delete failed", "error"); }
@@ -80,7 +80,7 @@ const StudentAcademicData = () => {
   const handleAddCategory = async () => {
     if (!newFolderName || !activeSubCode) return;
     try {
-      await axios.post(`http://localhost:5000/api/subjects/category/add`, {
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/subjects/category/add`, {
         subCode: activeSubCode,
         categoryName: newFolderName
       });
@@ -93,7 +93,7 @@ const StudentAcademicData = () => {
 
   const handleDeleteFolder = async (subCode, catId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/subjects/category/${subCode}/${catId}`);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/subjects/category/${subCode}/${catId}`);
       showToast("Folder Deleted", "success");
       fetchData();
     } catch (err) {
@@ -103,7 +103,7 @@ const StudentAcademicData = () => {
 
   const handleRenameFolder = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/subjects/category/rename`, {
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/subjects/category/rename`, {
         subCode: editingFolder.subCode,
         catId: editingFolder.id,
         newName: editingFolder.name
@@ -119,7 +119,7 @@ const StudentAcademicData = () => {
     const fd = new FormData();
     fd.append('file', file); fd.append('subCode', subCode); fd.append('catId', catId);
     try {
-      await axios.post('http://localhost:5000/api/subjects/upload', fd);
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/subjects/upload`, fd);
       showToast("File Uploaded!");
       fetchData();
     } catch (err) { showToast("Upload failed!", "error"); }
@@ -127,7 +127,7 @@ const StudentAcademicData = () => {
 
   const handleDeleteFile = async (subCode, catId, fileId) => {
     try {
-      await axios.delete(`http://localhost:5000/api/subjects/file/${subCode}/${catId}/${fileId}`);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/subjects/file/${subCode}/${catId}/${fileId}`);
       showToast("File Deleted", "error");
       fetchData();
     } catch (err) { showToast("Error deleting file", "error"); }
@@ -263,7 +263,7 @@ const StudentAcademicData = () => {
                           <div key={file._id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-white border border-transparent hover:border-slate-100">
                             <span className="text-[10px] font-bold text-[#001f3f] truncate w-24">{file.fileName}</span>
                             <div className="flex gap-1">
-                              <a href={`http://localhost:5000${file.fileUrl}`} target="_blank" rel="noreferrer" className="p-1.5 text-blue-400 hover:scale-110"><FiEye size={12}/></a>
+                              <a href={`${process.env.REACT_APP_API_URL}${file.fileUrl}`} target="_blank" rel="noreferrer" className="p-1.5 text-blue-400 hover:scale-110"><FiEye size={12}/></a>
                               <button onClick={() => handleDeleteFile(sub.code, cat._id, file._id)} className="p-1.5 text-red-400 hover:scale-110"><FiTrash2 size={12}/></button>
                             </div>
                           </div>

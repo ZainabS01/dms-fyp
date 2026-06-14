@@ -21,7 +21,7 @@ const QuerySection = ({ userRole, user }) => {
   const fetchQueries = async () => {
     try {
       const rollNo = user?.rollNo || user?.user?.rollNo || '';
-      const res = await axios.get(`http://localhost:5000/api/query/all?role=${userRole}&rollNumber=${rollNo}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/query/all?role=${userRole}&rollNumber=${rollNo}`);
       setQueries(res.data);
     } catch (err) {
       toast.error("Failed to fetch queries.");
@@ -55,7 +55,7 @@ const QuerySection = ({ userRole, user }) => {
     };
 
     try {
-        await axios.post('http://localhost:5000/api/query/add', payload);
+        await axios.post(`${process.env.REACT_APP_API_URL}/api/query/add`, payload);
         toast.success("Message sent successfully!");
         setSubject('');
         setMessage('');
@@ -75,7 +75,7 @@ const QuerySection = ({ userRole, user }) => {
     }
 
     try {
-      await axios.put(`http://localhost:5000/api/query/reply/${id}`, { reply: replyText });
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/query/reply/${id}`, { reply: replyText });
       toast.success("Replied successfully!");
       setReplyTexts({ ...replyTexts, [id]: '' });
       fetchQueries();
@@ -86,7 +86,7 @@ const QuerySection = ({ userRole, user }) => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/query/delete/${modal.idToDelete}`);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/query/delete/${modal.idToDelete}`);
       toast.success("Query deleted successfully!");
       fetchQueries();
     } catch (err) {

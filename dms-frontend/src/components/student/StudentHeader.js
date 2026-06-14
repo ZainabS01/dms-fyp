@@ -30,7 +30,7 @@ const StudentHeader = ({ activePage, userName, onOpenNexi, setActiveTab, toggleS
   const handleDeleteNotification = async (e, id) => {
     e.stopPropagation();
     try {
-      await axios.delete(`http://localhost:5000/api/notices/${id}`);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/notices/${id}`);
       setNotices(notices.filter(n => n._id !== id));
     } catch (error) {
       console.error('Error deleting notice:', error);
@@ -40,7 +40,7 @@ const StudentHeader = ({ activePage, userName, onOpenNexi, setActiveTab, toggleS
   useEffect(() => {
     const fetchNotices = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/notices?role=student');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/notices?role=student`);
         setNotices(response.data);
       } catch (error) {
         console.error('Error fetching notices:', error);

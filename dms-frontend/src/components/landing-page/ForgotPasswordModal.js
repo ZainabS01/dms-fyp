@@ -17,7 +17,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
     
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/forgot-password', { 
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/forgot-password`, { 
         email: email.toLowerCase().trim() 
       });
       
@@ -52,7 +52,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
 
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/reset-password', { 
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/reset-password`, { 
         email: targetEmail, 
         otp: targetOtp, 
         newPassword: newPassword 

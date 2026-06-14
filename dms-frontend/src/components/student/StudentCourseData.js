@@ -21,7 +21,7 @@ const StudentCourseData = ({ selectedDept, selectedSem }) => {
 
         console.log(`Fetching for: ${dept} and ${sem}`); // For debugging
 
-        const res = await axios.get(`http://localhost:5000/api/subjects/${dept}/${sem}`);
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/subjects/${dept}/${sem}`);
         setSubjects(res.data);
       } catch (err) {
         console.error("Error fetching student data:", err);
@@ -123,10 +123,10 @@ const StudentCourseData = ({ selectedDept, selectedSem }) => {
                           <span className="text-[10px] font-bold text-[#001f3f] group-hover:text-white truncate max-w-[120px]">{file.fileName}</span>
                         </div>
                         <div className="flex gap-2 shrink-0">
-                          <a href={`http://localhost:5000${file.fileUrl}`} target="_blank" rel="noreferrer" className="w-8 h-8 flex items-center justify-center bg-white text-blue-500 rounded-lg hover:scale-110 transition-all shadow-sm">
+                          <a href={`${process.env.REACT_APP_API_URL}${file.fileUrl}`} target="_blank" rel="noreferrer" className="w-8 h-8 flex items-center justify-center bg-white text-blue-500 rounded-lg hover:scale-110 transition-all shadow-sm">
                             <FiEye size={14} />
                           </a>
-                          <a href={`http://localhost:5000${file.fileUrl}`} download={file.fileName} className="w-8 h-8 flex items-center justify-center bg-white text-[#d4a017] rounded-lg hover:scale-110 transition-all shadow-sm">
+                          <a href={`${process.env.REACT_APP_API_URL}${file.fileUrl}`} download={file.fileName} className="w-8 h-8 flex items-center justify-center bg-white text-[#d4a017] rounded-lg hover:scale-110 transition-all shadow-sm">
                             <FiDownload size={14} />
                           </a>
                         </div>

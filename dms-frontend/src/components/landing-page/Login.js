@@ -56,7 +56,7 @@ const Login = ({ setUser }) => {
       // 1. Admin Logic
       if (userRole.toLowerCase() === 'admin') {
         if (lowerEmail === 'zainabminhas294@gmail.com') {
-          const res = await axios.post('http://localhost:5000/api/auth/send-otp', { email: lowerEmail });
+          const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/send-otp`, { email: lowerEmail });
           if (res.data.success) {
             toast.success("Security OTP sent to Admin Gmail!");
             setLoginStep(2);
@@ -69,7 +69,7 @@ const Login = ({ setUser }) => {
       }
 
       // 2. Teacher & Student Logic
-      const res = await axios.post('http://localhost:5000/api/auth/login', {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
         email: lowerEmail,
         password: password
       });
@@ -116,7 +116,7 @@ const Login = ({ setUser }) => {
           };
           completeLogin(adminData);
       } else {
-          const res = await axios.post('http://localhost:5000/api/auth/verify-login-otp', {
+          const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/verify-login-otp`, {
               email: email.toLowerCase(),
               otp: otp
           });
@@ -143,7 +143,7 @@ const Login = ({ setUser }) => {
     if (e) e.preventDefault();
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/teacher-pin-login', {
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/teacher-pin-login`, {
         email: email.toLowerCase(),
         pin: pin
       });

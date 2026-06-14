@@ -9,7 +9,7 @@ const TeacherVerification = () => {
   useEffect(() => {
     const fetchPending = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/admin/faculty?status=pending');
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/faculty?status=pending`);
         setPendingTeachers(res.data);
       } catch (err) {
         toast.error("Error fetching teachers");
@@ -21,7 +21,7 @@ const TeacherVerification = () => {
   const handleVerify = async (id, status) => {
     const toastId = toast.loading(`${status === 'approve' ? 'Approving' : 'Rejecting'} teacher...`);
     try {
-      const res = await axios.put(`http://localhost:5000/api/admin/faculty/${id}/${status}`);
+      const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/admin/faculty/${id}/${status}`);
       if (res.data.success) {
         toast.success(`Teacher ${status === 'approve' ? 'Verified' : 'Rejected'}! Email sent.`, { id: toastId });
         setPendingTeachers(pendingTeachers.filter(t => t._id !== id));

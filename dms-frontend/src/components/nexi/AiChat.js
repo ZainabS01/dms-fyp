@@ -325,7 +325,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
     if (msg.image) {
       const imgSrc = msg.image.startsWith('data:') || msg.image.startsWith('http') 
         ? msg.image 
-        : `http://localhost:5000/${msg.image}`;
+        : `${process.env.REACT_APP_API_URL}/${msg.image}`;
       imgHtml = `<div class="image-container" style="display: flex; justify-content: center; margin: 30px 0;"><img src="${imgSrc}" alt="Diagram/Attached Image" style="max-width: 100%; max-height: 450px; border-radius: 12px; border: 1px solid #e2e8f0;" /></div>`;
     } else {
       const inlineImgMatch = msg.text.match(/!\[.*?\]\((.*?)\)/);
@@ -833,7 +833,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
                           <div className="bg-[#eef2f6] text-[#001f3f] rounded-2xl py-4 px-6 max-w-[80%] font-bold shadow-sm text-xs lg:text-sm leading-relaxed">
                             {msg.image && (
                               <img 
-                                src={msg.image.startsWith('data:') || msg.image.startsWith('http') ? msg.image : `http://localhost:5000/${msg.image}`} 
+                                src={msg.image.startsWith('data:') || msg.image.startsWith('http') ? msg.image : `${process.env.REACT_APP_API_URL}/${msg.image}`} 
                                 alt="Generated Output" 
                                 className="max-w-full md:max-w-sm rounded-xl mb-2 border border-slate-200 shadow-sm block"
                               />

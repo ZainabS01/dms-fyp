@@ -23,7 +23,7 @@ const QuerySection = ({ user }) => {
 
   const fetchQueries = useCallback(async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/query/all');
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/query/all`);
       // Student Queries (Teacher ke liye)
       setQueries(res.data.filter(q => q.recipient === 'teacher').reverse());
       // Admin Queries (Jo teacher ne bheji hain)
@@ -46,7 +46,7 @@ const QuerySection = ({ user }) => {
     if (!replyText[queryId]) return toast.error("Write a reply first!");
     try {
       // === ✨ FIXED HERE: Changed 'adminReply' to 'reply' to match schema strictly ===
-      await axios.put(`http://localhost:5000/api/query/reply/${queryId}`, { reply: replyText[queryId] });
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/query/reply/${queryId}`, { reply: replyText[queryId] });
       toast.success("Reply sent & Query Resolved!");
       fetchQueries();
       setReplyText({...replyText, [queryId]: ""});
@@ -57,7 +57,7 @@ const QuerySection = ({ user }) => {
   const submitAdminQuery = async (e) => {
     e.preventDefault();
     try {
-      await axios.post('http://localhost:5000/api/query/add', { 
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/query/add`, { 
         studentName: user?.name || user?.user?.name || "Teacher",
         department: user?.department || user?.user?.department || "N/A",
         subject: adminSub, 
@@ -73,7 +73,7 @@ const QuerySection = ({ user }) => {
   // EDIT MESSAGE LOGIC
   const handleEdit = async (queryId) => {
     try {
-      await axios.put(`http://localhost:5000/api/query/update/${queryId}`, { message: editText });
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/query/update/${queryId}`, { message: editText });
       toast.success("Message updated!");
       setEditingId(null);
       fetchQueries();
@@ -82,7 +82,7 @@ const QuerySection = ({ user }) => {
 
   const confirmDelete = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/query/delete/${modal.idToDelete}`);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/query/delete/${modal.idToDelete}`);
       toast.success("Query deleted successfully!");
       fetchQueries();
     } catch (err) {

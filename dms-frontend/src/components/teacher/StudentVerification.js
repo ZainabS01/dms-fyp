@@ -9,7 +9,7 @@ const StudentVerification = () => {
   useEffect(() => {
     const fetchPending = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/admin/students?status=pending');
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/students?status=pending`);
         setPendingStudents(res.data);
       } catch (err) {
         console.error("Error fetching students:", err);
@@ -20,7 +20,7 @@ const StudentVerification = () => {
 
   const handleAction = async (id, action) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/admin/students/${id}/${action}`);
+      const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/admin/students/${id}/${action}`);
       if (res.data.success) {
         alert(`Student ${action === 'approve' ? 'Verified' : 'Rejected'} Successfully!`);
         setPendingStudents(pendingStudents.filter(s => s._id !== id));

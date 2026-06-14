@@ -23,7 +23,7 @@ const ManageAttendance = () => {
   const [appLoading, setAppLoading] = useState(false);
   const [remarks, setRemarks] = useState({});
 
-  const BACKEND_URL = 'http://localhost:5000';
+  const BACKEND_URL = `${process.env.REACT_APP_API_URL}`;
 
   const departmentsList = [
     'Computer Science', 'Information Technology', 'Software Engineering',

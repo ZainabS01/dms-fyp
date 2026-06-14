@@ -11,14 +11,14 @@ const FacultyManagement = () => {
 
   const fetchFaculty = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/faculty');
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/faculty`);
       setFaculty(res.data);
     } catch (err) { console.error(err); }
   };
 
   const handleToggleHOD = async (id, currentStatus) => {
     try {
-      const res = await axios.put(`http://localhost:5000/api/admin/faculty/${id}/toggle-hod`);
+      const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/admin/faculty/${id}/toggle-hod`);
       if (res.data.success) {
         setFaculty(faculty.map(f => f._id === id ? { ...f, isHOD: res.data.isHOD } : f));
       }
@@ -29,7 +29,7 @@ const FacultyManagement = () => {
 
   const handleDeleteTeacher = async (id) => {
     try {
-      const res = await axios.delete(`http://localhost:5000/api/admin/faculty/${id}`);
+      const res = await axios.delete(`${process.env.REACT_APP_API_URL}/api/admin/faculty/${id}`);
       if (res.data.success) {
         setFaculty(faculty.filter(f => f._id !== id));
         setDeleteTarget(null);

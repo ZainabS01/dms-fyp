@@ -30,7 +30,7 @@ const AdminHeader = ({ activeTab, adminName, onOpenNexi, setActiveTab, toggleSid
   const handleDeleteNotification = async (e, id) => {
     e.stopPropagation();
     try {
-      await axios.delete(`http://localhost:5000/api/notices/${id}`);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/notices/${id}`);
       setNotices(notices.filter(n => n._id !== id));
     } catch (error) {
       console.error('Error deleting notice:', error);
@@ -40,7 +40,7 @@ const AdminHeader = ({ activeTab, adminName, onOpenNexi, setActiveTab, toggleSid
   useEffect(() => {
     const fetchNotices = async () => {
       try {
-        const response = await axios.get('http://localhost:5000/api/notices?role=admin');
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/notices?role=admin`);
         setNotices(response.data);
       } catch (error) {
         console.error('Error fetching notices:', error);

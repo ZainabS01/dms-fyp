@@ -14,7 +14,7 @@ const Students = () => {
   useEffect(() => {
     const fetchStudents = async () => {
       try {
-        const response = await axios.get(`http://localhost:5000/api/admin/students`);
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/students`);
         setAllStudents(response.data);
       } catch (err) { console.log("Data error:", err); }
     };

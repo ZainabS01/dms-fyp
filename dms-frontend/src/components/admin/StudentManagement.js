@@ -12,7 +12,7 @@ const StudentManagement = () => {
 
   const fetchStudents = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/admin/students');
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/students`);
       setStudents(res.data);
     } catch (err) { console.error(err); }
   };
@@ -28,7 +28,7 @@ const StudentManagement = () => {
 
   const handleEditSubmit = async () => {
     try {
-      await axios.put(`http://localhost:5000/api/admin/students/${editingStudent._id}`, editingStudent);
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/admin/students/${editingStudent._id}`, editingStudent);
       setIsEditModalOpen(false);
       fetchStudents();
     } catch (err) {
@@ -43,7 +43,7 @@ const StudentManagement = () => {
 
   const handleDeleteConfirm = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/admin/students/${studentToDelete._id}`);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/admin/students/${studentToDelete._id}`);
       setIsDeleteModalOpen(false);
       fetchStudents();
     } catch (err) {

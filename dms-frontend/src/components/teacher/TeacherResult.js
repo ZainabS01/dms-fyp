@@ -14,7 +14,7 @@ const TeacherResult = () => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
-  const API_BASE_URL = 'http://localhost:5000/api';
+  const API_BASE_URL = `${process.env.REACT_APP_API_URL}/api`;
 
   // API Call to fetch real-time batch data from MongoDB
   const fetchActiveBatch = async () => {
@@ -109,7 +109,7 @@ const saveOrUpdateRow = async (student) => {
       setPreviewUrl(student.localPreview);
       setShowModal(true);
     } else if (student.dmcFile) {
-      setPreviewUrl(`http://localhost:5000/${student.dmcFile}`);
+      setPreviewUrl(`${process.env.REACT_APP_API_URL}/${student.dmcFile}`);
       setShowModal(true);
     } else {
       showToast("⚠️ No physical DMC PDF transcript uploaded yet.");

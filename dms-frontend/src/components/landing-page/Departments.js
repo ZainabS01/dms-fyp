@@ -17,7 +17,7 @@ const Departments = () => {
   useEffect(() => {
     const fetchDepartments = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/departments');
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/departments`);
         setDepartments(res.data);
       } catch (err) {
         console.error("Failed to load departments:", err);

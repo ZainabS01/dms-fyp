@@ -12,7 +12,7 @@ const Timetable = () => {
 
     const fetchAllData = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/timetable/list');
+            const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/timetable/list`);
             const data = Array.isArray(res.data) ? res.data : [];
             setMyTimetables(data.filter(t => !t.uploadedBy || t.uploadedBy === 'teacher'));
             setAdminTimetables(data.filter(t => t.uploadedBy === 'admin'));
@@ -39,7 +39,7 @@ const Timetable = () => {
         
         try {
             // Header added to ensure the file uploads correctly to the backend
-            await axios.post('http://localhost:5000/api/timetable/upload', formData, {
+            await axios.post(`${process.env.REACT_APP_API_URL}/api/timetable/upload`, formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
             toast.success("Uploaded successfully!");
@@ -53,7 +53,7 @@ const Timetable = () => {
 
     const confirmDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/api/timetable/delete/${id}`);
+            await axios.delete(`${process.env.REACT_APP_API_URL}/api/timetable/delete/${id}`);
             toast.success("Deleted successfully!");
             setDeleteConfirmId(null);
             fetchAllData();
@@ -102,7 +102,7 @@ const Timetable = () => {
                                     <p className="text-slate-400 font-bold uppercase mt-0.5">{t.dept} (Sem {t.semester})</p>
                                 </div>
                                 <div className="flex gap-3 items-center shrink-0">
-                                    <a href={`http://localhost:5000/${t.fileUrl}`} target="_blank" rel="noreferrer" className="text-blue-600 underline font-bold uppercase text-[10px]">View</a>
+                                    <a href={`${process.env.REACT_APP_API_URL}/${t.fileUrl}`} target="_blank" rel="noreferrer" className="text-blue-600 underline font-bold uppercase text-[10px]">View</a>
                                     {deleteConfirmId === t._id ? (
                                         <div className="flex gap-2">
                                             <button onClick={() => confirmDelete(t._id)} className="text-red-700 font-black uppercase text-[10px]">Yes</button>
@@ -127,7 +127,7 @@ const Timetable = () => {
                                     <p className="font-black text-[#001f3f] uppercase">{t.title || "Admin File"}</p>
                                     <p className="text-slate-400 font-bold uppercase mt-0.5">{t.dept} (Sem {t.semester})</p>
                                 </div>
-                                <a href={`http://localhost:5000/${t.fileUrl}`} target="_blank" rel="noreferrer" className="text-purple-600 underline font-bold uppercase text-[10px] shrink-0">View</a>
+                                <a href={`${process.env.REACT_APP_API_URL}/${t.fileUrl}`} target="_blank" rel="noreferrer" className="text-purple-600 underline font-bold uppercase text-[10px] shrink-0">View</a>
                             </div>
                         ))}
                         {adminTimetables.length === 0 && <p className="text-gray-400 text-xs font-bold italic">No admin files assigned.</p>}

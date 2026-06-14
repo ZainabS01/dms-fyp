@@ -17,7 +17,7 @@ const NoticeBoard = () => {
 
   const fetchNotices = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/notices');
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/notices`);
       setNotices(response.data);
     } catch (error) {
       console.error('Error fetching notices:', error);
@@ -27,7 +27,7 @@ const NoticeBoard = () => {
 
   const confirmDeleteNotice = async () => {
     try {
-      await axios.delete(`http://localhost:5000/api/notices/${modal.idToDelete}`);
+      await axios.delete(`${process.env.REACT_APP_API_URL}/api/notices/${modal.idToDelete}`);
       toast.success("Notice deleted successfully!");
       fetchNotices();
     } catch (error) {
@@ -46,7 +46,7 @@ const NoticeBoard = () => {
 
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/notices', {
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/notices`, {
         title,
         content,
         target,

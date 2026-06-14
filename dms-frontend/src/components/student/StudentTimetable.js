@@ -13,7 +13,7 @@ const StudentTimetable = ({ studentData }) => {
         const dept = studentData.department;
         const sem = studentData.semester;
         // Important: Check the URL (Prefix set in the backend)
-        const res = await axios.get(`http://localhost:5000/api/timetable/list?department=${encodeURIComponent(dept)}&semester=${encodeURIComponent(sem)}`); 
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/timetable/list?department=${encodeURIComponent(dept)}&semester=${encodeURIComponent(sem)}`); 
         setTimetables(res.data);
       } catch (err) {
         console.error("Error details:", err);
@@ -39,7 +39,7 @@ const StudentTimetable = ({ studentData }) => {
   // Download function to prevent redirection to a new tab
   const handleDownload = async (fileUrl, fileName) => {
     try {
-      const response = await fetch(`http://localhost:5000/${fileUrl}`);
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/${fileUrl}`);
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
@@ -51,7 +51,7 @@ const StudentTimetable = ({ studentData }) => {
     } catch (err) {
       console.error("Download failed:", err);
       // If direct download fails, fallback to standard link
-      window.open(`http://localhost:5000/${fileUrl}`, '_blank');
+      window.open(`${process.env.REACT_APP_API_URL}/${fileUrl}`, '_blank');
     }
   };
 
@@ -73,7 +73,7 @@ const StudentTimetable = ({ studentData }) => {
       
       <div className="flex gap-3 md:justify-end w-full md:w-auto">
         {/* VIEW BUTTON - This will open in a new tab */}
-        <a href={`http://localhost:5000/${item.fileUrl}`} target="_blank" rel="noreferrer" 
+        <a href={`${process.env.REACT_APP_API_URL}/${item.fileUrl}`} target="_blank" rel="noreferrer" 
            className="bg-slate-100 p-3 rounded-xl text-slate-600 hover:bg-slate-200 transition-all">
           <FiEye size={20} />
         </a>

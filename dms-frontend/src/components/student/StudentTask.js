@@ -18,7 +18,7 @@ const Task = ({ studentData }) => {
     try {
       const dept = studentData.department;
       const sem = studentData.semester;
-      const res = await axios.get(`http://localhost:5000/api/tasks/list?department=${encodeURIComponent(dept)}&semester=${encodeURIComponent(sem)}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/tasks/list?department=${encodeURIComponent(dept)}&semester=${encodeURIComponent(sem)}`);
       setTasks(res.data);
     } catch (err) {
       console.error("Error fetching tasks:", err);
@@ -45,7 +45,7 @@ const Task = ({ studentData }) => {
     formData.append('studentName', studentData.name);
     
     try {
-      await axios.post(`http://localhost:5000/api/tasks/submit/${taskId}`, formData, {
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/tasks/submit/${taskId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       toast.success("Assignment Submitted Successfully!");
@@ -92,7 +92,7 @@ const Task = ({ studentData }) => {
                           <p className="text-sm text-gray-700"><strong>Remarks:</strong> {mySubmission.remarks}</p>
                           
                           <div className="flex flex-wrap gap-4 mt-2">
-                            <a href={`http://localhost:5000/uploads/${mySubmission.fileUrl}`} target="_blank" rel="noreferrer" className="text-blue-600 underline text-xs font-bold">
+                            <a href={`${process.env.REACT_APP_API_URL}/uploads/${mySubmission.fileUrl}`} target="_blank" rel="noreferrer" className="text-blue-600 underline text-xs font-bold">
                               View Submission
                             </a>
                             <button onClick={() => downloadFeedbackPDF({...task, grade: mySubmission.grade, teacherRemarks: mySubmission.remarks})} className="text-green-600 underline text-xs font-bold text-left">

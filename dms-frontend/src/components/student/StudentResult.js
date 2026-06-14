@@ -5,7 +5,7 @@ import jsPDF from 'jspdf';
 
 const StudentResult = ({ studentData }) => {
   const [results, setResults] = useState([]);
-  const API_BASE_URL = "http://localhost:5000/api"; 
+  const API_BASE_URL = `${process.env.REACT_APP_API_URL}/api`; 
 
   // Dono case handling (rollNo ya rollno)
   const activeRollNo = studentData?.rollNo || studentData?.rollno;
@@ -70,7 +70,7 @@ const StudentResult = ({ studentData }) => {
                 <button 
                   onClick={async () => {
                     try {
-                      const fileUrl = `http://localhost:5000/${res.dmcFile}`;
+                      const fileUrl = `${process.env.REACT_APP_API_URL}/${res.dmcFile}`;
                       const response = await fetch(fileUrl);
                       const blob = await response.blob();
                       const url = window.URL.createObjectURL(blob);
@@ -83,7 +83,7 @@ const StudentResult = ({ studentData }) => {
                       window.URL.revokeObjectURL(url);
                       a.remove();
                     } catch (error) {
-                      window.open(`http://localhost:5000/${res.dmcFile}`, '_blank');
+                      window.open(`${process.env.REACT_APP_API_URL}/${res.dmcFile}`, '_blank');
                     }
                   }}
                   className="bg-green-600 text-white px-4 py-2 rounded-xl text-sm flex items-center font-bold hover:bg-green-700 transition"

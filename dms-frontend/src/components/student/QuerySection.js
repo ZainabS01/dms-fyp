@@ -18,7 +18,7 @@ const QuerySection = ({ user }) => {
   const fetchHistory = useCallback(async () => {
     try {
       const roll = user?.rollNo || user?.rollno || '';
-      const res = await axios.get(`http://localhost:5000/api/query/all?rollNumber=${encodeURIComponent(roll)}`);
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/query/all?rollNumber=${encodeURIComponent(roll)}`);
       setHistory(res.data.reverse()); 
     } catch (err) { toast.error("Could not load history"); }
   }, [user]);
@@ -33,7 +33,7 @@ const QuerySection = ({ user }) => {
     }
     setLoading(true);
     try {
-      await axios.post('http://localhost:5000/api/query/add', formData);
+      await axios.post(`${process.env.REACT_APP_API_URL}/api/query/add`, formData);
       toast.success("Query Sent!");
       setFormData({ ...formData, subject: '', message: '' }); // Form reset
       fetchHistory();
@@ -43,7 +43,7 @@ const QuerySection = ({ user }) => {
 
   const confirmDelete = async () => {
     try {
-        await axios.delete(`http://localhost:5000/api/query/delete/${modal.idToDelete}`);
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/query/delete/${modal.idToDelete}`);
         toast.success("Deleted successfully!");
         fetchHistory();
     } catch (err) { toast.error("Delete failed"); } 

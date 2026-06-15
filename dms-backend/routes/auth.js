@@ -93,13 +93,11 @@ router.post('/login', async (req, res) => {
                 </div>
             `
         };
-        // Send email without awaiting so Render's SMTP block doesn't hang the request
-        transporter.sendMail(mailOptions).catch(err => console.log("SMTP blocked, OTP is:", otp));
+        await transporter.sendMail(mailOptions);
         
-        return res.json({ ...responseData, requiresOtp: true, message: "Security Check: Password Correct. (Use 1234 if email blocked)" });
+        return res.json({ ...responseData, requiresOtp: true, message: "Security Check: Password Correct. OTP sent to your email." });
 
     } catch (error) {
-        console.error("Login Error:", error);
         res.status(500).json({ success: false, message: "Server error during login" });
     }
 });
@@ -246,11 +244,9 @@ router.post('/send-otp', async (req, res) => {
             `
         };
 
-        // Send email without awaiting so Render's SMTP block doesn't hang the request
-        transporter.sendMail(mailOptions).catch(err => console.log("SMTP blocked, OTP is:", otp));
-        res.json({ success: true, message: "OTP sent to email! (Use 1234 if email blocked)" }); 
+        await transporter.sendMail(mailOptions);
+        res.json({ success: true, message: "OTP sent to email!" }); 
     } catch (error) {
-        console.error("OTP Error:", error);
         res.status(500).json({ success: false, message: "Email service error." });
     }
 });
@@ -283,12 +279,10 @@ router.post('/forgot-password', async (req, res) => {
             html: `<h3>Account Recovery</h3><p>Your Reset OTP is: <b>${otp}</b></p>`
         };
 
-        // Send email without awaiting so Render's SMTP block doesn't hang the request
-        transporter.sendMail(mailOptions).catch(err => console.log("SMTP blocked, OTP is:", otp));
-        res.json({ success: true, message: "Reset OTP sent! (Use 1234 if email blocked)" });
+        await transporter.sendMail(mailOptions);
+        res.json({ success: true, message: "Reset OTP sent to your Gmail!" });
 
     } catch (error) {
-        console.error("Forgot Password Error:", error);
         res.status(500).json({ success: false, message: "Recovery service error" });
     }
 });

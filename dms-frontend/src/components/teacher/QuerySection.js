@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { Trash2, ArrowLeft, ChevronDown } from 'lucide-react';
+import { Trash2, ArrowLeft, ChevronDown, Edit2 } from 'lucide-react';
 
 const QuerySection = ({ user }) => {
   const [queries, setQueries] = useState([]);
@@ -54,8 +54,14 @@ const QuerySection = ({ user }) => {
   const filteredQueries = queries.filter((q) => {
     const qDept = (q.department || "").trim();
     const qSem = (q.semester || "").trim();
-    return (filterDept === "All" || qDept === filterDept) && 
-           (filterSem === "All" || qSem === filterSem);
+    
+    // Flexible matching for department (ignoring 'BS ' prefix)
+    const cleanQDept = qDept.replace(/^BS\s+/i, '').trim().toUpperCase();
+    const cleanFilterDept = filterDept.replace(/^BS\s+/i, '').trim().toUpperCase();
+    
+    const isDeptMatch = filterDept === "All" || cleanQDept === cleanFilterDept || cleanQDept.includes(cleanFilterDept) || cleanFilterDept.includes(cleanQDept);
+    
+    return isDeptMatch && (filterSem === "All" || qSem === filterSem);
   });
 
   const handleReply = async (queryId) => {
@@ -212,16 +218,7 @@ const QuerySection = ({ user }) => {
                 </div>
               </div>
               
-              {editingId === q._id ? (
-                <div className="mt-4">
-                  <textarea className="w-full p-2 border rounded-xl text-sm" defaultValue={q.message} onChange={(e) => setEditText(e.target.value)} />
-                  <button onClick={() => handleEdit(q._id)} className="mt-2 px-4 py-1 bg-green-500 text-white rounded-lg text-xs font-black">SAVE</button>
-                </div>
-              ) : (
-                <p className="mt-2 text-sm font-bold text-slate-700">"{q.message}" 
-                   {!q.reply && <button onClick={() => { setEditingId(q._id); setEditText(q.message); }} className="ml-2 text-[10px] text-blue-600 underline">Edit</button>}
-                </p>
-              )}
+              <p className="mt-2 text-sm font-bold text-slate-700">"{q.message}"</p>
               
               {/* FIXED HERE ALSO: Read reply from 'q.reply' for teacher dashboard display */}
               {q.reply && <div className="mt-4 p-3 bg-green-50 border rounded-xl text-xs font-bold text-green-800">Reply: {q.reply}</div>}
@@ -251,7 +248,25 @@ const QuerySection = ({ user }) => {
                 </button>
               </div>
               <p className="font-black text-[#001f3f]">{aq.subject}</p>
-              <p className="text-sm text-slate-600 mt-2">"{aq.message}"</p>
+              
+              {editingId === aq._id ? (
+                <div className="mt-4">
+                  <textarea className="w-full p-2 border rounded-xl text-sm" defaultValue={aq.message} onChange={(e) => setEditText(e.target.value)} />
+                  <button onClick={() => handleEdit(aq._id)} className="mt-2 px-4 py-1 bg-green-500 text-white rounded-lg text-xs font-black">SAVE</button>
+                </div>
+              ) : (
+                <div className="mt-2 flex items-center flex-wrap gap-2">
+                  <p className="text-sm font-bold text-slate-700">"{aq.message}"</p>
+                  {!aq.reply && (
+                    <button 
+                      onClick={() => { setEditingId(aq._id); setEditText(aq.message); }} 
+                      className="px-2.5 py-1 bg-blue-50 text-blue-600 hover:bg-blue-100 hover:text-blue-700 rounded-lg text-[10px] font-black uppercase inline-flex items-center gap-1 transition-all border border-transparent hover:border-blue-200"
+                    >
+                      <Edit2 size={12} /> Edit
+                    </button>
+                  )}
+                </div>
+              )}
               {aq.reply && (
                 <div className="mt-4 p-3 bg-green-50 border rounded-xl text-xs font-bold text-green-800">
                   Response: {aq.reply}

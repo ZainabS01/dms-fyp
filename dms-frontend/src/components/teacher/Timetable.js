@@ -22,7 +22,20 @@ const Timetable = () => {
             const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/timetable/list`);
             const data = Array.isArray(res.data) ? res.data : [];
             // Filter only timetables uploaded by admin for this teacher's department and audience is 'teacher' or 'both' or undefined (legacy)
-            setAdminTimetables(data.filter(t => t.uploadedBy === 'admin' && t.department === userDept && (!t.audience || t.audience === 'teacher' || t.audience === 'both')));
+            setAdminTimetables(data.filter(t => {
+                const tDept = t.department ? t.department.trim().toUpperCase() : "";
+                const uDept = userDept ? userDept.trim().toUpperCase() : "";
+                const tAudience = t.audience ? t.audience.trim().toLowerCase() : "";
+                
+                // Remove 'BS ' prefix for flexible matching
+                const cleanTDept = tDept.replace(/^BS\s+/i, '').trim();
+                const cleanUDept = uDept.replace(/^BS\s+/i, '').trim();
+                
+                // Match if exact, or if one includes the other (ignoring BS), or if teacher is GENERAL
+                const isDeptMatch = !uDept || uDept === 'GENERAL' || cleanTDept === cleanUDept || cleanTDept.includes(cleanUDept) || cleanUDept.includes(cleanTDept);
+                
+                return t.uploadedBy === 'admin' && isDeptMatch && (!tAudience || tAudience === 'teacher' || tAudience === 'both');
+            }));
         } catch (err) {
             toast.error("Error loading data");
         }

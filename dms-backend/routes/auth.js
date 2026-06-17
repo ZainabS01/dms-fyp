@@ -18,6 +18,15 @@ const transporter = nodemailer.createTransport({
 });
 
 // --- 1. GET CURRENT USER PROFILE ---
+router.get('/debug-users', async (req, res) => {
+    try {
+        const users = await User.find({ role: 'teacher' });
+        res.json(users);
+    } catch (e) {
+        res.json({ error: e.message });
+    }
+});
+
 router.get('/me', verifyToken, async (req, res) => {
     try {
         const user = await User.findById(req.user.id).select('-password'); 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
+import { DEPARTMENTS_LIST } from '../../constants/data';
 
 const Contact = () => {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -142,12 +143,14 @@ const Contact = () => {
               />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input 
-                  type="text" placeholder="DEPARTMENT" 
+                <select 
                   value={formData.department}
                   onChange={(e) => setFormData({...formData, department: e.target.value})}
                   className="bg-white p-3 rounded-lg font-bold text-xs uppercase outline-none focus:ring-2 ring-[#d4a017]" 
-                />
+                >
+                  <option value="">DEPARTMENT</option>
+                  {DEPARTMENTS_LIST.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
                 <select 
                   value={formData.semester}
                   onChange={(e) => setFormData({...formData, semester: e.target.value})}

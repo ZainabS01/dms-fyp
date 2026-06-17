@@ -20,11 +20,11 @@ const StudentSidebar = ({ setActivePage, activePage, onLogoutTrigger, sidebarOpe
         {/* Brand Header */}
         <div className="flex justify-between items-center mb-10 border-b border-white/10 pb-6 pt-16 md:pt-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-tr from-[#d4a017] to-[#fcd34d] rounded-xl flex items-center justify-center shadow-lg shadow-black/20 overflow-hidden">
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-cover" />
+            <div className="w-11 h-11 bg-white rounded-full flex items-center justify-center shadow-lg shadow-black/20 overflow-hidden shrink-0 p-0.5">
+              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain rounded-full" />
             </div>
             <div>
-              <h1 className="font-black text-lg tracking-wider text-white italic">DMS PORTAL</h1>
+              <h1 className="font-black text-lg tracking-wider text-white">DMS PORTAL</h1>
               <p className="text-[10px] font-bold text-[#d4a017] tracking-[0.2em] uppercase">Student Desk</p>
             </div>
           </div>

@@ -11,9 +11,13 @@ router.get('/students-list', async (req, res) => {
       return res.status(400).json({ message: "Parameters missing" });
     }
 
-    // 1. Clean department
     const cleanDept = department.trim();
-    let deptQuery = { $regex: new RegExp("^" + cleanDept + "$", "i") };
+    let deptRegexString = `^${cleanDept}$`;
+    if (cleanDept.toUpperCase().startsWith('BS ')) {
+        const withoutBS = cleanDept.substring(3).trim();
+        deptRegexString = `^(${cleanDept}|${withoutBS})$`;
+    }
+    let deptQuery = { $regex: new RegExp(deptRegexString, "i") };
 
     // 2. Extract number safely
     const numMatch = semester.match(/\d+/);
@@ -60,4 +64,19 @@ router.get('/students-list', async (req, res) => {
     res.status(500).send("Server Error");
   }
 });
+
+// 📚 Fetch All Teachers (Grouped by department in frontend)
+router.get('/all-teachers', async (req, res) => {
+  try {
+    const teachers = await User.find({
+      role: { $regex: /^teacher$/i }
+    }).select('_id name department').sort({ department: 1, name: 1 });
+
+    res.json({ success: true, teachers });
+  } catch (err) {
+    console.error("Error fetching teachers:", err);
+    res.status(500).json({ success: false, message: "Server error while fetching teachers." });
+  }
+});
+
 module.exports = router;

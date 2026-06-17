@@ -34,13 +34,13 @@ const StudentVerification = () => {
   };
 
   return (
-    <div className="w-full">
-      <div className="mb-10">
-        <h1 className="text-4xl font-black text-[#001f3f] uppercase italic">
+    <div className="w-full p-4 sm:p-0">
+      <div className="mb-8 md:mb-10">
+        <h1 className="text-3xl md:text-4xl font-black text-[#001f3f] uppercase">
           Student <span className="text-[#d4a017]">Verification</span>
         </h1>
-        <div className="h-1.5 w-20 bg-[#d4a017] rounded-full mt-2"></div>
-        <p className="text-slate-400 text-xs font-bold mt-4 uppercase tracking-widest">
+        <div className="h-1.5 w-16 md:w-20 bg-[#d4a017] rounded-full mt-2"></div>
+        <p className="text-slate-400 text-[10px] md:text-xs font-bold mt-3 md:mt-4 uppercase tracking-widest leading-relaxed">
           Approve or Reject new student registrations for your department.
         </p>
       </div>
@@ -91,7 +91,7 @@ const StudentVerification = () => {
           ))
         ) : (
           <div className="col-span-full py-20 text-center bg-white rounded-[40px] border-2 border-dashed border-slate-200">
-            <p className="text-slate-400 font-bold uppercase tracking-widest italic">No pending verifications found ✨</p>
+            <p className="text-slate-400 font-bold uppercase tracking-widest">No pending verifications found ✨</p>
           </div>
         )}
       </div>

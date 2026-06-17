@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiBell, FiMenu } from 'react-icons/fi';
+import { FiBell, FiMenu, FiArrowLeft } from 'react-icons/fi';
 import { Trash2 } from 'lucide-react';
 import axios from 'axios';
 
-const TeacherHeader = ({ activeTab, teacherName, onOpenNexi, setActiveTab, toggleSidebar }) => {
+const TeacherHeader = ({ activeTab, teacherName, isHOD, onOpenNexi, setActiveTab, toggleSidebar }) => {
   const displayTitle = activeTab ? activeTab.replace('_', ' ') : 'Dashboard';
   const [notices, setNotices] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -63,22 +63,34 @@ const TeacherHeader = ({ activeTab, teacherName, onOpenNexi, setActiveTab, toggl
     <header className="h-16 sm:h-20 lg:h-24 bg-white border-b border-slate-100 flex items-center justify-between px-2 sm:px-6 lg:px-10 sticky top-0 z-[100] shadow-sm">
       
       {/* 1. LEFT SIDE: TITLE */}
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-1.5 sm:gap-4 ml-1 md:ml-0 flex-shrink-0">
         {/* Hamburger Menu for Mobile */}
         <button 
           onClick={toggleSidebar} 
-          className="md:hidden p-1.5 text-[#001f3f] bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors flex-shrink-0"
+          className="md:hidden p-1.5 text-[#001f3f] bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors flex-shrink-0 shadow-sm border border-slate-100"
         >
           <FiMenu className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
 
+        {/* Back Button for all screens when not on overview */}
+        {activeTab && activeTab.toLowerCase() !== 'overview' && activeTab.toLowerCase() !== 'dashboard' && (
+          <button 
+            onClick={() => setActiveTab && setActiveTab('dashboard')} 
+            className="p-1.5 text-[#001f3f] bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors flex-shrink-0 shadow-sm border border-slate-100 ml-1"
+            title="Go Back"
+          >
+            <FiArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+        )}
+
+        <div className="h-8 sm:h-10 w-[1px] bg-slate-200 hidden md:block mx-1 sm:mx-2"></div>
         <motion.h2 
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
-          className="text-[#001f3f] font-black uppercase italic tracking-tighter text-xs sm:text-lg lg:text-2xl flex items-center gap-1 sm:gap-2 truncate max-w-[70px] sm:max-w-none flex-shrink-0"
+          className="text-[#001f3f] font-black uppercase tracking-tight text-sm sm:text-xl lg:text-3xl flex items-center gap-1.5 sm:gap-3 flex-shrink-0 drop-shadow-sm"
         >
           {displayTitle}
-          <span className="w-2.5 h-2.5 bg-[#d4a017] rounded-full shadow-[0_0_10px_#d4a017] flex-shrink-0"></span>
+          <span className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-[#d4a017] rounded-full shadow-[0_0_10px_rgba(212,160,23,0.6)] flex-shrink-0"></span>
         </motion.h2>
       </div>
 
@@ -102,7 +114,7 @@ const TeacherHeader = ({ activeTab, teacherName, onOpenNexi, setActiveTab, toggl
         <div className="relative" ref={notifRef}>
           <div 
             onClick={() => setShowNotifications(!showNotifications)}
-            className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-slate-50 text-[#001f3f] rounded-xl cursor-pointer hover:bg-slate-100 transition-all border border-slate-100 flex items-center justify-center relative flex-shrink-0"
+            className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-white text-[#001f3f] rounded-xl cursor-pointer hover:bg-slate-50 hover:shadow-md transition-all border border-slate-200 shadow-sm flex items-center justify-center relative flex-shrink-0"
           >
             <FiBell className="w-4 h-4 sm:w-6 sm:h-6" strokeWidth={2.5} />
             {notices.length > 0 && (
@@ -174,7 +186,9 @@ const TeacherHeader = ({ activeTab, teacherName, onOpenNexi, setActiveTab, toggl
         {/* PROFILE SECTION */}
         <div className="flex items-center gap-1.5 sm:gap-4 pl-1.5 sm:pl-4 border-l border-slate-100 h-8 sm:h-12 md:h-14 flex-shrink-0">
            <div className="text-right hidden md:block">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Teacher</p>
+              <p className={`text-[9px] font-black uppercase tracking-widest leading-none mb-1 ${isHOD ? 'text-[#d4a017]' : 'text-slate-400'}`}>
+                {isHOD ? 'HEAD OF DEPARTMENT' : 'Teacher'}
+              </p>
               <p className="text-sm font-black text-[#001f3f] uppercase tracking-tighter">{teacherName || 'FACULTY'}</p>
            </div>
            <div className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-[#001f3f] text-[#d4a017] rounded-xl flex items-center justify-center font-black text-sm sm:text-lg md:text-xl shadow-sm border-2 border-white shrink-0">

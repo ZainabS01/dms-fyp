@@ -14,7 +14,8 @@ const StudentTimetable = ({ studentData }) => {
         const sem = studentData.semester;
         // Important: Check the URL (Prefix set in the backend)
         const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/timetable/list?department=${encodeURIComponent(dept)}&semester=${encodeURIComponent(sem)}`); 
-        setTimetables(res.data);
+        const allData = Array.isArray(res.data) ? res.data : [];
+        setTimetables(allData.filter(t => !t.audience || t.audience === 'student' || t.audience === 'both'));
       } catch (err) {
         console.error("Error details:", err);
       } finally {
@@ -28,7 +29,7 @@ const StudentTimetable = ({ studentData }) => {
 
   return (
     <div className="p-2 sm:p-8">
-      <h2 className="text-2xl sm:text-3xl font-black text-[#001f3f] uppercase mb-8 italic">Class <span className="text-[#d4a017]">Timetable</span></h2>
+      <h2 className="text-2xl sm:text-3xl font-black text-[#001f3f] uppercase mb-8">Class <span className="text-[#d4a017]">Timetable</span></h2>
       
       {timetables.length === 0 ? (
         <div className="text-red-500 font-bold p-4 bg-red-50 rounded-xl">No timetable has been uploaded.</div>

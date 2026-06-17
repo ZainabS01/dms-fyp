@@ -11,7 +11,14 @@ router.get('/fetch-students', async (req, res) => {
         let searchCriteria = { role: { $regex: new RegExp('^student$', 'i') } };
 
         if (department) {
-            searchCriteria.department = { $regex: new RegExp(`^${department.trim()}$`, 'i') };
+            let cleanDept = department.trim();
+            // If it starts with "BS ", also match without "BS " to support old data
+            let deptRegexString = `^${cleanDept}$`;
+            if (cleanDept.toUpperCase().startsWith('BS ')) {
+                const withoutBS = cleanDept.substring(3).trim();
+                deptRegexString = `^(${cleanDept}|${withoutBS})$`;
+            }
+            searchCriteria.department = { $regex: new RegExp(deptRegexString, 'i') };
         }
 
         if (semester) {
@@ -22,7 +29,8 @@ router.get('/fetch-students', async (req, res) => {
                 searchCriteria.$or = [
                     { semester: { $regex: new RegExp(`^${cleanSem}$`, 'i') } },
                     { semester: { $regex: new RegExp(`^${num}$`, 'i') } },
-                    { semester: { $regex: new RegExp(`^${num}(st|nd|rd|th)\\s*Semester$`, 'i') } }
+                    { semester: { $regex: new RegExp(`^${num}(st|nd|rd|th)\\s*Semester$`, 'i') } },
+                    { semester: { $regex: new RegExp(`^${num}(st|nd|rd|th)\\s*Sem$`, 'i') } }
                 ];
             } else {
                 searchCriteria.semester = { $regex: new RegExp(`^${cleanSem}$`, 'i') };
@@ -121,7 +129,7 @@ router.get('/my-attendance', async (req, res) => {
 router.post('/submit-leave', async (req, res) => {
     console.log("📥 Received request body:", req.body); // Verify this in the terminal
     try {
-        const { studentId, subject, reason, startDate, endDate } = req.body;
+        const { studentId, subject, reason, startDate, endDate, targetTeacherId } = req.body;
         
         const newApp = new Application({ 
             studentId, 
@@ -129,6 +137,7 @@ router.post('/submit-leave', async (req, res) => {
             reason, 
             startDate, 
             endDate, 
+            targetTeacherId: targetTeacherId || null,
             status: 'PENDING' 
         });
         
@@ -145,6 +154,29 @@ router.get('/leave-history/:studentId', async (req, res) => {
         res.status(200).json(history);
     } catch (error) {
         res.status(500).json({ success: false, message: "History fetch error" });
+    }
+});
+
+// --- 5. DELETE LEAVE REQUEST ---
+router.delete('/leave/:id', async (req, res) => {
+    try {
+        await Application.findByIdAndDelete(req.params.id);
+        res.status(200).json({ success: true, message: "Leave request deleted" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Failed to delete request" });
+    }
+});
+
+// --- 6. EDIT LEAVE REQUEST ---
+router.put('/leave/:id', async (req, res) => {
+    try {
+        const { subject, reason, startDate, endDate } = req.body;
+        await Application.findByIdAndUpdate(req.params.id, {
+            subject, reason, startDate, endDate
+        });
+        res.status(200).json({ success: true, message: "Leave request updated" });
+    } catch (error) {
+        res.status(500).json({ success: false, message: "Failed to update request" });
     }
 });
 

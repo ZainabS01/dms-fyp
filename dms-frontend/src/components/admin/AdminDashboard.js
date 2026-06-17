@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 import AdminSidebar from './AdminSidebar';
@@ -13,6 +13,7 @@ import QuerySection from './QuerySection';
 import Noticeboard from './NoticeBoard';
 import NexiChat from '../nexi/AiChat';
 import DepartmentManagement from './DepartmentManagement';
+import AdminTimetable from './AdminTimetable';
 
 const AdminDashboard = ({ user }) => {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -23,6 +24,36 @@ const AdminDashboard = ({ user }) => {
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
+
+  // Handle Browser Back Button to prevent logging out when navigating tabs
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash) {
+        setActiveTab(hash);
+      } else {
+        setActiveTab('dashboard');
+      }
+    };
+
+    // Initialize from hash if present
+    if (window.location.hash) {
+      handleHashChange();
+    }
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  useEffect(() => {
+    if (window.location.hash.replace('#', '') !== activeTab) {
+      if (activeTab === 'dashboard') {
+        window.history.pushState(null, '', window.location.pathname);
+      } else {
+        window.history.pushState(null, '', `#${activeTab}`);
+      }
+    }
+  }, [activeTab]);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -36,6 +67,7 @@ const AdminDashboard = ({ user }) => {
       case 'nexi': return <NexiChat user={adminInfo} setActiveTab={setActiveTab} backTab="dashboard" />;
       case 'department_management': 
         return <DepartmentManagement />;
+      case 'timetable': return <AdminTimetable />;
       default: return <AdminOverview setActiveTab={setActiveTab} />;
     }
   };

@@ -92,7 +92,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
         className="bg-white w-full max-w-md rounded-[40px] border-[10px] border-white shadow-2xl overflow-hidden"
       >
         <div className="bg-[#001f3f] p-6 text-center border-b-4 border-[#d4a017]">
-          <h2 className="text-2xl font-black text-white uppercase italic tracking-tighter">
+          <h2 className="text-2xl font-black text-white uppercase tracking-tighter">
             {step === 1 ? 'Recover Account' : 'Set New Password'}
           </h2>
           <p className="text-[10px] text-blue-200 uppercase tracking-[0.3em] mt-1">
@@ -125,7 +125,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full bg-[#001f3f] text-white py-4 rounded-2xl font-black uppercase italic text-sm shadow-xl hover:bg-[#d4a017] transition-all disabled:opacity-50"
+                  className="w-full bg-[#001f3f] text-white py-4 rounded-2xl font-black uppercase text-sm shadow-xl hover:bg-[#d4a017] transition-all disabled:opacity-50"
                 >
                   {loading ? 'Processing...' : 'Verify Gmail'}
                 </button>
@@ -165,7 +165,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full bg-[#28a745] text-white py-4 rounded-2xl font-black uppercase italic text-sm shadow-xl hover:bg-[#218838] transition-all"
+                  className="w-full bg-[#28a745] text-white py-4 rounded-2xl font-black uppercase text-sm shadow-xl hover:bg-[#218838] transition-all"
                 >
                   {loading ? 'Updating...' : 'Update Password'}
                 </button>

@@ -227,6 +227,9 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
 
   const handleSelectConversation = (id) => {
     setActiveConversationId(id);
+    if (window.innerWidth < 1024) {
+      setIsSidebarOpen(false);
+    }
   };
 
   const handleDeleteConversation = async (id) => {
@@ -593,12 +596,22 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
         isSidebarOpen ? 'w-full sm:w-[320px] lg:w-[280px] opacity-100 translate-x-0' : 'w-full sm:w-[320px] lg:w-0 opacity-0 -translate-x-full lg:translate-x-0 pointer-events-none border-r-0 overflow-hidden'
       }`}>
         {/* Sidebar Header with Logo and Assistant Title */}
-        <div className="p-4 border-b border-slate-200 flex items-center gap-3">
-          <NexiLogo className="w-10 h-10 flex-shrink-0" />
-          <div className="text-left leading-tight">
-            <h4 className="font-black text-[#001f3f] text-sm">The DMS Assistant</h4>
-            <p className="text-slate-400 text-[10px] font-bold">Your Intelligent Helper</p>
+        <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <NexiLogo className="w-10 h-10 flex-shrink-0" />
+            <div className="text-left leading-tight">
+              <h4 className="font-black text-[#001f3f] text-sm">The DMS Assistant</h4>
+              <p className="text-slate-400 text-[10px] font-bold">Your Intelligent Helper</p>
+            </div>
           </div>
+          {/* Mobile close sidebar button */}
+          <button 
+            onClick={() => setIsSidebarOpen(false)}
+            className="lg:hidden text-[#001f3f]/70 hover:text-[#d4a017] p-1.5 hover:bg-slate-200 rounded-lg transition-all"
+            title="Close Sidebar"
+          >
+            <FiX size={20} />
+          </button>
         </div>
 
         {/* Conversations List Header */}
@@ -888,7 +901,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
                     <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 border border-slate-200">
                       <NexiLogo className="w-5 h-5 animate-spin" />
                     </div>
-                    <div className="bg-[#eef2f6] text-slate-400 rounded-2xl py-3.5 px-5 max-w-[80%] font-bold shadow-sm text-xs lg:text-sm italic">
+                    <div className="bg-[#eef2f6] text-slate-400 rounded-2xl py-3.5 px-5 max-w-[80%] font-bold shadow-sm text-xs lg:text-sm">
                       NEXI is thinking...
                     </div>
                   </div>

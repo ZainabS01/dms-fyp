@@ -14,6 +14,13 @@ const querySchema = new mongoose.Schema({
     // Who is receiving the query: 'teacher' or 'admin'
     recipient: { type: String, default: "teacher" }, 
     
+    // Explicit Teacher Targeting
+    targetTeacherId: { 
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: 'User', 
+        default: null 
+    },
+    
     // === REPLIES FOR BOTH ROLES (Both fields must exist) ===
     reply: { type: String, default: null },       // Teacher's reply will be saved here
     adminReply: { type: String, default: null },  // Admin's reply will be saved here

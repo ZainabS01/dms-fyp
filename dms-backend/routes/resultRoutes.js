@@ -48,15 +48,52 @@ router.get('/students-list', async (req, res) => {
             return res.status(400).json({ message: "Department and semester are required." });
         }
 
-        const students = await User.find({ role: 'student', department, semester }).lean();
+        const cleanDept = department.trim();
+        let deptRegexString = `^${cleanDept}$`;
+        if (cleanDept.toUpperCase().startsWith('BS ')) {
+            const withoutBS = cleanDept.substring(3).trim();
+            deptRegexString = `^(${cleanDept}|${withoutBS})$`;
+        }
+
+        const cleanSem = semester.trim();
+        const semesterNumber = cleanSem.match(/\d+/);
+        let semRegexArray = [{ semester: { $regex: new RegExp(`^${cleanSem}$`, 'i') } }];
+        if (semesterNumber) {
+            const num = semesterNumber[0];
+            semRegexArray.push(
+                { semester: { $regex: new RegExp(`^${num}$`, 'i') } },
+                { semester: { $regex: new RegExp(`^${num}(st|nd|rd|th)\\s*Semester$`, 'i') } },
+                { semester: { $regex: new RegExp(`^${num}(st|nd|rd|th)\\s*Sem$`, 'i') } }
+            );
+        }
+
+        console.log("Debug Query:", JSON.stringify({ 
+            role: 'student', 
+            department: { $regex: deptRegexString, $options: 'i' }, 
+            $or: semRegexArray 
+        }, null, 2));
+
+        const students = await User.find({ 
+            role: 'student', 
+            department: { $regex: new RegExp(deptRegexString, 'i') }, 
+            $or: semRegexArray 
+        }).lean();
+        console.log(`🔍 Debug: Students found for this filter: ${students.length}`);
         if (students.length === 0) return res.json([]);
 
         const studentsWithResults = await Promise.all(
             students.map(async (student) => {
                 const result = await Result.findOne({ 
-                    rollNo: String(student.rollNo), 
-                    department, 
-                    semester 
+                    $and: [
+                        {
+                            $or: [
+                                { rollNo: String(student.rollNo) },
+                                { rollNo: Number(student.rollNo) }
+                            ]
+                        },
+                        { department: { $regex: new RegExp(deptRegexString, 'i') } },
+                        { $or: semRegexArray }
+                    ]
                 });
                 
                 return {

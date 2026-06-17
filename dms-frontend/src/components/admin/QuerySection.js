@@ -112,100 +112,18 @@ const QuerySection = ({ userRole, user }) => {
       )}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
         <div>
-          <h1 className="text-3xl md:text-4xl font-black text-[#001f3f] uppercase italic">
+          <h1 className="text-3xl md:text-4xl font-black text-[#001f3f] uppercase">
             Query <span className="text-[#d4a017]">Hub</span>
           </h1>
           <p className="text-xs font-bold text-slate-400 mt-1 uppercase tracking-widest">
             {userRole === 'admin' ? 'Manage System Queries' : 'Ask & Track Your Queries'}
           </p>
         </div>
-
-        {/* Tab Switcher */}
-        <div className="flex bg-white p-2 rounded-2xl shadow-md">
-          <button 
-            onClick={() => setActiveTab('inbox')}
-            className={`px-6 py-2 rounded-xl font-black text-[10px] uppercase transition-all ${activeTab === 'inbox' ? 'bg-[#001f3f] text-white' : 'text-slate-400'}`}
-          >
-            📥 Inbox
-          </button>
-          <button 
-            onClick={() => setActiveTab('ask')}
-            className={`px-6 py-2 rounded-xl font-black text-[10px] uppercase transition-all ${activeTab === 'ask' ? 'bg-[#d4a017] text-[#001f3f]' : 'text-slate-400'}`}
-          >
-            ✍️ {userRole === 'admin' ? 'Send Message' : 'Ask Query'}
-          </button>
-        </div>
       </div>
 
-      {activeTab === 'ask' ? (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 animate-fadeIn">
-          <div className="bg-[#001f3f] p-4 sm:p-12 rounded-2xl sm:rounded-[50px] shadow-2xl relative overflow-hidden text-white">
-            <h2 className="text-3xl font-black uppercase italic mb-8">Send a <span className="text-[#d4a017]">Message</span></h2>
-            <div className="space-y-5 relative z-10">
-              <select 
-                value={recipient}
-                onChange={(e) => setRecipient(e.target.value)}
-                className="w-full p-5 bg-white/10 rounded-2xl border-none text-white outline-none"
-              >
-                {userRole === 'student' && (
-                    <>
-                        <option value="teacher" className="text-black">Send To: Faculty Member</option>
-                        <option value="admin" className="text-black">Send To: Admin</option>
-                    </>
-                )}
-                {userRole === 'teacher' && <option value="admin" className="text-black">Send To: Admin</option>}
-                {userRole === 'admin' && (
-                    <>
-                        <option value="student" className="text-black">Send To: Student</option>
-                        <option value="teacher" className="text-black">Send To: Teacher</option>
-                    </>
-                )}
-              </select>
-              
-              {userRole === 'admin' && recipient === 'student' && (
-                 <input 
-                    type="text" 
-                    placeholder="Enter Student Roll No" 
-                    value={targetRollNo}
-                    onChange={(e) => setTargetRollNo(e.target.value)}
-                    className="w-full p-5 bg-white/10 rounded-2xl border-none placeholder-white/50 text-white" 
-                 />
-              )}
-
-              <input 
-                type="text" 
-                placeholder="Subject / Topic" 
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                className="w-full p-5 bg-white/10 rounded-2xl border-none placeholder-white/50 text-white" 
-              />
-              <textarea 
-                placeholder="Describe your issue in detail..." 
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                className="w-full p-5 bg-white/10 rounded-2xl border-none h-40 text-white"
-              ></textarea>
-              <button 
-                onClick={handleAskQuery}
-                className="w-full bg-[#d4a017] text-[#001f3f] py-5 rounded-2xl font-black uppercase tracking-[0.2em] hover:bg-white transition-all"
-              >
-                Submit Query
-              </button>
-            </div>
-          </div>
-          <div className="flex flex-col justify-center p-4 sm:p-10 bg-white rounded-2xl sm:rounded-[50px] border border-slate-100 shadow-sm">
-             <h3 className="text-xl font-black text-[#001f3f] uppercase mb-4">How it works?</h3>
-             <ul className="space-y-4 text-sm text-slate-500 font-medium">
-               <li className="flex gap-3">✅ <p>Your query is directed to the relevant department or admin.</p></li>
-               <li className="flex gap-3">✅ <p>Responses usually arrive within 24-48 hours.</p></li>
-               <li className="flex gap-3">✅ <p>You will see the reply in your Inbox tab.</p></li>
-             </ul>
-          </div>
-        </div>
-      ) : (
-        <div className="space-y-6 animate-fadeIn">
+      <div className="space-y-6 animate-fadeIn">
           {queries.length === 0 ? (
-             <p className="text-center text-slate-400 italic font-bold">No queries found.</p>
+             <p className="text-center text-slate-400 font-bold">No queries found.</p>
           ) : (
           queries.map((query) => (
             <div key={query._id} className="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-[40px] shadow-lg border border-slate-50 flex flex-col md:flex-row gap-6 items-start">
@@ -266,7 +184,7 @@ const QuerySection = ({ userRole, user }) => {
                 {query.reply && (
                   <div className="mt-4 p-4 bg-green-50 rounded-2xl border-l-4 border-green-500">
                     <p className="text-[10px] font-black text-green-600 uppercase">Response:</p>
-                    <p className="text-xs text-slate-600 mt-1 italic font-medium">"{query.reply}"</p>
+                    <p className="text-xs text-slate-600 mt-1 font-medium">"{query.reply}"</p>
                   </div>
                 )}
               </div>
@@ -274,7 +192,6 @@ const QuerySection = ({ userRole, user }) => {
           ))
           )}
         </div>
-      )}
     </div>
   );
 };

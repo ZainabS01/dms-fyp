@@ -124,6 +124,26 @@ router.delete('/students/:id', async (req, res) => {
     }
 });
 
+// 4. Toggle HOD Status for Teacher (MUST BE BEFORE :action to prevent shadowing)
+router.put('/faculty/:id/toggle-hod', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const user = await User.findById(id);
+        
+        if (!user || user.role !== 'teacher') {
+            return res.status(404).json({ message: "Teacher not found" });
+        }
+        
+        user.isHOD = !user.isHOD;
+        await user.save();
+        
+        return res.json({ success: true, message: `Teacher is now ${user.isHOD ? 'an HOD' : 'not an HOD'}`, isHOD: user.isHOD });
+    } catch (err) {
+        console.error("HOD toggle error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+});
+
 // 3.5 Verify/Reject Teacher
 router.put('/faculty/:id/:action', async (req, res) => {
     try {
@@ -172,22 +192,18 @@ router.put('/faculty/:id/:action', async (req, res) => {
     }
 });
 
-// 4. Toggle HOD Status for Teacher
-router.put('/faculty/:id/toggle-hod', async (req, res) => {
+// Update Faculty Details
+router.put('/faculty/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const user = await User.findById(id);
-        
-        if (!user || user.role !== 'teacher') {
+        const { name, department } = req.body;
+        const user = await User.findByIdAndUpdate(id, { name, department }, { new: true });
+        if (!user) {
             return res.status(404).json({ message: "Teacher not found" });
         }
-        
-        user.isHOD = !user.isHOD;
-        await user.save();
-        
-        return res.json({ success: true, message: `Teacher is now ${user.isHOD ? 'an HOD' : 'not an HOD'}`, isHOD: user.isHOD });
+        res.json({ success: true, message: "Teacher updated successfully", user });
     } catch (err) {
-        console.error("HOD toggle error:", err);
+        console.error("Update teacher error:", err);
         res.status(500).json({ message: "Server error" });
     }
 });

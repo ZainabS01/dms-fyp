@@ -2,11 +2,10 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
-  // Ye function page ko foran top par le jayega
   const handleScrollToTop = () => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth' // 'smooth' se aaram se upar jayega, 'instant' se foran
+      behavior: 'instant'
     });
   };
 
@@ -69,9 +68,9 @@ const Footer = () => {
             <li>
               <Link to="/departments" onClick={handleScrollToTop} className="hover:text-[#002147] transition-colors">Departments</Link>
             </li>
-            <li>
+            {/* <li>
               <Link to="/resources" onClick={handleScrollToTop} className="hover:text-[#002147] transition-colors">Resources</Link>
-            </li>
+            </li> */}
           </ul>
         </div>
 
@@ -87,8 +86,13 @@ const Footer = () => {
                 to="/contact"
                 onClick={() => {
                   setTimeout(() => {
-                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-                  }, 100);
+                    const faqElement = document.getElementById('faq');
+                    if (faqElement) {
+                      faqElement.scrollIntoView({ behavior: 'smooth' });
+                    } else {
+                      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                    }
+                  }, 300);
                 }}
                 className="hover:text-[#002147] transition-colors"
               >
@@ -106,16 +110,14 @@ const Footer = () => {
           <h4 className="font-bold text-[#002147] mb-4 text-sm uppercase tracking-wider underline decoration-2 underline-offset-4">Contact Us</h4>
           <ul className="space-y-2 text-gray-500 text-sm font-bold">
             <li className="break-all hover:text-[#002147] transition-colors">
-              <a 
-                href="https://mail.google.com/mail/?view=cm&fs=1&to=departmentmanagementsystem300@gmail.com" 
-                target="_blank" 
-                rel="noopener noreferrer"
-              >
+              <Link to="/contact" onClick={handleScrollToTop}>
                 departmentmanagementsystem300@gmail.com
-              </a>
+              </Link>
             </li>
             <li className="hover:text-[#002147] transition-colors">
-              <a href="tel:+923016101870">+92 301 610 1870</a>
+              <Link to="/contact" onClick={handleScrollToTop}>
+                +92 301 610 1870
+              </Link>
             </li>
             <li className="uppercase underline underline-offset-4">CS Department, FYP Lab</li>
           </ul>

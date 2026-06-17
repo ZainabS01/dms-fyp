@@ -2,12 +2,13 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { DEPARTMENTS_LIST, SEMESTERS_LIST } from '../../constants/data';
 
 const ManageAttendance = () => {
   const [view, setView] = useState('menu'); // views: 'menu', 'mark', 'history', 'applications'
   const [students, setStudents] = useState([]);
-  const [selectedSemester, setSelectedSemester] = useState('1st Semester');
-  const [selectedDepartment, setSelectedDepartment] = useState('Computer Science');
+  const [selectedSemester, setSelectedSemester] = useState('1');
+  const [selectedDepartment, setSelectedDepartment] = useState('BS COMPUTER SCIENCE');
   
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -25,15 +26,8 @@ const ManageAttendance = () => {
 
   const BACKEND_URL = `${process.env.REACT_APP_API_URL}`;
 
-  const departmentsList = [
-    'Computer Science', 'Information Technology', 'Software Engineering',
-    'Electrical Engineering', 'Mechanical Engineering', 'Business Administration'
-  ];
-
-  const semestersList = [
-    '1st Semester', '2nd Semester', '3rd Semester', '4th Semester',
-    '5th Semester', '6th Semester', '7th Semester', '8th Semester'
-  ];
+  const departmentsList = DEPARTMENTS_LIST;
+  const semestersList = SEMESTERS_LIST;
 
   const getTodayDateString = () => {
     const today = new Date();
@@ -209,52 +203,123 @@ const ManageAttendance = () => {
   const downloadReportPDF = (sheet) => {
     const doc = new jsPDF();
     const dayName = getDayName(sheet.date);
+    
+    // Theme Borders
+    doc.setDrawColor(0, 31, 63); // Navy Blue
+    doc.setLineWidth(1);
+    doc.rect(10, 10, 190, 277);
+    doc.setDrawColor(212, 160, 23); // Gold
+    doc.setLineWidth(0.5);
+    doc.rect(12, 12, 186, 273);
+
+    // Header Banner
+    doc.setFillColor(0, 31, 63);
+    doc.rect(12, 12, 186, 25, 'F');
     doc.setFont("helvetica", "bold");
-    doc.text("DEPARTMENT MANAGEMENT SYSTEM (DMS)", 14, 15);
-    const headers = [["Roll No", "Student Name", "Day", "Date", "Status"]];
+    doc.setFontSize(22);
+    doc.setTextColor(255, 255, 255);
+    doc.text("ATTENDANCE REPORT", 105, 29, { align: "center" });
+    
+    // Reset Color
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(10);
+    doc.text(`Department: ${sheet.department}`, 14, 46);
+    doc.text(`Date: ${sheet.date} (${dayName})`, 14, 52);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 140, 46);
+
+    const headers = [["Roll No", "Student Name", "Status"]];
     const rows = sheet.records.map(r => [
       r.studentId?.rollNo || "N/A",
       r.studentId?.name ? r.studentId.name.toUpperCase() : "N/A",
-      dayName,
-      sheet.date,
       r.status
     ]);
-    autoTable(doc, { startY: 42, head: headers, body: rows });
+    autoTable(doc, { 
+      startY: 58, 
+      headStyles: { fillColor: [0, 31, 63], textColor: [255, 255, 255], fontStyle: 'bold' },
+      alternateRowStyles: { fillColor: [241, 245, 249] },
+      styles: { font: 'helvetica', fontSize: 10, cellPadding: 6 },
+      head: headers, 
+      body: rows 
+    });
     doc.save(`Attendance_${sheet.date}.pdf`);
   };
 
 const downloadApplicationPDF = (application) => {
     const doc = new jsPDF();
     
-    // Title
+    // Theme Borders
+    doc.setDrawColor(0, 31, 63); // Navy Blue
+    doc.setLineWidth(1);
+    doc.rect(10, 10, 190, 277);
+    doc.setDrawColor(212, 160, 23); // Gold
+    doc.setLineWidth(0.5);
+    doc.rect(12, 12, 186, 273);
+
+    // Header Banner
+    doc.setFillColor(0, 31, 63);
+    doc.rect(12, 12, 186, 25, 'F');
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
-    doc.text("LEAVE APPLICATION REPORT", 105, 20, { align: "center" });
-    doc.line(20, 25, 190, 25); // Line divider
+    doc.setTextColor(255, 255, 255);
+    doc.text("OFFICIAL LEAVE APPLICATION", 105, 29, { align: "center" });
 
-    // Details
+    // Reset Color
+    doc.setTextColor(0, 0, 0);
+
+    // To Section
+    doc.setFontSize(14);
+    doc.text("To,", 20, 55);
+    doc.text("The Class Incharge / Head of Department,", 20, 63);
+    doc.text(`Department of ${application.studentId?.department || 'N/A'},`, 20, 71);
+    doc.text("University of the Punjab.", 20, 79);
+
+    // Date
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
-    doc.setFont("helvetica", "normal");
-    const details = [
-        `Student Name: ${application.studentId?.name || "N/A"}`,
-        `Roll No: ${application.studentId?.rollNo || "N/A"}`,
-        `Subject: ${application.subject}`,
-        `Duration: ${application.startDate} to ${application.endDate}`,
-        `Status: ${application.status}`
-    ];
-    
-    let y = 40;
-    details.forEach(line => {
-        doc.text(line, 20, y);
-        y += 10;
-    });
+    doc.text(`Date: ${new Date(application.createdAt || Date.now()).toLocaleDateString()}`, 140, 55);
 
-    // Reason Box
+    // Subject
     doc.setFont("helvetica", "bold");
-    doc.text("Reason:", 20, y + 10);
+    doc.text(`Subject: ${application.subject}`, 20, 100);
+    doc.setDrawColor(0, 31, 63);
+    doc.setLineWidth(0.5);
+    doc.line(20, 102, 190, 102);
+
+    // Salutation & Body
+    doc.setFont("helvetica", "bold");
+    doc.text("Respected Sir/Madam,", 20, 115);
+    
     doc.setFont("helvetica", "normal");
-    const splitReason = doc.splitTextToSize(application.reason, 170);
-    doc.text(splitReason, 20, y + 20);
+    const reasonText = doc.splitTextToSize(application.reason, 170);
+    doc.text(reasonText, 20, 125);
+
+    // Duration statement
+    const currentY = 125 + (reasonText.length * 7);
+    doc.text(`Kindly grant me leave from ${application.startDate} to ${application.endDate}.`, 20, currentY + 10);
+
+    // Closing
+    doc.setFont("helvetica", "bold");
+    doc.text("Yours obediently,", 140, currentY + 40);
+    
+    doc.setFont("helvetica", "normal");
+    doc.text(`Name: ${application.studentId?.name || "N/A"}`, 140, currentY + 50);
+    doc.text(`Roll No: ${application.studentId?.rollNo || "N/A"}`, 140, currentY + 58);
+    doc.text(`Semester: ${application.studentId?.semester || "N/A"}`, 140, currentY + 66);
+    
+    // Status Stamp
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    if (application.status === 'APPROVED') doc.setTextColor(0, 128, 0);
+    else if (application.status === 'REJECTED') doc.setTextColor(255, 0, 0);
+    else doc.setTextColor(212, 160, 23);
+    
+    // Draw Status Box
+    doc.setDrawColor(application.status === 'APPROVED' ? 0 : application.status === 'REJECTED' ? 255 : 212, 
+                     application.status === 'APPROVED' ? 128 : 0, 
+                     application.status === 'APPROVED' ? 0 : application.status === 'REJECTED' ? 0 : 23);
+    doc.setLineWidth(1);
+    doc.rect(20, currentY + 50, 60, 15);
+    doc.text(`STATUS: ${application.status}`, 25, currentY + 60);
 
     doc.save(`Application_${application.studentId?.rollNo}.pdf`);
 };
@@ -293,15 +358,24 @@ const downloadApplicationPDF = (application) => {
       {/* --- MARK ATTENDANCE INTERFACE --- */}
       {view === 'mark' && (
         <div className="w-full bg-white p-3 sm:p-6 rounded-2xl shadow-xl border border-gray-100 max-w-5xl mx-auto">
-          <div className="flex flex-col gap-3 border-b pb-4 mb-4 md:flex-row md:justify-between md:items-center">
-            <button onClick={() => setView('menu')} className="text-xs uppercase font-bold text-blue-900 hover:text-blue-700 transition-colors self-start">← Main Menu</button>
-            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto">
-              <select value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)} className="border rounded-xl p-2.5 text-xs font-bold bg-white text-slate-700 w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-blue-900/20">
-                {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
-              </select>
-              <select value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)} className="border rounded-xl p-2.5 text-xs font-bold bg-white text-slate-700 w-full md:w-auto focus:outline-none focus:ring-2 focus:ring-blue-900/20">
-                {semestersList.map(s => <option key={s} value={s}>{s}</option>)}
-              </select>
+          <div className="flex justify-between items-center mb-4">
+            <button onClick={() => setView('menu')} className="text-xs uppercase font-bold text-[#001f3f] hover:text-[#d4a017] transition-colors">← MAIN MENU</button>
+          </div>
+
+          <div className="bg-slate-50 p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border border-slate-100 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">Department</label>
+                <select value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)} className="w-full px-4 py-3 bg-[#f1f3f6] text-[#001f3f] font-bold text-xs rounded-xl focus:outline-none border-2 border-transparent focus:border-[#d4a017]">
+                  {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">Semester</label>
+                <select value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)} className="w-full px-4 py-3 bg-[#f1f3f6] text-[#001f3f] font-bold text-xs rounded-xl focus:outline-none border-2 border-transparent focus:border-[#d4a017]">
+                  {semestersList.map(s => <option key={s} value={s}>{s} Semester</option>)}
+                </select>
+              </div>
             </div>
           </div>
 
@@ -374,7 +448,7 @@ const downloadApplicationPDF = (application) => {
               {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
             <select value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)} className="border rounded-xl px-3 py-2.5 text-xs font-bold bg-white text-slate-700 focus:outline-none w-full">
-              {semestersList.map(s => <option key={s} value={s}>{s}</option>)}
+              {semestersList.map(s => <option key={s} value={s}>{s} Semester</option>)}
             </select>
           </div>
 
@@ -451,9 +525,17 @@ const downloadApplicationPDF = (application) => {
       {/* --- LEAVE APPLICATIONS LAYOUT --- */}
       {view === 'applications' && (
         <div className="w-full bg-white p-3 sm:p-6 rounded-2xl shadow-xl border border-gray-100 max-w-7xl mx-auto">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b pb-4 mb-5 gap-3">
-            <button onClick={() => setView('menu')} className="text-xs uppercase font-bold text-blue-900 hover:text-blue-700 transition-colors whitespace-nowrap">← Main Menu</button>
-            <h4 className="text-[10px] sm:text-xs font-black bg-[#001f3f] text-white px-3 py-1.5 rounded-full tracking-wider uppercase truncate self-start sm:self-auto">Active Leaves Hub</h4>
+          <div className="flex flex-col gap-3 border-b pb-4 mb-5 md:flex-row md:justify-between md:items-center">
+            <button onClick={() => setView('menu')} className="text-xs uppercase font-bold text-blue-900 hover:text-blue-700 transition-colors whitespace-nowrap self-start mt-1">← Main Menu</button>
+            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto items-center">
+              <h4 className="text-[10px] sm:text-xs font-black bg-[#001f3f] text-white px-3 py-1.5 rounded-full tracking-wider uppercase truncate md:mr-2 self-start sm:self-auto">Active Leaves Hub</h4>
+              <select value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)} className="border border-slate-200 rounded-xl p-2 text-[11px] font-bold bg-white text-slate-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-900/20">
+                {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+              <select value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)} className="border border-slate-200 rounded-xl p-2 text-[11px] font-bold bg-white text-slate-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-900/20">
+                {semestersList.map(s => <option key={s} value={s}>{s} Semester</option>)}
+              </select>
+            </div>
           </div>
 
           {message.text && (
@@ -464,11 +546,37 @@ const downloadApplicationPDF = (application) => {
 
           {appLoading ? (
             <div className="text-center py-12 text-xs font-bold text-gray-400">Loading incoming applications data...</div>
-          ) : applications.length === 0 ? (
-            <div className="text-center py-10 text-xs text-amber-600 bg-amber-50 rounded-2xl border border-dashed border-amber-200 font-bold uppercase tracking-wide">
-              No student has submitted an application yet.
-            </div>
           ) : (
+            (() => {
+              const selDept = selectedDepartment.toLowerCase().trim();
+              const semNumber = selectedSemester.match(/\d+/)?.[0];
+              
+              const filteredApplications = applications.filter(app => {
+                if (!app.studentId) return false;
+                
+                const appDept = (app.studentId.department || '').toLowerCase().trim();
+                const appSem = String(app.studentId.semester || '').toLowerCase().trim();
+                
+                const matchesDept = appDept === selDept;
+                const matchesSem = appSem === String(semNumber) || 
+                                   appSem === `${semNumber}th` || 
+                                   appSem === `${semNumber}st` || 
+                                   appSem === `${semNumber}nd` || 
+                                   appSem === `${semNumber}rd` ||
+                                   appSem === selectedSemester.toLowerCase().trim();
+                                   
+                return matchesDept && matchesSem;
+              });
+              
+              if (filteredApplications.length === 0) {
+                return (
+                  <div className="text-center py-10 text-xs text-amber-600 bg-amber-50 rounded-2xl border border-dashed border-amber-200 font-bold uppercase tracking-wide">
+                    No active applications found for {selectedDepartment} - {selectedSemester}.
+                  </div>
+                );
+              }
+
+              return (
             <div className="w-full overflow-x-auto border border-gray-100 rounded-2xl shadow-inner scrollbar-thin">
               <table className="w-full text-left border-collapse min-w-[850px]">
                 <thead>
@@ -483,7 +591,7 @@ const downloadApplicationPDF = (application) => {
                   </tr>
                 </thead>
                 <tbody className="text-xs divide-y divide-gray-100 bg-white">
-                  {applications.map((app) => (
+                  {filteredApplications.map((app) => (
                     <tr key={app._id} className="hover:bg-slate-50/50 transition-colors">
                       <td className="p-3 md:p-4 font-black text-slate-500 whitespace-nowrap">{app.studentId?.rollNo || 'N/A'}</td>
                       <td className="p-3 md:p-4 font-extrabold uppercase text-[#001f3f] whitespace-nowrap">{app.studentId?.name || 'Unknown'}</td>
@@ -507,21 +615,21 @@ const downloadApplicationPDF = (application) => {
                       <td className="p-3 md:p-4">
                         <div className="flex flex-col gap-2 items-center">
                           {app.status === 'PENDING' ? (
-                            <div className="flex flex-col gap-1.5 w-full max-w-[160px]">
+                            <div className="flex flex-col gap-2 w-full max-w-[180px]">
                               <input 
                                 type="text" 
-                                placeholder="Remarks..." 
+                                placeholder="Remarks (Optional)..." 
                                 value={remarks[app._id] || ''} 
                                 onChange={(e) => setRemarks({...remarks, [app._id]: e.target.value})}
-                                className="border text-[11px] p-1.5 rounded-lg outline-none w-full bg-slate-50 text-slate-700 focus:bg-white focus:ring-1 focus:ring-blue-900/30"
+                                className="border border-slate-200 text-[10px] p-2 rounded-lg outline-none w-full bg-slate-50 text-slate-700 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400/30 transition-all shadow-inner"
                               />
-                              <div className="flex gap-1 w-full justify-center">
-                                <button onClick={() => handleApplicationStatus(app._id, 'APPROVED')} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold text-[10px] py-1.5 rounded-md transition-colors whitespace-nowrap">Approve</button>
-                                <button onClick={() => handleApplicationStatus(app._id, 'REJECTED')} className="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold text-[10px] py-1.5 rounded-md transition-colors whitespace-nowrap">Reject</button>
+                              <div className="flex gap-1.5 w-full">
+                                <button onClick={() => handleApplicationStatus(app._id, 'APPROVED')} className="w-1/2 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-black text-[10px] py-1.5 px-1 rounded-md transition-all shadow-sm">✓ Approve</button>
+                                <button onClick={() => handleApplicationStatus(app._id, 'REJECTED')} className="w-1/2 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white font-black text-[10px] py-1.5 px-1 rounded-md transition-all shadow-sm">✕ Reject</button>
                               </div>
                             </div>
                           ) : (
-                            <span className="text-[11px] text-gray-400 italic font-medium">Processed</span>
+                            <span className="text-[11px] text-gray-400 font-medium">Processed</span>
                           )}
                           <button onClick={() => downloadApplicationPDF(app)} className="text-blue-900 border border-blue-900/20 font-black text-[10px] px-2.5 py-1 rounded-md hover:bg-blue-50 transition-colors uppercase whitespace-nowrap mt-0.5">
                             📥 PDF
@@ -533,6 +641,8 @@ const downloadApplicationPDF = (application) => {
                 </tbody>
               </table>
             </div>
+              );
+            })()
           )}
         </div>
       )}

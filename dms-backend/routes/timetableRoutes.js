@@ -20,12 +20,15 @@ const upload = multer({ storage });
 router.post('/upload', upload.single('file'), async (req, res) => {
     try {
         const newEntry = new Timetable({
+            title: req.body.title,
             department: req.body.dept || req.body.department, // Accept either from the frontend
             semester: req.body.semester,
+            audience: req.body.audience,
             startDate: req.body.startDate,
             endDate: req.body.endDate,
             fileUrl: req.file.path,
-            uploadedBy: req.body.uploadedBy || 'teacher'
+            uploadedBy: req.body.uploadedBy || 'teacher',
+            assignedTeacher: req.body.assignedTeacher || ''
         });
         await newEntry.save();
         res.status(201).json({ message: "Uploaded successfully!", data: newEntry });

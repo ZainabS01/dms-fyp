@@ -196,7 +196,7 @@ const Login = ({ setUser }) => {
                   </div>
                 </div>
 
-                <h2 className="text-3xl font-black text-[#001f3f] text-center uppercase italic">Login Portal</h2>
+                <h2 className="text-3xl font-black text-[#001f3f] text-center uppercase">Login Portal</h2>
                 <div className="h-1.5 w-16 bg-[#d4a017] mx-auto mb-6 rounded-full"></div>
 
                 <form onSubmit={handleLogin} className="space-y-5">

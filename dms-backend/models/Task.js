@@ -10,6 +10,9 @@ const submissionSchema = new mongoose.Schema({
 const taskSchema = new mongoose.Schema({
     title: { type: String, required: true },
     description: String,
+    teacherId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
+    teacherName: { type: String, default: 'Unknown Teacher' },
+    subject: { type: String, required: true, default: 'General' },
     department: { type: String, required: true }, // Add this
     semester: { type: String, required: true },   // Add this
     taskType: { type: String, enum: ['Assignment', 'Quiz', 'Other'], default: 'Assignment' },

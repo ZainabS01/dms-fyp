@@ -14,7 +14,7 @@ const StudentQueries = () => {
   return (
     <div className="bg-white p-6 rounded-[35px] shadow-xl border-b-[6px] border-[#001f3f] min-h-[70vh]">
       <div className="mb-8">
-        <h2 className="text-2xl font-black text-[#001f3f] uppercase italic">Student Queries</h2>
+        <h2 className="text-2xl font-black text-[#001f3f] uppercase">Student Queries</h2>
         <p className="text-[10px] font-bold text-slate-400 tracking-widest uppercase">Respond to student concerns and feedback</p>
       </div>
 
@@ -27,7 +27,7 @@ const StudentQueries = () => {
               </div>
               <div>
                 <h4 className="font-black text-[#001f3f] uppercase text-sm">{q.student} <span className="text-[10px] text-slate-400 font-bold ml-2">({q.rollNo})</span></h4>
-                <p className="text-xs font-bold text-slate-500 italic">Subject: {q.subject}</p>
+                <p className="text-xs font-bold text-slate-500">Subject: {q.subject}</p>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -56,7 +56,7 @@ const StudentQueries = () => {
               className="bg-white w-full max-w-lg rounded-[40px] overflow-hidden shadow-2xl border-[10px] border-white"
             >
               <div className="bg-[#001f3f] p-6 text-white text-center">
-                <h3 className="text-lg font-black uppercase italic tracking-tighter">Reply to Student</h3>
+                <h3 className="text-lg font-black uppercase tracking-tighter">Reply to Student</h3>
                 <p className="text-[10px] text-blue-200 uppercase font-bold mt-1">{selectedQuery.student} - {selectedQuery.rollNo}</p>
               </div>
               <div className="p-8 space-y-4">

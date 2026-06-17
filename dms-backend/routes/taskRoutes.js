@@ -74,7 +74,7 @@ const { buildDeptRegex, buildSemRegex } = require('../utils/queryHelpers');
 
 router.get('/list', async (req, res) => {
     try { 
-        const { department, semester } = req.query;
+        const { department, semester, teacherId } = req.query;
         let filter = {};
         
         const deptRegex = buildDeptRegex(department);
@@ -82,6 +82,10 @@ router.get('/list', async (req, res) => {
 
         const semRegex = buildSemRegex(semester);
         if (semRegex) filter.semester = semRegex;
+
+        if (teacherId) {
+            filter.teacherId = teacherId;
+        }
 
         const tasks = await Task.find(filter).sort({ issueDate: -1 }); 
         res.json(tasks); // Ensure data is being sent from here
@@ -128,6 +132,21 @@ router.delete('/delete/:id', async (req, res) => {
         res.status(200).json({ message: "Deleted" }); 
     } catch (err) { 
         res.status(500).json({ error: err.message }); 
+    }
+});
+
+// Update Task
+router.put('/update/:id', async (req, res) => {
+    try {
+        const { title, description, subject, taskType, issueDate, dueDate, department, semester } = req.body;
+        const updatedTask = await Task.findByIdAndUpdate(
+            req.params.id, 
+            { title, description, subject, taskType, issueDate, dueDate, department, semester }, 
+            { new: true }
+        );
+        res.json(updatedTask);
+    } catch (err) {
+        res.status(500).json({ error: "Failed to update task" });
     }
 });
 

@@ -100,7 +100,7 @@ const StudentCourseData = ({ selectedDept, selectedSem }) => {
             <div className="p-4 sm:p-10 bg-slate-50/50 border-b flex justify-between items-center gap-4">
               <div>
                 <p className="text-[10px] font-black text-[#d4a017] uppercase tracking-[0.4em] mb-1">Subject Resources</p>
-                <h3 className="text-xl sm:text-2xl font-black text-[#001f3f] uppercase italic leading-tight">{selectedSubject.title}</h3>
+                <h3 className="text-xl sm:text-2xl font-black text-[#001f3f] uppercase leading-tight">{selectedSubject.title}</h3>
               </div>
               <button onClick={() => setSelectedSubject(null)} className="p-3 sm:p-4 bg-white text-slate-400 hover:text-red-500 rounded-2xl shadow-sm transition-all border border-slate-100 hover:rotate-90 shrink-0">
                 <FiX size={20} className="sm:w-6 sm:h-6" />
@@ -134,7 +134,7 @@ const StudentCourseData = ({ selectedDept, selectedSem }) => {
                     ))}
                     {(!cat.files || cat.files.length === 0) && (
                       <div className="text-center py-4 border-2 border-dashed border-slate-100 rounded-2xl">
-                         <p className="text-[9px] text-slate-300 font-bold uppercase italic">Empty Folder</p>
+                         <p className="text-[9px] text-slate-300 font-bold uppercase">Empty Folder</p>
                       </div>
                     )}
                   </div>

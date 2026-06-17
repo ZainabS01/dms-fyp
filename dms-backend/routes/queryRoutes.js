@@ -11,7 +11,12 @@ const nodemailer = require('nodemailer');
 // routes/query.js
 router.put('/update/:id', async (req, res) => {
     try {
-        const updatedQuery = await Query.findByIdAndUpdate(req.params.id, { message: req.body.message }, { new: true });
+        const { subject, message } = req.body;
+        let updateData = {};
+        if (subject) updateData.subject = subject;
+        if (message) updateData.message = message;
+        
+        const updatedQuery = await Query.findByIdAndUpdate(req.params.id, updateData, { new: true });
         res.json(updatedQuery);
     } catch (err) { res.status(500).json({ error: "Update failed" }); }
 });
@@ -25,7 +30,11 @@ router.get('/all', async (req, res) => {
         if (role === 'admin') {
             filter = { recipient: 'admin' };
         } else if (role === 'teacher') {
-            filter = { recipient: 'teacher' };
+            const { teacherId } = req.query;
+            filter = { 
+                recipient: 'teacher',
+                targetTeacherId: teacherId
+            };
         } else {
             // Student
             if (rollNumber) {
@@ -38,7 +47,9 @@ router.get('/all', async (req, res) => {
             }
         }
 
-        const queries = await Query.find(filter).sort({ createdAt: -1 });
+        const queries = await Query.find(filter)
+            .sort({ createdAt: -1 })
+            .populate('targetTeacherId', 'name');
         res.json(queries);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -54,7 +65,7 @@ router.get('/all', async (req, res) => {
 router.post('/add', async (req, res) => {
     try {
         // 1. Destructure the exact keys coming from the frontend
-        const { studentName, email, rollNumber, department, semester, subject, message, recipient, sender } = req.body;
+        const { studentName, email, rollNumber, department, semester, subject, message, recipient, sender, targetTeacherId } = req.body;
 
         // 2. Check in the console if the data is correctly reaching the backend
         console.log("Backend Received Data:", req.body);
@@ -69,6 +80,7 @@ router.post('/add', async (req, res) => {
             subject,
             message,
             recipient: recipient || "teacher", // Default recipient if not provided
+            targetTeacherId: targetTeacherId || null,
             status: sender === 'admin' ? "RESOLVED" : "PENDING"
         });
 

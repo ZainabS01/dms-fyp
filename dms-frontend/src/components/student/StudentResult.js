@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FiDownload } from 'react-icons/fi';
 import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 const StudentResult = ({ studentData }) => {
   const [results, setResults] = useState([]);
@@ -34,17 +35,43 @@ const StudentResult = ({ studentData }) => {
 
   const downloadResultPDF = (res) => {
     const doc = new jsPDF();
-    doc.setFontSize(20);
-    doc.text("UNIVERSITY RESULT CARD", 60, 20);
-    doc.setFontSize(12);
-    doc.text(`Name: ${activeName}`, 20, 40);
-    doc.text(`Roll No: ${activeRollNo}`, 20, 50);
-    doc.text(`Department: ${res.department || 'N/A'}`, 20, 60);
-    doc.text(`Semester: ${res.semester}`, 20, 70);
-    doc.line(20, 80, 190, 80);
-    doc.setFontSize(16);
-    doc.text(`GPA: ${res.gpa}`, 20, 100);
-    doc.text(`CGPA: ${res.cgpa}`, 20, 115);
+    
+    // Theme Borders
+    doc.setDrawColor(0, 31, 63); // Navy Blue
+    doc.setLineWidth(1);
+    doc.rect(10, 10, 190, 277);
+    doc.setDrawColor(212, 160, 23); // Gold
+    doc.setLineWidth(0.5);
+    doc.rect(12, 12, 186, 273);
+
+    // Header Banner
+    doc.setFillColor(0, 31, 63);
+    doc.rect(12, 12, 186, 25, 'F');
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(255, 255, 255);
+    doc.text("UNIVERSITY RESULT CARD", 105, 29, { align: "center" });
+    
+    // Reset Color
+    doc.setTextColor(0, 0, 0);
+
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 46);
+
+    autoTable(doc, {
+        startY: 58,
+        headStyles: { fillColor: [0, 31, 63], textColor: [255, 255, 255], fontStyle: 'bold' },
+        styles: { font: 'helvetica', fontSize: 12, cellPadding: 8 },
+        head: [['Field', 'Information']],
+        body: [
+            ['Student Name', activeName.toUpperCase()],
+            ['Roll No', activeRollNo],
+            ['Department', res.department || 'N/A'],
+            ['Semester', res.semester],
+            ['GPA', res.gpa],
+            ['CGPA', res.cgpa]
+        ]
+    });
     doc.save(`Result_${activeRollNo}.pdf`);
   };
 

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { DEPARTMENTS_LIST, SEMESTERS_LIST } from '../../constants/data';
 
 const StudentManagement = () => {
   const [students, setStudents] = useState([]);
@@ -51,13 +52,17 @@ const StudentManagement = () => {
     }
   };
 
-  const departments = ['All Departments', ...new Set(students.map(s => s.department).filter(Boolean))];
+  const departments = ['All Departments', ...DEPARTMENTS_LIST];
 
   const filteredStudents = selectedDepartment === '' 
     ? [] 
     : selectedDepartment === 'All Departments'
       ? students
-      : students.filter(student => student.department === selectedDepartment);
+      : students.filter(student => {
+          const sDept = (student.department || "").toLowerCase().replace(/^bs\s+/, "").trim();
+          const selDept = selectedDepartment.toLowerCase().replace(/^bs\s+/, "").trim();
+          return sDept === selDept;
+        });
 
   return (
     <div className="w-full animate-fadeIn">
@@ -146,11 +151,17 @@ const StudentManagement = () => {
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase">Department</label>
-                <input type="text" value={editingStudent?.department || ''} onChange={(e) => setEditingStudent({...editingStudent, department: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700 uppercase" />
+                <select value={editingStudent?.department || ''} onChange={(e) => setEditingStudent({...editingStudent, department: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700 uppercase">
+                  <option value="">Select Department</option>
+                  {DEPARTMENTS_LIST.map(d => <option key={d} value={d}>{d}</option>)}
+                </select>
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase">Semester</label>
-                <input type="text" value={editingStudent?.semester || ''} onChange={(e) => setEditingStudent({...editingStudent, semester: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700" />
+                <select value={editingStudent?.semester || ''} onChange={(e) => setEditingStudent({...editingStudent, semester: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700">
+                  <option value="">Select Semester</option>
+                  {SEMESTERS_LIST.map(s => <option key={s} value={s}>{s} Semester</option>)}
+                </select>
               </div>
             </div>
             <div className="flex gap-4 mt-8">

@@ -7,7 +7,7 @@ const verifyToken = require('../middleware/authMiddleware');
 // 📥 1. STUDENT SIDE: Submit Leave Application
 router.post('/submit', verifyToken, async (req, res) => {
     try {
-        const { subject, reason, startDate, endDate } = req.body;
+        const { subject, reason, startDate, endDate, targetTeacherId } = req.body;
         const studentId = req.user.id; // Student ID retrieved from token
 
         if (!subject || !reason || !startDate || !endDate) {
@@ -22,7 +22,8 @@ router.post('/submit', verifyToken, async (req, res) => {
             subject: subject.trim(),
             reason: reason.trim(),
             startDate,
-            endDate
+            endDate,
+            targetTeacherId: targetTeacherId || null
         });
 
         await newApplication.save();
@@ -69,7 +70,14 @@ router.get('/teacher/view-all', verifyToken, async (req, res) => {
         const studentIds = classStudents.map(s => s._id);
 
         // 🎯 POPULATE FIXED: Student name and roll number linked to generate report
-        const applications = await Application.find({ studentId: { $in: studentIds } })
+        // Also filter by targetTeacherId (allow null for backward compatibility)
+        const applications = await Application.find({ 
+            studentId: { $in: studentIds },
+            $or: [
+                { targetTeacherId: req.user.id },
+                { targetTeacherId: null }
+            ]
+        })
             .populate({
                 path: 'studentId',
                 model: 'User',

@@ -44,7 +44,7 @@ const AdminProfile = ({ user }) => {
           </div>
         </div>
         
-        <h2 className="text-2xl font-black text-[#001f3f] uppercase italic tracking-tighter">
+        <h2 className="text-2xl font-black text-[#001f3f] uppercase tracking-tighter">
           {formData.name}
         </h2>
         <p className="text-[12px] font-black text-[#d4a017] uppercase tracking-[0.2em] mt-1">
@@ -54,7 +54,7 @@ const AdminProfile = ({ user }) => {
 
       {/* Details & Settings (Right Side) */}
       <div className="lg:col-span-2 bg-white p-8 rounded-[40px] shadow-xl border-b-[8px] border-[#d4a017]">
-        <h3 className="text-lg font-black text-[#001f3f] uppercase italic border-b-4 border-[#001f3f]/10 pb-2 mb-6 inline-block">
+        <h3 className="text-lg font-black text-[#001f3f] uppercase border-b-4 border-[#001f3f]/10 pb-2 mb-6 inline-block">
           Account Information
         </h3>
         

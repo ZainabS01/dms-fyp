@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable'; // Explicitly imported to avoid plugin runtime crashes
+import { DEPARTMENTS_LIST, SEMESTERS_LIST } from '../../constants/data';
 
 const TeacherResult = () => {
   const [department, setDepartment] = useState('');
@@ -123,18 +124,33 @@ const saveOrUpdateRow = async (student) => {
     if (studentsList.length === 0) return;
     const doc = new jsPDF();
     
-    // Header Setup
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(18);
-    doc.text("UNIVERSITY OF THE PUNJAB", 14, 20);
+    // Theme Borders
+    doc.setDrawColor(0, 31, 63); // Navy Blue
+    doc.setLineWidth(1);
+    doc.rect(10, 10, 190, 277);
+    doc.setDrawColor(212, 160, 23); // Gold
+    doc.setLineWidth(0.5);
+    doc.rect(12, 12, 186, 273);
+
+    // Header Banner
+    doc.setFillColor(0, 31, 63);
+    doc.rect(12, 12, 186, 25, 'F');
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(255, 255, 255);
+    doc.text("UNIVERSITY OF THE PUNJAB", 105, 29, { align: "center" });
+    
+    // Reset Color
+    doc.setTextColor(0, 0, 0);
     
     doc.setFontSize(12);
+    doc.setFont("Helvetica", "bold");
+    doc.text(`Academic Ledger Report`, 14, 46);
     doc.setFont("Helvetica", "normal");
-    doc.text(`Department Management System - Academic Ledger Report`, 14, 28);
-    doc.text(`Department: ${department} | Semester Reference: ${semester}`, 14, 35);
+    doc.text(`Department: ${department} | Semester: ${semester}`, 14, 53);
     
     doc.setLineWidth(0.5);
-    doc.line(14, 40, 196, 40);
+    doc.line(14, 56, 196, 56);
 
     // Grid Mapping
     const tableColumn = ["Roll Number", "Student Name", "Semester GPA", "Cumulative CGPA"];
@@ -152,7 +168,7 @@ const saveOrUpdateRow = async (student) => {
 
     // Called explicitly as a function to prevent runtime bugs
     autoTable(doc, {
-      startY: 45,
+      startY: 60,
       head: [tableColumn],
       body: tableRows,
       theme: 'grid',
@@ -169,45 +185,43 @@ const saveOrUpdateRow = async (student) => {
   const downloadStudentResultPDF = (student) => {
     const doc = new jsPDF();
 
-    // Outer Border Line
-    doc.rect(10, 10, 190, 120);
+    // Theme Borders
+    doc.setDrawColor(0, 31, 63); // Navy Blue
+    doc.setLineWidth(1);
+    doc.rect(10, 10, 190, 277);
+    doc.setDrawColor(212, 160, 23); // Gold
+    doc.setLineWidth(0.5);
+    doc.rect(12, 12, 186, 273);
 
-    // Branding Header
-    doc.setFont("Times New Roman", "bold");
-    doc.setFontSize(16);
-    doc.text("UNIVERSITY OF THE PUNJAB", 105, 25, { align: "center" });
+    // Header Banner
+    doc.setFillColor(0, 31, 63);
+    doc.rect(12, 12, 186, 25, 'F');
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(255, 255, 255);
+    doc.text("UNIVERSITY OF THE PUNJAB", 105, 29, { align: "center" });
     
-    doc.setFontSize(12);
-    doc.setFont("Times New Roman", "italic");
-    doc.text("Official Student Grade Sheet", 105, 32, { align: "center" });
+    // Reset Color
+    doc.setTextColor(0, 0, 0);
     
-    doc.line(20, 38, 190, 38);
+    doc.setFontSize(10);
+    doc.text("Official Student Grade Sheet", 14, 46);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 52);
 
-    // Meta Data Grid
-    doc.setFont("Helvetica", "bold");
-    doc.setFontSize(11);
-    doc.text("Roll Number:", 25, 52);
-    doc.text("Student Name:", 25, 62);
-    doc.text("Department Area:", 25, 72);
-    doc.text("Academic Semester:", 25, 82);
-
-    doc.setFont("Helvetica", "normal");
-    doc.text(`${student.rollNo}`, 75, 52);
-    doc.text(`${student.name ? student.name.toUpperCase() : 'N/A'}`, 75, 62);
-    doc.text(`${department}`, 75, 72);
-    doc.text(`${semester}`, 75, 82);
-
-    doc.line(20, 90, 190, 90);
-
-    // Statistical Assessment Blocks
-    doc.setFont("Helvetica", "bold");
-    doc.text("ACADEMIC SCORE METRICS:", 25, 100);
-    
-    doc.rect(25, 105, 65, 15);
-    doc.rect(115, 105, 65, 15);
-    
-    doc.text(`SEMESTER GPA:   ${student.gpa || '0.00'}`, 29, 114);
-    doc.text(`TOTAL CGPA:   ${student.cgpa || '0.00'}`, 119, 114);
+    autoTable(doc, {
+        startY: 58,
+        headStyles: { fillColor: [0, 31, 63], textColor: [255, 255, 255], fontStyle: 'bold' },
+        styles: { font: 'helvetica', fontSize: 12, cellPadding: 8 },
+        head: [['Field', 'Details']],
+        body: [
+            ['Student Name', student.name ? student.name.toUpperCase() : 'N/A'],
+            ['Roll No', student.rollNo],
+            ['Department', department],
+            ['Semester', semester],
+            ['Semester GPA', student.gpa || '0.00'],
+            ['Cumulative CGPA', student.cgpa || '0.00']
+        ]
+    });
 
     doc.save(`Result_Sheet_${student.rollNo}.pdf`);
   };
@@ -244,23 +258,14 @@ const saveOrUpdateRow = async (student) => {
             <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">Department</label>
             <select value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full px-4 py-3 bg-[#f1f3f6] text-[#001f3f] font-bold text-xs rounded-xl focus:outline-none border-2 border-transparent focus:border-[#d4a017]">
               <option value="">Select Department</option>
-              <option value="COMPUTER SCIENCE">Computer Science</option>
-              <option value="INFORMATION TECHNOLOGY">Information Technology</option>
-              <option value="SOFTWARE ENGINEERING">Software Engineering</option>
+              {DEPARTMENTS_LIST.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">Semester</label>
             <select value={semester} onChange={(e) => setSemester(e.target.value)} className="w-full px-4 py-3 bg-[#f1f3f6] text-[#001f3f] font-bold text-xs rounded-xl focus:outline-none border-2 border-transparent focus:border-[#d4a017]">
               <option value="">Select Semester</option>
-              <option value="1">1st Semester</option>
-              <option value="2">2nd Semester</option>
-              <option value="3">3rd Semester</option>
-              <option value="4">4th Semester</option>
-              <option value="5">5th Semester</option>
-              <option value="6">6th Semester</option>
-              <option value="7">7th Semester</option>
-              <option value="8">8th Semester</option>
+              {SEMESTERS_LIST.map(s => <option key={s} value={s}>{s} Semester</option>)}
             </select>
           </div>
         </div>

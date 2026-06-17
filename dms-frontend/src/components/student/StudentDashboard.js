@@ -36,6 +36,36 @@ const StudentDashboard = ({ user, setUser, onLogout }) => {
     }
   });
 
+  // Handle Browser Back Button to prevent logging out when navigating tabs
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash) {
+        setActiveTab(hash);
+      } else {
+        setActiveTab('overview');
+      }
+    };
+
+    // Initialize from hash if present
+    if (window.location.hash) {
+      handleHashChange();
+    }
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  useEffect(() => {
+    if (window.location.hash.replace('#', '') !== activeTab) {
+      if (activeTab === 'overview') {
+        window.history.pushState(null, '', window.location.pathname);
+      } else {
+        window.history.pushState(null, '', `#${activeTab}`);
+      }
+    }
+  }, [activeTab]);
+
   useEffect(() => {
     const syncData = async () => {
       try {

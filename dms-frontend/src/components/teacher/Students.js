@@ -25,18 +25,30 @@ const Students = () => {
   const downloadMarksSheet = (student) => {
     const doc = new jsPDF();
     
-    // Header section
+    // Theme Borders
+    doc.setDrawColor(0, 31, 63); // Navy Blue
+    doc.setLineWidth(1);
+    doc.rect(10, 10, 190, 277);
+    doc.setDrawColor(212, 160, 23); // Gold
+    doc.setLineWidth(0.5);
+    doc.rect(12, 12, 186, 273);
+
+    // Header Banner
+    doc.setFillColor(0, 31, 63);
+    doc.rect(12, 12, 186, 25, 'F');
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
-    doc.setTextColor(0, 31, 63); // Navy Blue
-    doc.text("DMS PORTAL - STUDENT RECORD", 14, 20);
+    doc.setTextColor(255, 255, 255);
+    doc.text("STUDENT RECORD PORTAL", 105, 29, { align: "center" });
+    
+    // Reset Color
+    doc.setTextColor(0, 0, 0);
     
     doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text(`Report Date: ${new Date().toLocaleDateString()}`, 14, 28);
+    doc.text(`Report Date: ${new Date().toLocaleDateString()}`, 14, 46);
 
-    // FIX 2: Use autoTable(doc, options) instead of doc.autoTable
     autoTable(doc, {
-      startY: 35,
+      startY: 58,
       head: [['Field', 'Information']],
       body: [
         ['Full Name', student.name.toUpperCase()],
@@ -74,7 +86,7 @@ const Students = () => {
             <FiUsers size={24} className="sm:w-7 sm:h-7" />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-black text-[#001f3f] uppercase italic leading-none">DMS Portal</h2>
+            <h2 className="text-xl sm:text-2xl font-black text-[#001f3f] uppercase leading-none">DMS Portal</h2>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Student Management System</p>
           </div>
         </div>
@@ -115,7 +127,7 @@ const Students = () => {
                   </button>
                 </div>
               </div>
-            )) : <div className="col-span-full p-10 text-center font-bold text-slate-300 italic">No matching records found.</div>}
+            )) : <div className="col-span-full p-10 text-center font-bold text-slate-300">No matching records found.</div>}
           </div>
         </div>
       )}
@@ -200,7 +212,7 @@ const Students = () => {
                 <div className="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden">
                   <div className="bg-[#d4a017] h-full" style={{width: '88%'}}></div>
                 </div>
-                <p className="text-[10px] font-bold text-slate-400 mt-2 italic">Excellent Performance!</p>
+                <p className="text-[10px] font-bold text-slate-400 mt-2">Excellent Performance!</p>
               </div>
 
               {/* Grades Section */}

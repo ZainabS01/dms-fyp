@@ -102,7 +102,7 @@ const About = () => {
               ].map((mate, index) => (
                 <motion.div key={index} variants={fadeIn} className="bg-white p-5 rounded-3xl border-b-4 border-[#001f3f] shadow-xl hover:-translate-y-2 transition-transform">
                   <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-3 border-4 border-[#d4a017] overflow-hidden">
-                    <img src={`https://i.pravatar.cc/150?u=${mate.name}`} alt={mate.name} className="w-full h-full object-cover" />
+                    <img src={`https://ui-avatars.com/api/?name=${mate.name}&background=001f3f&color=fff&size=150&bold=true`} alt={mate.name} className="w-full h-full object-cover" />
                   </div>
                   <h3 className="text-lg md:text-xl font-black text-[#001f3f] uppercase">{mate.name}</h3>
                   <p className="text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-wide">{mate.role}</p>

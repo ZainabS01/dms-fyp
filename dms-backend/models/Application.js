@@ -6,6 +6,11 @@ const applicationSchema = new mongoose.Schema({
         ref: 'User', // 👈 For linking student data
         required: true
     },
+    targetTeacherId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User', // 👈 For targeting a specific teacher
+        required: false
+    },
     subject: {
         type: String,
         required: [true, "Application subject is required."]

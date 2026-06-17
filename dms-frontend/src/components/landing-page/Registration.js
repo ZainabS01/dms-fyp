@@ -3,7 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import axios from 'axios';
+import { Eye, EyeOff } from 'lucide-react';
 import ForgotPasswordModal from './ForgotPasswordModal';
+import { DEPARTMENTS_LIST, SEMESTERS_LIST } from '../../constants/data';
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -18,18 +20,10 @@ const Registration = () => {
   const location = useLocation();
   const [department, setDepartment] = useState(location.state?.selectedDept || '');
   const [departmentsList, setDepartmentsList] = useState([]);
+  const [gender, setGender] = useState('Female');
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const fetchDepartments = async () => {
-      try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/departments`);
-        setDepartmentsList(res.data);
-      } catch (err) {
-        console.error("Failed to load departments");
-      }
-    };
-    fetchDepartments();
   }, []);
   const [rollNo, setRollNo] = useState('');
   const [phone, setPhone] = useState('+92');
@@ -70,7 +64,8 @@ const Registration = () => {
       department: department.trim(),
       rollNo: userRole.toLowerCase() === 'student' ? rollNo.trim() : undefined,
       semester: userRole.toLowerCase() === 'student' ? semester : undefined,
-      phone: phone.trim()
+      phone: phone.trim(),
+      gender
     };
 
     try {
@@ -105,7 +100,7 @@ const Registration = () => {
              <img src="/logo.png" alt="DMS Logo" className="w-full h-full object-contain" />
           </div>
           <div className="bg-[#001f3f] text-white rounded-[40px] p-6 w-full max-w-[380px] shadow-lg">
-            <h2 className="text-xl font-black mb-4 uppercase italic">Welcome To DMS</h2>
+            <h2 className="text-xl font-black mb-4 uppercase">Welcome To DMS</h2>
             <p className="text-[11px] font-bold text-blue-100/70 mb-8">Efficient Departmental Management System.</p>
             <div className="flex flex-wrap justify-center gap-3">
               {['Secure', 'Organized', 'Direct'].map((item) => (
@@ -138,7 +133,7 @@ const Registration = () => {
                 </div>
 
                 <div className="text-center mb-8">
-                  <h1 className="text-4xl font-black text-[#001f3f] uppercase italic border-b-[8px] border-[#001f3f] inline-block tracking-tighter pb-1">Join Portal</h1>
+                  <h1 className="text-4xl font-black text-[#001f3f] uppercase border-b-[8px] border-[#001f3f] inline-block tracking-tighter pb-1">Join Portal</h1>
                 </div>
 
                 <form onSubmit={handleRegister} className="space-y-4">
@@ -151,7 +146,7 @@ const Registration = () => {
                   <AnimatePresence>
                     {email.length > 5 && (
                       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                           <div>
                             <label className="text-[10px] font-black text-[#001f3f] uppercase ml-1 tracking-widest">Full Name</label>
                             <input type="text" placeholder="FULL NAME" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-3 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none" required />
@@ -159,6 +154,13 @@ const Registration = () => {
                           <div>
                             <label className="text-[10px] font-black text-[#001f3f] uppercase ml-1 tracking-widest">Phone No</label>
                             <input type="text" placeholder="PHONE NO" value={phone} onChange={handlePhoneChange} className="w-full p-3 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none" required />
+                          </div>
+                          <div>
+                            <label className="text-[10px] font-black text-[#001f3f] uppercase ml-1 tracking-widest">Gender</label>
+                            <select value={gender} onChange={(e) => setGender(e.target.value)} className="w-full p-3 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm bg-white" required>
+                                <option value="Female">Female</option>
+                                <option value="Male">Male</option>
+                            </select>
                           </div>
                         </div>
 
@@ -172,7 +174,7 @@ const Registration = () => {
                               <label className="text-[10px] font-black text-[#001f3f] uppercase ml-1 tracking-widest">Semester</label>
                               <select value={semester} onChange={(e) => setSemester(e.target.value)} className="w-full p-3 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm bg-white" required>
                                 <option value="">CHOOSE</option>
-                                {[1,2,3,4,5,6,7,8].map(n => <option key={n} value={n}>{n} Semester</option>)}
+                                {SEMESTERS_LIST.map(n => <option key={n} value={n}>{n} Semester</option>)}
                               </select>
                             </div>
                           </div>
@@ -182,7 +184,9 @@ const Registration = () => {
                           <label className="text-[10px] font-black text-[#001f3f] uppercase ml-1 tracking-widest">Password</label>
                           <div className="relative mt-1">
                             <input type={showPassword ? "text" : "password"} placeholder="••••••••" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none" required />
-                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-3.5 text-xl opacity-50">{showPassword ? "🙈" : "👁️"}</button>
+                            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#001f3f]">
+                              {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                            </button>
                           </div>
                           <div className="text-right mt-1">
                             <button type="button" onClick={() => setIsModalOpen(true)} className="text-[9px] font-black text-[#d4a017] uppercase hover:underline">Forgot Password?</button>
@@ -193,13 +197,13 @@ const Registration = () => {
                           <label className="text-[10px] font-black text-[#001f3f] uppercase ml-1 tracking-widest">Department</label>
                           <select value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full p-3 mt-1 border-2 border-[#001f3f] rounded-2xl font-bold text-sm bg-white" required>
                             <option value="">SELECT DEPARTMENT</option>
-                            {departmentsList.map(dept => (
-                              <option key={dept._id} value={dept.name}>{dept.name}</option>
+                            {DEPARTMENTS_LIST.map(dept => (
+                              <option key={dept} value={dept}>{dept}</option>
                             ))}
                           </select>
                         </div>
 
-                        <button type="submit" disabled={loading} className="w-full bg-[#001f3f] text-white py-3 rounded-2xl font-black uppercase italic tracking-[0.2em] text-sm hover:bg-[#d4a017] transition-all shadow-xl">
+                        <button type="submit" disabled={loading} className="w-full bg-[#001f3f] text-white py-3 rounded-2xl font-black uppercase tracking-[0.2em] text-sm hover:bg-[#d4a017] transition-all shadow-xl">
                           {loading ? "Registering..." : `Create ${userRole} Account`}
                         </button>
                       </motion.div>

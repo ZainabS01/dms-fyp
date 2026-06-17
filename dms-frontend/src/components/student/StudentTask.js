@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { jsPDF } from "jspdf"; // PDF generate karne ke liye
+import { jsPDF } from "jspdf";
+import autoTable from 'jspdf-autotable';
 
 const Task = ({ studentData }) => {
   const [tasks, setTasks] = useState([]);
@@ -25,15 +26,43 @@ const Task = ({ studentData }) => {
     }
   };
 
-  // PDF Generator Function
   const downloadFeedbackPDF = (task) => {
     const doc = new jsPDF();
-    doc.setFontSize(18);
-    doc.text("Assignment Feedback", 20, 20);
-    doc.setFontSize(12);
-    doc.text(`Task Title: ${task.title}`, 20, 40);
-    doc.text(`Grade: ${task.grade || "N/A"}`, 20, 50);
-    doc.text(`Remarks: ${task.teacherRemarks || "No remarks provided"}`, 20, 60);
+    
+    // Theme Borders
+    doc.setDrawColor(0, 31, 63); // Navy Blue
+    doc.setLineWidth(1);
+    doc.rect(10, 10, 190, 277);
+    doc.setDrawColor(212, 160, 23); // Gold
+    doc.setLineWidth(0.5);
+    doc.rect(12, 12, 186, 273);
+
+    // Header Banner
+    doc.setFillColor(0, 31, 63);
+    doc.rect(12, 12, 186, 25, 'F');
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(255, 255, 255);
+    doc.text("ASSIGNMENT FEEDBACK", 105, 29, { align: "center" });
+    
+    // Reset Color
+    doc.setTextColor(0, 0, 0);
+    
+    doc.setFontSize(10);
+    doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 14, 46);
+
+    autoTable(doc, {
+        startY: 58,
+        headStyles: { fillColor: [0, 31, 63], textColor: [255, 255, 255], fontStyle: 'bold' },
+        styles: { font: 'helvetica', fontSize: 12, cellPadding: 8 },
+        head: [['Field', 'Details']],
+        body: [
+            ['Task Title', task.title],
+            ['Task Type', task.taskType || "Assignment"],
+            ['Grade', task.grade || "N/A"],
+            ['Remarks', task.teacherRemarks || "No remarks provided"]
+        ]
+    });
     doc.save(`${task.title}_Feedback.pdf`);
   };
 
@@ -68,9 +97,11 @@ const Task = ({ studentData }) => {
                 <div className="flex-1">
                   <h4 className="font-bold text-slate-800 text-lg">{task.title}</h4>
                   <p className="text-sm text-gray-600 mt-1 leading-relaxed">{task.description}</p>
-                  <p className="text-xs text-slate-400 font-bold uppercase mt-3">
-                    Deadline: {new Date(task.dueDate).toLocaleDateString()}
-                  </p>
+                  <div className="text-xs text-slate-400 font-bold uppercase mt-3 space-y-1">
+                    <p>Assigned By: <span className="text-[#001f3f]">{task.teacherName || 'Unknown'}</span></p>
+                    <p>Subject: <span className="text-[#001f3f]">{task.subject || 'General'}</span></p>
+                    <p>Start Date: {new Date(task.issueDate).toLocaleDateString()} | Deadline: {new Date(task.dueDate).toLocaleDateString()}</p>
+                  </div>
                 </div>
                 <span className="self-start px-4 py-1 rounded-full text-[10px] font-black uppercase bg-blue-100 text-blue-600">
                   {task.taskType}
@@ -88,14 +119,14 @@ const Task = ({ studentData }) => {
                       {/* Feedback Section (Visible if teacher has graded) */}
                       {mySubmission.grade && (
                         <div className="mt-2 pt-2 border-t border-blue-200">
-                          <p className="text-sm"><strong>Grade:</strong> {mySubmission.grade}</p>
-                          <p className="text-sm text-gray-700"><strong>Remarks:</strong> {mySubmission.remarks}</p>
+                          <p className="text-sm mt-1"><strong>Grade:</strong> <span className="font-black text-green-600">{mySubmission.grade}</span></p>
+                          <p className="text-sm text-gray-700 mt-1"><strong>Remarks:</strong> <span className="font-bold text-[#001f3f]">{mySubmission.remarks || "None"}</span></p>
                           
                           <div className="flex flex-wrap gap-4 mt-2">
-                            <a href={`${process.env.REACT_APP_API_URL}/uploads/${mySubmission.fileUrl}`} target="_blank" rel="noreferrer" className="text-blue-600 underline text-xs font-bold">
+                            <a href={`${process.env.REACT_APP_API_URL}/uploads/${mySubmission.fileUrl}`} target="_blank" rel="noreferrer" className="text-blue-600 font-black uppercase text-[10px] bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg transition-colors">
                               View Submission
                             </a>
-                            <button onClick={() => downloadFeedbackPDF({...task, grade: mySubmission.grade, teacherRemarks: mySubmission.remarks})} className="text-green-600 underline text-xs font-bold text-left">
+                            <button onClick={() => downloadFeedbackPDF({...task, grade: mySubmission.grade, teacherRemarks: mySubmission.remarks})} className="text-green-600 font-black uppercase text-[10px] bg-green-50 hover:bg-green-100 px-3 py-1.5 rounded-lg transition-colors">
                               Download Feedback PDF
                             </button>
                           </div>

@@ -26,6 +26,11 @@ password: {
         enum: ['student', 'admin', 'teacher'], 
         default: 'student'
     },
+    gender: {
+        type: String,
+        enum: ['Male', 'Female'],
+        default: 'Female'
+    },
     department: {
         type: String,
         required: true
@@ -44,13 +49,13 @@ password: {
         type: String,
         default: null
     },
-    pin: {
-        type: String,
-        default: null 
-    },
     isHOD: {
         type: Boolean,
         default: false
+    },
+    pin: {
+        type: String,
+        default: null 
     },
     status: {
         type: String,

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { ArrowLeft } from 'lucide-react';
 
 const TeacherProfile = () => {
   const [profile, setProfile] = useState(null);
@@ -63,8 +64,8 @@ const TeacherProfile = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 p-4 md:p-0 animate-in fade-in duration-500">
-      
+    <div className="p-4 md:p-6 animate-in fade-in duration-500">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
       {/* Profile Card (Left Side) */}
       <div className="lg:col-span-1 bg-white p-8 rounded-[40px] shadow-xl border-b-[8px] border-[#001f3f] text-center">
         <div className="w-32 h-32 bg-[#f1f3f6] rounded-full mx-auto mb-6 border-4 border-[#001f3f] p-1 shadow-inner relative overflow-hidden">
@@ -76,17 +77,14 @@ const TeacherProfile = () => {
           />
         </div>
         
-        <h2 className="text-xl font-black text-[#001f3f] uppercase italic tracking-tighter">
+        <h2 className="text-xl font-black text-[#001f3f] uppercase tracking-tighter">
           {profile.name}
         </h2>
         <p className="text-[10px] font-black text-[#d4a017] uppercase tracking-[0.2em] mb-6">
-          {profile.role || "Faculty Member"}
+          {profile.isHOD ? "HEAD OF DEPARTMENT" : (profile.role || "Faculty Member")}
         </p>
         
         <div className="space-y-2">
-           <div className="bg-[#001f3f] text-white p-3 rounded-2xl text-[10px] font-black uppercase tracking-widest">
-             ID: {profile._id?.substring(0, 8).toUpperCase() || "PENDING"}
-           </div>
            <div className="bg-slate-100 text-[#001f3f] p-3 rounded-2xl text-[10px] font-black uppercase tracking-widest">
              Dept: {profile.department || "CS & SE"}
            </div>
@@ -95,7 +93,7 @@ const TeacherProfile = () => {
 
       {/* Details & Settings (Right Side) */}
       <div className="lg:col-span-2 bg-white p-8 rounded-[40px] shadow-xl border-b-[8px] border-[#d4a017]">
-        <h3 className="text-lg font-black text-[#001f3f] uppercase italic border-b-4 border-[#001f3f]/10 pb-2 mb-6 inline-block">
+        <h3 className="text-lg font-black text-[#001f3f] uppercase border-b-4 border-[#001f3f]/10 pb-2 mb-6 inline-block">
           Account Information
         </h3>
         
@@ -107,7 +105,7 @@ const TeacherProfile = () => {
           
           <div className="space-y-1">
             <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Email Address</label>
-            <p className="font-bold text-[#001f3f] border-b border-slate-50 pb-1">{profile.email}</p>
+            <p className="font-bold text-[#001f3f] border-b border-slate-50 pb-1 break-all">{profile.email}</p>
           </div>
           
           <div className="space-y-1">
@@ -139,6 +137,7 @@ const TeacherProfile = () => {
              Security Settings
            </button>
         </div>
+      </div>
       </div>
     </div>
   );

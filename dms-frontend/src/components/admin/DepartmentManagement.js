@@ -103,7 +103,7 @@ const DepartmentManagement = () => {
     <div className="w-full">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-10">
         <div>
-          <h1 className="text-3xl md:text-4xl font-black text-[#001f3f] ">
+          <h1 className="text-3xl md:text-4xl font-black text-[#001f3f]">
             Department <span className="text-[#d4a017]">Management</span>
           </h1>
           <div className="h-1.5 w-20 bg-[#d4a017] rounded-full mt-2"></div>
@@ -169,7 +169,7 @@ const DepartmentManagement = () => {
           ))
         ) : (
           <div className="col-span-full py-20 text-center bg-white rounded-[40px] border-2 border-dashed border-slate-200">
-            <p className="text-slate-400 font-bold uppercase tracking-widest italic">No departments created yet ✨</p>
+            <p className="text-slate-400 font-bold uppercase tracking-widest">No departments created yet ✨</p>
           </div>
         )}
       </div>
@@ -185,7 +185,7 @@ const DepartmentManagement = () => {
               className="bg-white w-full max-w-lg mx-4 rounded-3xl sm:rounded-[40px] p-4 sm:p-8 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar"
             >
               <div className="flex justify-between items-center mb-8 border-b pb-4">
-                <h2 className="text-2xl font-black text-[#001f3f] uppercase italic">
+                <h2 className="text-2xl font-black text-[#001f3f] uppercase">
                   {editId ? 'Edit' : 'Add New'} <span className="text-[#d4a017]">Department</span>
                 </h2>
                 <button onClick={closeModal} className="text-slate-400 hover:text-red-500 text-xl font-bold">✕</button>

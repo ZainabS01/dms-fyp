@@ -72,7 +72,8 @@ router.post('/login', async (req, res) => {
                 email: user.email,
                 department: user.department,
                 semester: user.semester,
-                rollNo: user.rollNo
+                rollNo: user.rollNo,
+                gender: user.gender
             }
         };
 
@@ -105,7 +106,7 @@ router.post('/login', async (req, res) => {
 // --- 3. REGISTER ROUTE ---
 router.post('/register', async (req, res) => {
     try {
-        const { name, email, password, role, department, rollNo, semester, phone } = req.body;
+        const { name, email, password, role, department, rollNo, semester, phone, gender } = req.body;
 
         if (!email || !password || !name) {
             return res.status(400).json({ success: false, message: "Please fill in the required fields!" });
@@ -137,7 +138,8 @@ router.post('/register', async (req, res) => {
             rollNo: userRole === 'student' ? (rollNo ? rollNo.trim() : "N/A") : undefined,
             pin: generatedPin,
             status: userRole === 'admin' ? 'ACTIVE' : 'PENDING',
-            isSetupComplete: true 
+            isSetupComplete: true,
+            gender: gender || 'Female'
         });
 
         await newUser.save();
@@ -201,7 +203,8 @@ router.post('/verify-login-otp', async (req, res) => {
                 email: user.email,
                 department: user.department,
                 semester: user.semester,
-                rollNo: user.rollNo
+                rollNo: user.rollNo,
+                gender: user.gender
             },
             message: "Login Successful!"
         };
@@ -359,7 +362,8 @@ router.post('/teacher-pin-login', async (req, res) => {
                 name: user.name,
                 role: user.role,
                 email: user.email,
-                department: user.department
+                department: user.department,
+                gender: user.gender
             }
         });
     } catch (error)  {

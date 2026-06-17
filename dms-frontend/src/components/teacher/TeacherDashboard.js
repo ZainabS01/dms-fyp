@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { motion } from 'framer-motion';
 import TeacherSidebar from './TeacherSidebar';
 import TeacherOverview from './TeacherOverview';
@@ -14,7 +15,7 @@ import Timetable from './Timetable';
 import TeacherHeader from './TeacherHeader';
 import NexiChat from '../nexi/AiChat';
 
-const TeacherDashboard = ({ user }) => { // 'user' prop is received here
+const TeacherDashboard = ({ user, setUser }) => { // 'user' prop is received here
   const [activeTab, setActiveTab] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -25,6 +26,54 @@ const TeacherDashboard = ({ user }) => { // 'user' prop is received here
     setSidebarOpen(!sidebarOpen);
   };
 
+  // Handle Browser Back Button to prevent logging out when navigating tabs
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash) {
+        setActiveTab(hash);
+      } else {
+        setActiveTab('dashboard');
+      }
+    };
+
+    const fetchLatestProfile = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/auth/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.data.success && res.data.user) {
+          setUser(res.data.user);
+          localStorage.setItem('user', JSON.stringify(res.data.user));
+        }
+      } catch (err) {
+        console.error("Profile sync error:", err);
+      }
+    };
+
+    fetchLatestProfile();
+
+    // Initialize from hash if present
+    if (window.location.hash) {
+      handleHashChange();
+    }
+
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  useEffect(() => {
+    if (window.location.hash.replace('#', '') !== activeTab) {
+      if (activeTab === 'dashboard') {
+        window.history.pushState(null, '', window.location.pathname);
+      } else {
+        window.history.pushState(null, '', `#${activeTab}`);
+      }
+    }
+  }, [activeTab]);
+
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard': return <TeacherOverview setActiveTab={setActiveTab} />;
@@ -33,7 +82,7 @@ const TeacherDashboard = ({ user }) => { // 'user' prop is received here
       case 'attendance': return <ManageAttendance />;
       case 'queries': return <QuerySection userRole="teacher" user={teacher} />;
       case 'nexi': return <NexiChat user={teacher} setActiveTab={setActiveTab} backTab="dashboard" />;
-      case 'tasks': return <Tasks />;
+      case 'tasks': return <Tasks user={teacher} />;
       case 'timetable': return <Timetable />;
       case 'profile': return <TeacherProfile />;
       case 'academic_data': return <StudentAcademicData />;
@@ -72,6 +121,7 @@ const TeacherDashboard = ({ user }) => { // 'user' prop is received here
            <TeacherHeader 
              activeTab={activeTab} 
              teacherName={teacher?.name || "TEACHER"} 
+             isHOD={teacher?.isHOD}
              onOpenNexi={() => setActiveTab('nexi')}
              setActiveTab={setActiveTab}
              toggleSidebar={toggleSidebar}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-import { Trash2 } from 'lucide-react';
+import { Trash2, ArrowLeft, ChevronDown } from 'lucide-react';
 
 const QuerySection = ({ user }) => {
   const [queries, setQueries] = useState([]);
@@ -13,17 +13,33 @@ const QuerySection = ({ user }) => {
   
   const [filterDept, setFilterDept] = useState("All");
   const [filterSem, setFilterSem] = useState("All");
+  const [isDeptOpen, setIsDeptOpen] = useState(false);
+  const [isSemOpen, setIsSemOpen] = useState(false);
   
   const [activeTab, setActiveTab] = useState("STUDENT");
   const [adminSub, setAdminSub] = useState("");
   const [adminMsg, setAdminMsg] = useState("");
 
-  const DEPARTMENTS = ["Computer Science", "Software Engineering", "Business", "Physics", "Mathematics"];
+  const [departments, setDepartments] = useState([]);
   const SEMESTERS = ["1", "2", "3", "4", "5", "6", "7", "8"];
+
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/departments`);
+        setDepartments(res.data.map(d => d.name));
+      } catch (err) {
+        console.error("Failed to load departments");
+      }
+    };
+    fetchDepartments();
+  }, []);
 
   const fetchQueries = useCallback(async () => {
     try {
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/query/all`);
+      const teacherId = user?._id || user?.id || user?.user?._id || user?.user?.id;
+      if (!teacherId) return; // Wait until user is fully loaded
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/query/all?role=teacher&teacherId=${teacherId}`);
       // Student Queries (Teacher ke liye)
       setQueries(res.data.filter(q => q.recipient === 'teacher').reverse());
       // Admin Queries (Jo teacher ne bheji hain)
@@ -31,7 +47,7 @@ const QuerySection = ({ user }) => {
     } catch (err) {
       toast.error("Failed to load queries");
     }
-  }, []);
+  }, [user]);
 
   useEffect(() => { fetchQueries(); }, [fetchQueries]);
 
@@ -93,7 +109,7 @@ const QuerySection = ({ user }) => {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 font-sans">
+    <div className="w-full max-w-4xl mx-auto p-4 sm:p-6 font-sans pb-[40vh]">
       {modal.isOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
           <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center">
@@ -106,6 +122,10 @@ const QuerySection = ({ user }) => {
           </div>
         </div>
       )}
+        <h2 className="text-2xl font-black text-[#001f3f] uppercase mb-6">
+          Query <span className="text-[#d4a017]">Section</span>
+        </h2>
+
       <div className="flex gap-2 mb-8 bg-slate-100 p-1 rounded-2xl w-fit">
         <button onClick={() => setActiveTab("STUDENT")} className={`px-4 sm:px-6 py-2 rounded-xl font-black text-xs ${activeTab === "STUDENT" ? "bg-[#001f3f] text-white" : "text-slate-500"}`}>STUDENT QUERIES</button>
         <button onClick={() => setActiveTab("ADMIN")} className={`px-4 sm:px-6 py-2 rounded-xl font-black text-xs ${activeTab === "ADMIN" ? "bg-[#001f3f] text-white" : "text-slate-500"}`}>ADMIN SUPPORT</button>
@@ -114,14 +134,65 @@ const QuerySection = ({ user }) => {
       {activeTab === "STUDENT" ? (
         <>
           <div className="flex flex-col sm:flex-row gap-4 mb-8 bg-white p-4 rounded-2xl border shadow-sm">
-            <select className="w-full p-4 bg-slate-50 rounded-xl font-bold border" onChange={(e) => setFilterDept(e.target.value)}>
-              <option value="All">All Departments</option>
-              {DEPARTMENTS.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
-            <select className="w-full p-4 bg-slate-50 rounded-xl font-bold border" onChange={(e) => setFilterSem(e.target.value)}>
-              <option value="All">All Semesters</option>
-              {SEMESTERS.map(s => <option key={s} value={s}>Semester {s}</option>)}
-            </select>
+            {/* Custom Department Dropdown */}
+            <div className="relative flex-1">
+              <div 
+                onClick={() => { setIsDeptOpen(!isDeptOpen); setIsSemOpen(false); }}
+                className="w-full p-4 bg-slate-50 rounded-xl font-bold border cursor-pointer flex justify-between items-center text-sm"
+              >
+                <span>{filterDept === "All" ? "All Departments" : filterDept}</span>
+                <ChevronDown size={18} className={`transition-transform ${isDeptOpen ? 'rotate-180' : ''}`} />
+              </div>
+              {isDeptOpen && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                  <div 
+                    onClick={() => { setFilterDept("All"); setIsDeptOpen(false); }}
+                    className="p-3 hover:bg-slate-50 cursor-pointer text-sm font-bold border-b border-slate-50"
+                  >
+                    All Departments
+                  </div>
+                  {departments.map(d => (
+                    <div 
+                      key={d}
+                      onClick={() => { setFilterDept(d); setIsDeptOpen(false); }}
+                      className="p-3 hover:bg-slate-50 cursor-pointer text-sm font-bold border-b border-slate-50"
+                    >
+                      {d}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Custom Semester Dropdown */}
+            <div className="relative flex-1">
+              <div 
+                onClick={() => { setIsSemOpen(!isSemOpen); setIsDeptOpen(false); }}
+                className="w-full p-4 bg-slate-50 rounded-xl font-bold border cursor-pointer flex justify-between items-center text-sm"
+              >
+                <span>{filterSem === "All" ? "All Semesters" : `Semester ${filterSem}`}</span>
+                <ChevronDown size={18} className={`transition-transform ${isSemOpen ? 'rotate-180' : ''}`} />
+              </div>
+              {isSemOpen && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white border rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
+                  <div 
+                    onClick={() => { setFilterSem("All"); setIsSemOpen(false); }}
+                    className="p-3 hover:bg-slate-50 cursor-pointer text-sm font-bold border-b border-slate-50"
+                  >
+                    All Semesters
+                  </div>
+                  {SEMESTERS.map(s => (
+                    <div 
+                      key={s}
+                      onClick={() => { setFilterSem(s); setIsSemOpen(false); }}
+                      className="p-3 hover:bg-slate-50 cursor-pointer text-sm font-bold border-b border-slate-50"
+                    >
+                      Semester {s}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           {filteredQueries.map((q) => (

@@ -4,7 +4,7 @@ import { DEPARTMENTS_LIST, SEMESTERS_LIST } from '../../constants/data';
 
 const StudentManagement = () => {
   const [students, setStudents] = useState([]);
-  const [selectedDepartment, setSelectedDepartment] = useState('');
+  const [selectedDepartment, setSelectedDepartment] = useState('All Departments');
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
@@ -70,28 +70,29 @@ const StudentManagement = () => {
       <div className="flex flex-col md:flex-row justify-end items-center mb-6 gap-4">
         {/* Search & Filter Bar */}
         <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-          <select
-            value={selectedDepartment}
-            onChange={(e) => setSelectedDepartment(e.target.value)}
-            className="px-6 py-4 rounded-2xl border-none shadow-lg focus:ring-2 focus:ring-[#d4a017] text-sm text-slate-600 font-bold outline-none cursor-pointer uppercase tracking-wider w-full md:w-auto"
-          >
-            <option value="" disabled>Select Department</option>
-            {departments.map((dept, index) => (
-              <option key={index} value={dept}>{dept}</option>
-            ))}
-          </select>
+          <div className="bg-white rounded-lg shadow-lg flex items-center pr-2 md:pr-4 w-full md:w-auto focus-within:ring-2 focus-within:ring-[#d4a017] transition-shadow">
+            <select
+              value={selectedDepartment}
+              onChange={(e) => setSelectedDepartment(e.target.value)}
+              className="pl-6 pr-2 py-4 bg-transparent border-none focus:ring-0 focus:outline-none text-sm text-slate-600 font-bold cursor-pointer uppercase tracking-wider w-full"
+            >
+              {departments.map((dept, index) => (
+                <option key={index} value={dept}>{dept}</option>
+              ))}
+            </select>
+          </div>
           <div className="relative w-full md:w-auto">
             <input 
               type="text" 
               placeholder="Search by Roll No..." 
-              className="pl-6 pr-12 py-4 rounded-2xl border-none shadow-lg focus:ring-2 focus:ring-[#d4a017] w-full md:w-80 text-sm"
+              className="pl-6 pr-12 py-4 rounded-lg border-none shadow-lg focus:ring-2 focus:ring-[#d4a017] w-full md:w-80 text-sm"
             />
           </div>
         </div>
       </div>
 
       {/* Table Container */}
-      <div className="bg-white rounded-2xl shadow-xl border border-slate-100 flex flex-col max-h-[600px] overflow-hidden">
+      <div className="bg-white rounded-lg shadow-xl border border-slate-100 flex flex-col max-h-[600px] overflow-hidden">
         <div className="overflow-x-auto overflow-y-auto flex-1 custom-scrollbar w-full">
           <table className="w-full text-left relative min-w-[800px]">
             <thead className="bg-[#001f3f] text-white uppercase text-[11px] tracking-[0.2em] sticky top-0 z-10 shadow-sm">
@@ -124,8 +125,8 @@ const StudentManagement = () => {
                   <td className="px-8 py-6 text-xs font-black text-blue-500 uppercase">{student.department}</td>
                   <td className="px-8 py-6 font-black text-[#d4a017]">{student.semester}</td>
                   <td className="px-8 py-6 flex justify-center gap-3">
-                    <button onClick={() => handleEditClick(student)} className="bg-blue-100 text-blue-600 px-4 py-2 rounded-xl font-bold text-[10px] uppercase hover:bg-blue-600 hover:text-white transition-all">Edit</button>
-                    <button onClick={() => handleDeleteClick(student)} className="bg-red-100 text-red-500 px-4 py-2 rounded-xl font-bold text-[10px] uppercase hover:bg-red-500 hover:text-white transition-all">Delete</button>
+                    <button onClick={() => handleEditClick(student)} className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-bold text-[10px] uppercase hover:bg-blue-600 hover:text-white transition-all">Edit</button>
+                    <button onClick={() => handleDeleteClick(student)} className="bg-red-100 text-red-500 px-4 py-2 rounded-lg font-bold text-[10px] uppercase hover:bg-red-500 hover:text-white transition-all">Delete</button>
                   </td>
                 </tr>
               ))
@@ -138,35 +139,35 @@ const StudentManagement = () => {
       {/* Edit Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center">
-          <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar animate-fadeIn">
+          <div className="bg-white rounded-lg shadow-2xl p-4 sm:p-8 w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto custom-scrollbar animate-fadeIn">
             <h2 className="text-2xl font-black text-[#001f3f] mb-6">EDIT STUDENT</h2>
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase">Roll No</label>
-                <input type="text" value={editingStudent?.rollNo || ''} onChange={(e) => setEditingStudent({...editingStudent, rollNo: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700" />
+                <input type="text" value={editingStudent?.rollNo || ''} onChange={(e) => setEditingStudent({...editingStudent, rollNo: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700" />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase">Full Name</label>
-                <input type="text" value={editingStudent?.name || ''} onChange={(e) => setEditingStudent({...editingStudent, name: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700" />
+                <input type="text" value={editingStudent?.name || ''} onChange={(e) => setEditingStudent({...editingStudent, name: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700" />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase">Department</label>
-                <select value={editingStudent?.department || ''} onChange={(e) => setEditingStudent({...editingStudent, department: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700 uppercase">
+                <select value={editingStudent?.department || ''} onChange={(e) => setEditingStudent({...editingStudent, department: e.target.value})} className="w-full mt-1 pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700 uppercase cursor-pointer">
                   <option value="">Select Department</option>
                   {DEPARTMENTS_LIST.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase">Semester</label>
-                <select value={editingStudent?.semester || ''} onChange={(e) => setEditingStudent({...editingStudent, semester: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700">
+                <select value={editingStudent?.semester || ''} onChange={(e) => setEditingStudent({...editingStudent, semester: e.target.value})} className="w-full mt-1 pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700 cursor-pointer">
                   <option value="">Select Semester</option>
                   {SEMESTERS_LIST.map(s => <option key={s} value={s}>{s} Semester</option>)}
                 </select>
               </div>
             </div>
             <div className="flex gap-4 mt-8">
-              <button onClick={() => setIsEditModalOpen(false)} className="flex-1 px-4 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">CANCEL</button>
-              <button onClick={handleEditSubmit} className="flex-1 px-4 py-3 rounded-xl font-bold text-[#001f3f] bg-[#d4a017] hover:bg-[#b8860b] transition-colors shadow-lg">SAVE CHANGES</button>
+              <button onClick={() => setIsEditModalOpen(false)} className="flex-1 px-4 py-3 rounded-lg font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">CANCEL</button>
+              <button onClick={handleEditSubmit} className="flex-1 px-4 py-3 rounded-lg font-bold text-[#001f3f] bg-[#d4a017] hover:bg-[#b8860b] transition-colors shadow-lg">SAVE CHANGES</button>
             </div>
           </div>
         </div>
@@ -175,15 +176,15 @@ const StudentManagement = () => {
       {/* Delete Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex justify-center items-center">
-          <div className="bg-white rounded-2xl shadow-2xl p-4 sm:p-8 w-full max-w-sm mx-4 animate-fadeIn">
+          <div className="bg-white rounded-lg shadow-2xl p-4 sm:p-8 w-full max-w-sm mx-4 animate-fadeIn">
             <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
               <span className="text-red-500 text-3xl">⚠️</span>
             </div>
             <h2 className="text-2xl font-black text-[#001f3f] mb-2 text-center">DELETE STUDENT</h2>
             <p className="text-slate-500 text-center mb-8 font-medium">Are you sure you want to delete this student? This action cannot be undone.</p>
             <div className="flex gap-4">
-              <button onClick={() => setIsDeleteModalOpen(false)} className="flex-1 px-4 py-3 rounded-xl font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">CANCEL</button>
-              <button onClick={handleDeleteConfirm} className="flex-1 px-4 py-3 rounded-xl font-bold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30">DELETE</button>
+              <button onClick={() => setIsDeleteModalOpen(false)} className="flex-1 px-4 py-3 rounded-lg font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors">CANCEL</button>
+              <button onClick={handleDeleteConfirm} className="flex-1 px-4 py-3 rounded-lg font-bold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-lg shadow-red-500/30">DELETE</button>
             </div>
           </div>
         </div>

@@ -89,7 +89,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
       <motion.div 
         initial={{ opacity: 0, scale: 0.9, y: 20 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white w-full max-w-md rounded-[40px] border-[10px] border-white shadow-2xl overflow-hidden"
+        className="bg-white w-full max-w-sm rounded-lg border-[4px] border-white shadow-2xl overflow-hidden"
       >
         <div className="bg-[#001f3f] p-6 text-center border-b-4 border-[#d4a017]">
           <h2 className="text-2xl font-black text-white uppercase tracking-tighter">
@@ -100,7 +100,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
           </p>
         </div>
 
-        <div className="p-8">
+        <div className="p-5">
           <AnimatePresence mode="wait">
             {step === 1 ? (
               <motion.form 
@@ -117,7 +117,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                     type="email" 
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="w-full p-4 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none focus:bg-blue-50 transition-all"
+                    className="w-full p-3 border-2 border-[#001f3f] rounded-lg font-bold text-sm outline-none focus:bg-blue-50 transition-all"
                     placeholder="example@gmail.com"
                     required
                   />
@@ -125,7 +125,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full bg-[#001f3f] text-white py-4 rounded-2xl font-black uppercase text-sm shadow-xl hover:bg-[#d4a017] transition-all disabled:opacity-50"
+                  className="w-full bg-[#001f3f] text-white py-3 rounded-lg font-black uppercase text-sm shadow-xl hover:bg-[#d4a017] transition-all disabled:opacity-50"
                 >
                   {loading ? 'Processing...' : 'Verify Gmail'}
                 </button>
@@ -145,7 +145,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                     type="password" 
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
-                    className="w-full p-4 border-2 border-[#001f3f] rounded-2xl font-bold text-sm outline-none focus:border-[#28a745] transition-all"
+                    className="w-full p-3 border-2 border-[#001f3f] rounded-lg font-bold text-sm outline-none focus:border-[#28a745] transition-all"
                     placeholder="Enter password"
                     required
                   />
@@ -156,7 +156,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                     type="text" 
                     value={otp} 
                     onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} 
-                    className="w-full p-4 border-2 border-[#d4a017] rounded-2xl font-black text-center text-2xl tracking-[10px] outline-none bg-slate-50"
+                    className="w-full p-3 border-2 border-[#d4a017] rounded-lg font-black text-center text-xl tracking-[10px] outline-none bg-slate-50"
                     placeholder="----" 
                     maxLength="4"
                     required
@@ -165,7 +165,7 @@ const ForgotPasswordModal = ({ isOpen, onClose }) => {
                 <button 
                   type="submit" 
                   disabled={loading}
-                  className="w-full bg-[#28a745] text-white py-4 rounded-2xl font-black uppercase text-sm shadow-xl hover:bg-[#218838] transition-all"
+                  className="w-full bg-[#28a745] text-white py-3 rounded-lg font-black uppercase text-sm shadow-xl hover:bg-[#218838] transition-all"
                 >
                   {loading ? 'Updating...' : 'Update Password'}
                 </button>

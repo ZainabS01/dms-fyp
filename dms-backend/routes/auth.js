@@ -39,6 +39,31 @@ router.get('/me', verifyToken, async (req, res) => {
     }
 });
 
+// --- 1.5 UPDATE CURRENT USER PROFILE ---
+router.put('/profile', verifyToken, async (req, res) => {
+    console.log("PROFILE UPDATE CALLED: ", req.user.id, req.body);
+    try {
+        const { name, profilePic, department, semester, rollNo } = req.body;
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (profilePic !== undefined) updateData.profilePic = profilePic;
+        if (department !== undefined) updateData.department = department;
+        if (semester !== undefined) updateData.semester = semester;
+        if (rollNo !== undefined) updateData.rollNo = rollNo;
+
+        const user = await User.findByIdAndUpdate(req.user.id, updateData, { new: true }).select('-password');
+        if (!user) {
+            console.log("User not found!");
+            return res.status(404).json({ success: false, message: "User not found!" });
+        }
+        console.log("Profile updated!");
+        res.json({ success: true, message: "Profile updated successfully!", user });
+    } catch (error) {
+        console.error("Auth Profile Update Error: ", error);
+        res.status(500).json({ success: false, message: "Server error updating profile" });
+    }
+});
+
 // --- 2. LOGIN ROUTE (FIXED WITH LEAN RAW OBJECT) ---
 router.post('/login', async (req, res) => {
     try {

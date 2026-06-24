@@ -111,7 +111,7 @@ const Login = ({ setUser }) => {
           // Admin secure check logic
           const adminData = {
             success: true,
-            user: { name: "Zainab Admin", role: "admin", email: email },
+            user: { name: "Zainab", role: "admin", email: email },
             token: "admin-secure-session-" + Date.now()
           };
           completeLogin(adminData);
@@ -177,41 +177,41 @@ const Login = ({ setUser }) => {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#001f3f] flex items-center justify-center pt-[130px] pb-12 px-6">
-      <motion.div className="w-full max-w-[850px] bg-white rounded-[20px] shadow-2xl flex flex-col lg:flex-row overflow-hidden min-h-[400px]">
+    <div className="relative min-h-screen w-full bg-[#001f3f] flex items-center justify-center pt-[100px] pb-8 px-4">
+      <motion.div className="w-full max-w-[750px] bg-white rounded-lg shadow-2xl flex flex-col lg:flex-row overflow-hidden min-h-[350px]">
         
-        <div className="w-full lg:w-[45%] bg-white p-4 flex items-center justify-center border-r border-gray-100">
-          <img src="/login.png" alt="Login" className="w-full max-w-[300px]" />
+        <div className="w-full lg:w-[45%] bg-white p-3 flex items-center justify-center border-r border-gray-100">
+          <img src="/login.png" alt="Login" className="w-full max-w-[250px]" />
         </div>
 
-        <div className="w-full lg:w-[55%] p-6 flex flex-col justify-center">
+        <div className="w-full lg:w-[55%] p-5 flex flex-col justify-center">
           <AnimatePresence mode="wait">
             {loginStep === 1 && (
               <motion.div key="step1" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}>
-                <div className="flex justify-center mb-6">
-                  <div className="bg-slate-100 p-1 rounded-2xl flex">
+                <div className="flex justify-center mb-4">
+                  <div className="bg-slate-100 p-1 rounded-lg flex">
                     {['Admin', 'Teacher', 'Student'].map((role) => (
-                      <button key={role} type="button" onClick={() => setUserRole(role)} className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${userRole === role ? 'bg-[#001f3f] text-white shadow-lg' : 'text-slate-400'}`}>{role}</button>
+                      <button key={role} type="button" onClick={() => setUserRole(role)} className={`px-4 py-2 rounded-lg text-[10px] font-black uppercase tracking-widest transition-all ${userRole === role ? 'bg-[#001f3f] text-white shadow-lg' : 'text-slate-400'}`}>{role}</button>
                     ))}
                   </div>
                 </div>
 
-                <h2 className="text-3xl font-black text-[#001f3f] text-center uppercase">Login Portal</h2>
-                <div className="h-1.5 w-16 bg-[#d4a017] mx-auto mb-6 rounded-full"></div>
+                <h2 className="text-2xl font-black text-[#001f3f] text-center uppercase">Login Portal</h2>
+                <div className="h-1.5 w-16 bg-[#d4a017] mx-auto mb-4 rounded-full"></div>
 
-                <form onSubmit={handleLogin} className="space-y-5">
+                <form onSubmit={handleLogin} className="space-y-4">
                   <div>
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] ml-1 mb-1 block">Gmail Address</label>
-                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 bg-slate-50 border-2 rounded-2xl outline-none focus:border-[#d4a017] transition-all font-bold" placeholder="Enter your email" required />
+                    <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-2.5 bg-slate-50 border-2 rounded-lg outline-none focus:border-[#d4a017] transition-all font-bold text-sm" placeholder="Enter your email" required />
                   </div>
 
                   {userRole !== 'Admin' && (
                     <div className="relative">
                       <label className="text-[10px] font-black text-slate-400 uppercase tracking-[0.1em] ml-1 mb-1 block">Password</label>
                       <div className="relative">
-                        <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-3 bg-slate-50 border-2 rounded-2xl outline-none focus:border-[#d4a017] transition-all font-bold" placeholder="••••••••" required />
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#001f3f]">
-                          {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                        <input type={showPassword ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full p-2.5 bg-slate-50 border-2 rounded-lg outline-none focus:border-[#d4a017] transition-all font-bold text-sm" placeholder="••••••••" required />
+                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#001f3f]">
+                          {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                         </button>
                       </div>
                       <div className="flex justify-end mt-2 px-1">
@@ -220,13 +220,13 @@ const Login = ({ setUser }) => {
                     </div>
                   )}
 
-                  <button type="submit" disabled={loading} className="w-full bg-[#001f3f] text-white py-3 rounded-2xl font-black uppercase tracking-widest shadow-xl hover:bg-[#002d5a] transition-all active:scale-95 disabled:opacity-50">
+                  <button type="submit" disabled={loading} className="w-full bg-[#001f3f] text-white py-2.5 rounded-lg font-black uppercase tracking-widest shadow-xl hover:bg-[#002d5a] transition-all active:scale-95 disabled:opacity-50 text-sm">
                     {loading ? "Verifying..." : `Next: ${userRole} Login`}
                   </button>
                 </form>
 
                 {userRole !== 'Admin' && (
-                  <p className="text-center mt-6 text-slate-400 text-[11px] font-bold uppercase">
+                  <p className="text-center mt-4 text-slate-400 text-[11px] font-bold uppercase">
                     Don't have an account? <span className="text-[#d4a017] cursor-pointer hover:underline" onClick={() => navigate('/register')}>Register Now</span>
                   </p>
                 )}
@@ -251,7 +251,7 @@ const Login = ({ setUser }) => {
                        required 
                        autoFocus 
                      />
-                     <button type="submit" disabled={loading} className="w-full bg-[#d4a017] text-white py-5 rounded-2xl font-black uppercase shadow-lg disabled:opacity-50">
+                     <button type="submit" disabled={loading} className="w-full bg-[#d4a017] text-white py-5 rounded-lg font-black uppercase shadow-lg disabled:opacity-50">
                         {loading ? 'Verifying...' : 'Continue'}
                      </button>
                      <button type="button" onClick={() => setLoginStep(1)} className="block mx-auto text-slate-400 text-[10px] uppercase font-bold hover:text-[#001f3f]">Back</button>
@@ -273,12 +273,12 @@ const Login = ({ setUser }) => {
                       maxLength="4" 
                       value={pin} 
                       onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} 
-                      className="w-full p-6 bg-slate-50 border-4 border-[#d4a017] rounded-[30px] text-center text-5xl font-black tracking-[0.5em] outline-none" 
+                      className="w-full p-6 bg-slate-50 border-4 border-[#d4a017] rounded-lg text-center text-5xl font-black tracking-[0.5em] outline-none" 
                       placeholder="••••" 
                       required 
                       autoFocus 
                     />
-                    <button type="submit" disabled={loading} className="w-full bg-[#001f3f] text-white py-5 rounded-2xl font-black uppercase shadow-2xl disabled:opacity-50">
+                    <button type="submit" disabled={loading} className="w-full bg-[#001f3f] text-white py-5 rounded-lg font-black uppercase shadow-2xl disabled:opacity-50">
                         {loading ? 'Entering...' : 'Unlock Dashboard'}
                     </button>
                   </form>

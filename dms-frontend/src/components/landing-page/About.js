@@ -46,7 +46,7 @@ const About = () => {
             whileInView="visible"
             viewport={{ once: true }}
             variants={fadeIn}
-            className="border-4 border-[#001f3f] p-5 md:p-8 rounded-3xl text-center shadow-lg bg-gray-50"
+            className="border-4 border-[#001f3f] p-4 md:p-5 rounded-lg text-center shadow-lg bg-gray-50"
           >
             <h2 className="text-xl md:text-3xl font-black text-[#001f3f] mb-4 underline decoration-4 underline-offset-8 uppercase">What is DMS?</h2>
             <p className="text-gray-700 text-justify text-xs md:text-sm font-bold leading-relaxed max-w-4xl mx-auto uppercase">
@@ -67,13 +67,13 @@ const About = () => {
               </p>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} className="order-1 md:order-2">
-              <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=500" alt="Vision" className="rounded-[2rem] border-4 border-[#001f3f] shadow-xl w-full h-40 md:h-56 object-cover" />
+              <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=500" alt="Vision" className="rounded-lg border-4 border-[#001f3f] shadow-xl w-full h-40 md:h-56 object-cover" />
             </motion.div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=500" alt="Mission" className="rounded-[2rem] border-4 border-[#001f3f] shadow-xl w-full h-40 md:h-56 object-cover" />
+              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=500" alt="Mission" className="rounded-lg border-4 border-[#001f3f] shadow-xl w-full h-40 md:h-56 object-cover" />
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
               <h2 className="text-2xl md:text-3xl font-black text-[#001f3f] mb-3 uppercase">Our Mission</h2>
@@ -93,19 +93,22 @@ const About = () => {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
-              className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto"
+              className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-[1100px] mx-auto"
             >
               {[
-                { name: "Zainab", role: "Frontend Developer" },
-                { name: "Khadija", role: "Backend Developer" },
-                { name: "Bisma", role: "UI/UX Designer" }
+                { name: "Zainab", image: "" },
+                { name: "Khadija", image: "" },
+                { name: "Bisma", image: "" }
               ].map((mate, index) => (
-                <motion.div key={index} variants={fadeIn} className="bg-white p-5 rounded-3xl border-b-4 border-[#001f3f] shadow-xl hover:-translate-y-2 transition-transform">
+                <motion.div key={index} variants={fadeIn} className="bg-white p-4 rounded-lg border-b-4 border-[#001f3f] shadow-xl hover:-translate-y-2 transition-transform">
                   <div className="w-20 h-20 bg-gray-200 rounded-full mx-auto mb-3 border-4 border-[#d4a017] overflow-hidden">
-                    <img src={`https://ui-avatars.com/api/?name=${mate.name}&background=001f3f&color=fff&size=150&bold=true`} alt={mate.name} className="w-full h-full object-cover" />
+                    <img 
+                      src={mate.image ? mate.image : `https://ui-avatars.com/api/?name=${mate.name}&background=001f3f&color=fff&size=150&bold=true`} 
+                      alt={mate.name} 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
-                  <h3 className="text-lg md:text-xl font-black text-[#001f3f] uppercase">{mate.name}</h3>
-                  <p className="text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-wide">{mate.role}</p>
+                  <h3 className="text-lg md:text-xl font-black text-[#001f3f] uppercase mt-2">{mate.name}</h3>
                 </motion.div>
               ))}
             </motion.div>
@@ -116,12 +119,12 @@ const About = () => {
             <h2 className="text-3xl font-black text-[#001f3f] mb-2 uppercase">Our Work Ethics</h2>
             <p className="text-gray-500 font-bold mb-10 uppercase text-xs">Dedicated to integrity, quality, and continuous improvement</p>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-[1100px] mx-auto">
               {['Integrity', 'Efficiency', 'Innovation', 'Excellence'].map((ethic, i) => (
                 <motion.div 
                   key={i}
                   whileHover={{ scale: 1.05 }}
-                  className="p-6 bg-white border-2 border-gray-100 rounded-2xl shadow-sm hover:border-[#001f3f] transition-all"
+                  className="p-4 bg-white border-2 border-gray-100 rounded-lg shadow-sm hover:border-[#001f3f] transition-all"
                 >
                   <h4 className="font-black text-[#001f3f] text-sm uppercase">{ethic}</h4>
                 </motion.div>

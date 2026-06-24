@@ -15,6 +15,7 @@ const verifyToken = (req, res, next) => {
         req.user = verified; // Save user details to request object
         next(); // Send to next step (Route)
     } catch (err) {
+        console.error("JWT Verification Failed:", err.message, "Token:", token);
         res.status(403).json({ success: false, message: "Token is Expired or Invalid!" });
     }
 };

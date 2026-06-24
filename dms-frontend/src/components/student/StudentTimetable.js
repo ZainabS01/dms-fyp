@@ -42,24 +42,24 @@ const StudentTimetable = ({ studentData }) => {
   if (loading) return <div className="p-10 text-center font-black">Loading Data...</div>;
 
   return (
-    <div className="p-2 sm:p-8">
+    <div className="p-0 sm:p-0">
       {modal.isOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center">
+          <div className="bg-white p-8 rounded-lg shadow-2xl max-w-sm w-full text-center">
             <h3 className="text-xl font-black text-[#001f3f] mb-2">Delete Timetable?</h3>
             <p className="text-xs text-slate-500 font-bold mb-6">Are you sure you want to permanently delete this timetable? It will be removed for everyone.</p>
             <div className="flex gap-3">
-              <button onClick={() => setModal({ isOpen: false, idToDelete: null })} className="flex-1 py-3 bg-slate-100 font-bold rounded-xl text-slate-600 hover:bg-slate-200 transition-colors">Cancel</button>
-              <button onClick={confirmDelete} className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors">Delete</button>
+              <button onClick={() => setModal({ isOpen: false, idToDelete: null })} className="flex-1 py-3 bg-slate-100 font-bold rounded-lg text-slate-600 hover:bg-slate-200 transition-colors">Cancel</button>
+              <button onClick={confirmDelete} className="flex-1 py-3 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors">Delete</button>
             </div>
           </div>
         </div>
       )}
 
-      <h2 className="text-2xl sm:text-3xl font-black text-[#001f3f] uppercase mb-8">Class <span className="text-[#d4a017]">Timetable</span></h2>
+
       
       {timetables.length === 0 ? (
-        <div className="text-red-500 font-bold p-4 bg-red-50 rounded-xl">No timetable has been uploaded.</div>
+        <div className="text-red-500 font-bold p-4 bg-red-50 rounded-lg">No timetable has been uploaded.</div>
       ) : (
         <div className="grid gap-6">
  {/* Only update the map function part */}
@@ -84,9 +84,9 @@ const StudentTimetable = ({ studentData }) => {
   };
 
   return (
-    <div key={item._id} className="bg-white p-6 rounded-3xl shadow-lg border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div key={item._id} className="bg-white p-6 rounded-lg shadow-lg border border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div className="flex items-center gap-4">
-        <div className="bg-blue-50 p-4 rounded-2xl text-blue-600 shrink-0"><FiFileText size={24} /></div>
+        <div className="bg-blue-50 p-4 rounded-lg text-blue-600 shrink-0"><FiFileText size={24} /></div>
         <div>
           <h4 className="font-black text-[#001f3f] uppercase line-clamp-2 md:line-clamp-none">
             {item.title && item.title.trim() !== "" 
@@ -102,21 +102,21 @@ const StudentTimetable = ({ studentData }) => {
       <div className="flex gap-3 md:justify-end w-full md:w-auto">
         {/* VIEW BUTTON - This will open in a new tab */}
         <a href={`${process.env.REACT_APP_API_URL}/${item.fileUrl}`} target="_blank" rel="noreferrer" 
-           className="bg-slate-100 p-3 rounded-xl text-slate-600 hover:bg-slate-200 transition-all">
+           className="bg-slate-100 p-3 rounded-lg text-slate-600 hover:bg-slate-200 transition-all">
           <FiEye size={20} />
         </a>
         
         {/* DOWNLOAD BUTTON - This will trigger a direct download */}
         <button 
           onClick={() => handleDownload(item.fileUrl, item.title || 'timetable')}
-          className="bg-[#d4a017]/10 p-3 rounded-xl text-[#001f3f] hover:bg-[#d4a017] hover:text-white transition-all cursor-pointer"
+          className="bg-[#d4a017]/10 p-3 rounded-lg text-[#001f3f] hover:bg-[#d4a017] hover:text-white transition-all cursor-pointer"
         >
           <FiDownload size={20} />
         </button>
         {/* DELETE BUTTON */}
         <button 
           onClick={() => setModal({ isOpen: true, idToDelete: item._id })}
-          className="bg-red-50 p-3 rounded-xl text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+          className="bg-red-50 p-3 rounded-lg text-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
         >
           <FiTrash2 size={20} />
         </button>

@@ -61,7 +61,7 @@ const Home = () => {
       <div className="bg-white">
         
         {/* Why We Built This System? */}
-        <section className="py-8 md:py-10 px-6 md:px-16 text-center max-w-7xl mx-auto">
+        <section className="py-8 md:py-10 px-6 md:px-16 text-center max-w-[1200px] mx-auto">
           <h2 className="text-2xl md:text-3xl font-black text-[#001f3f] mb-3 uppercase tracking-tighter">
             Why We Built This System?
           </h2>
@@ -78,7 +78,7 @@ const Home = () => {
               { icon: <Settings />, title: "Centralized Department Control", text: "Complete control over all departmental activities from a single dashboard." },
               { icon: <ShieldCheck />, title: "Secure & Reliable System", text: "Built with industry-standard security to keep sensitive data safe." }
             ].map((item, index) => (
-              <div key={index} className="border-2 border-[#001f3f] p-6 rounded-[2rem] hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group bg-white flex flex-col items-center">
+              <div key={index} className="border-2 border-[#001f3f] p-4 rounded-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 group bg-white flex flex-col items-center">
                 <div className="bg-[#001f3f] text-white w-12 h-12 rounded-full flex items-center justify-center mb-4 group-hover:bg-blue-800 transition-colors">
                   {item.icon}
                 </div>
@@ -90,7 +90,7 @@ const Home = () => {
         </section>
 
         {/* What We Stand For */}
-        <section className="py-8 md:py-10 px-6 md:px-16 flex flex-col lg:flex-row items-center gap-6 md:gap-8 max-w-7xl mx-auto">
+        <section className="py-8 md:py-10 px-6 md:px-16 flex flex-col lg:flex-row items-center gap-6 md:gap-8 max-w-[1200px] mx-auto">
           <div className="lg:w-1/2 space-y-6 text-left">
             <h2 className="text-2xl md:text-3xl font-black text-yellow-500 tracking-tight">What We Stand For</h2>
             {[
@@ -98,7 +98,7 @@ const Home = () => {
               { title: "Trust & Transparency", desc: "Ensuring all academic records are accurate, reliable and secure." },
               { title: "Growth & Collaboration", desc: "Fostering an environment where departments can work together effortlessly." }
             ].map((item, i) => (
-              <div key={i} className="border-l-8 border-yellow-400 p-6 md:p-8 rounded-r-2xl bg-gray-50 hover:bg-yellow-50 transition-colors cursor-default shadow-sm">
+              <div key={i} className="border-l-8 border-yellow-400 p-4 md:p-5 rounded-r-lg bg-gray-50 hover:bg-yellow-50 transition-colors cursor-default shadow-sm">
                 <h3 className="font-black text-[#001f3f] text-xl mb-2">{item.title}</h3>
                 <p className="text-sm md:text-base text-gray-600 font-bold">{item.desc}</p>
               </div>
@@ -108,25 +108,25 @@ const Home = () => {
             <img 
               src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800" 
               alt="Team" 
-              className="rounded-[2rem] w-full h-[300px] md:h-[400px] object-cover shadow-2xl border-4 md:border-8 border-yellow-500"
+              className="rounded-lg w-full h-[250px] md:h-[350px] object-cover shadow-2xl border-4 md:border-8 border-yellow-500"
             />
           </div>
         </section>
 
         {/* How It Works */}
         <section className="bg-gray-50 py-8 md:py-10 px-6 md:px-16 text-center">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-[1200px] mx-auto">
             <h2 className="text-2xl md:text-3xl font-black text-[#001f3f] mb-2 uppercase">How It Works</h2>
             <p className="text-gray-500 mb-8 text-xs md:text-sm font-black tracking-wide">Simple features designed to simplify every step of academic management.</p>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-[1000px] mx-auto">
               {[
                 { icon: <PenTool />, title: "Register & Login", desc: "Get started by creating your account and logging into the dashboard." },
                 { icon: <Database />, title: "Upload & Manage Data", desc: "Easily upload and manage records for students and staff." },
                 { icon: <Search />, title: "Track & Analyze", desc: "Use advanced tools to monitor performance and attendance." },
                 { icon: <Share2 />, title: "Collaborate & Share", desc: "Seamlessly share data between different departments." }
               ].map((step, i) => (
-                <div key={i} className="flex items-center gap-6 border-2 border-[#001f3f] p-8 rounded-[3rem] text-left bg-white hover:border-yellow-500 transition-all group">
+                <div key={i} className="flex items-center gap-6 border-2 border-[#001f3f] p-5 rounded-lg text-left bg-white hover:border-yellow-500 transition-all group">
                   <div className="bg-[#001f3f] text-white p-5 rounded-full group-hover:scale-110 transition-transform">{step.icon}</div>
                   <div>
                     <h4 className="font-black text-xl mb-1 text-[#001f3f]">{step.title}</h4>
@@ -139,7 +139,7 @@ const Home = () => {
         </section>
 
         {/* Student Insights */}
-        <section className="py-8 md:py-10 px-6 md:px-16 text-center max-w-7xl mx-auto">
+        <section className="py-8 md:py-10 px-6 md:px-16 text-center max-w-[1200px] mx-auto">
           <h2 className="text-2xl md:text-3xl font-black text-[#001f3f] mb-6 uppercase tracking-tighter">Student Insights</h2>
           {insights.length === 0 ? (
             <p className="text-gray-500 font-bold">No insights yet. Be the first to share your thoughts!</p>
@@ -157,7 +157,7 @@ const Home = () => {
 
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {insights.slice(currentIndex, currentIndex + 3).map((rev, i) => (
-                  <div key={i} className="bg-white border-2 border-blue-900 p-8 rounded-3xl relative text-left shadow-lg hover:shadow-2xl transition-all flex flex-col justify-between">
+                  <div key={i} className="bg-white border-2 border-blue-900 p-5 rounded-lg relative text-left shadow-lg hover:shadow-2xl transition-all flex flex-col justify-between">
                     <div>
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-black text-blue-950 text-lg">{rev.name}</span>
@@ -194,7 +194,7 @@ const Home = () => {
 
         {/* Contact Form */}
         <section className="pb-12 px-6 md:px-16">
-          <div className="bg-[#f8fafc] border-[1.5px] border-[#001f3f] rounded-2xl p-6 md:p-8 max-w-2xl mx-auto shadow-lg">
+          <div className="bg-[#f8fafc] border-[1.5px] border-[#001f3f] rounded-lg p-5 md:p-6 max-w-2xl mx-auto shadow-lg">
             <h2 className="text-xl md:text-2xl font-black text-[#001f3f] text-center mb-1 uppercase tracking-tight">Tell Us What You Think</h2>
             <p className="text-center text-gray-500 text-[10px] font-bold mb-6 tracking-wide">Your feedback helps us grow and improve every feature we offer.</p>
             

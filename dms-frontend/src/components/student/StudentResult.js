@@ -31,7 +31,7 @@ const StudentResult = ({ studentData }) => {
     };
 
     fetchStudentResults();
-  }, [activeRollNo]); // Safe dependency check trigger
+  }, [activeRollNo, API_BASE_URL]); // Safe dependency check trigger
 
   const downloadResultPDF = (res) => {
     const doc = new jsPDF();
@@ -76,19 +76,18 @@ const StudentResult = ({ studentData }) => {
   };
 
   return (
-    <div className="p-6">
-      <h2 className="text-2xl font-black mb-6 text-[#002147]">ACADEMIC HISTORY</h2>
+    <div className="p-0 sm:p-0">
       
       {results.length > 0 ? (
         results.map((res) => (
-          <div key={res._id} className="bg-white p-6 rounded-3xl shadow-sm border mb-4 border-slate-100">
+          <div key={res._id} className="bg-white p-6 rounded-lg shadow-sm border mb-4 border-slate-100">
             <h4 className="font-bold text-lg text-slate-700">SEMESTER: {res.semester}</h4>
             <p className="text-[#002147] font-semibold mb-4">GPA: {res.gpa} | CGPA: {res.cgpa}</p>
             
             <div className="flex flex-col md:flex-row gap-3">
               <button 
                 onClick={() => downloadResultPDF(res)}
-                className="bg-[#002147] text-white px-4 py-2 rounded-xl text-sm flex items-center font-bold hover:bg-slate-800 transition"
+                className="bg-[#002147] text-white px-4 py-2 rounded-lg text-sm flex items-center font-bold hover:bg-slate-800 transition"
               >
                 <FiDownload className="mr-2" /> Download Result Card
               </button>
@@ -113,7 +112,7 @@ const StudentResult = ({ studentData }) => {
                       window.open(`${process.env.REACT_APP_API_URL}/${res.dmcFile}`, '_blank');
                     }
                   }}
-                  className="bg-green-600 text-white px-4 py-2 rounded-xl text-sm flex items-center font-bold hover:bg-green-700 transition"
+                  className="bg-green-600 text-white px-4 py-2 rounded-lg text-sm flex items-center font-bold hover:bg-green-700 transition"
                 >
                   <FiDownload className="mr-2" /> Download Original DMC
                 </button>
@@ -122,7 +121,7 @@ const StudentResult = ({ studentData }) => {
           </div>
         ))
       ) : (
-        <div className="bg-white p-6 rounded-3xl border border-dashed text-center text-gray-500">
+        <div className="bg-white p-6 rounded-lg border border-dashed text-center text-gray-500">
           No results found yet for Roll No: {activeRollNo || "Loading..."}
         </div>
       )}

@@ -78,9 +78,9 @@ const TeacherOverview = ({ setActiveTab }) => {
           <div
             key={card.id}
             onClick={() => setActiveTab(card.id)}
-            className="bg-white p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center text-center group"
+            className="bg-white p-8 rounded-lg shadow-sm border border-slate-100 hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col items-center text-center group"
           >
-            <div className={`p-4 rounded-2xl ${card.iconBg} mb-5 group-hover:scale-110 transition-transform duration-300`}>
+            <div className={`p-4 rounded-lg ${card.iconBg} mb-5 group-hover:scale-110 transition-transform duration-300`}>
               {card.icon}
             </div>
 

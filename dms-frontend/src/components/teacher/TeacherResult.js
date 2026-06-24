@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable'; // Explicitly imported to avoid plugin runtime crashes
-import { DEPARTMENTS_LIST, SEMESTERS_LIST } from '../../constants/data';
+import { SEMESTERS_LIST } from '../../constants/data';
 
 const TeacherResult = () => {
   const [department, setDepartment] = useState('');
@@ -14,6 +14,13 @@ const TeacherResult = () => {
   // Popup Modal View States for Uploaded PDF DMC
   const [previewUrl, setPreviewUrl] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [departmentsList, setDepartmentsList] = useState([]);
+
+  useEffect(() => {
+    axios.get(`${process.env.REACT_APP_API_URL}/api/departments`)
+      .then(res => setDepartmentsList(res.data.map(d => d.name.replace(/^BS\s+/i, '').trim().toUpperCase())))
+      .catch(err => console.error("Error fetching departments:", err));
+  }, []);
 
   const API_BASE_URL = `${process.env.REACT_APP_API_URL}/api`;
 
@@ -104,6 +111,69 @@ const saveOrUpdateRow = async (student) => {
     showToast("❌ Server communication breakdown.");
   }
 };
+
+  // 💾 BULK UPLOAD (SAVE ALL RESULTS)
+  const saveAllResults = async () => {
+    const studentsToSave = studentsList.filter(s => s.gpa && s.cgpa);
+    
+    if (studentsToSave.length === 0) {
+      showToast("⚠️ No students with GPA/CGPA entered to save.");
+      return;
+    }
+
+    setLoading(true);
+    showToast(`🔄 Uploading ${studentsToSave.length} records... Please wait.`);
+    
+    let successCount = 0;
+    let failedCount = 0;
+    const updatedStudents = [...studentsList];
+
+    const uploadPromises = studentsToSave.map(async (student) => {
+      const formData = new FormData();
+      formData.append('university', university);
+      formData.append('department', department);
+      formData.append('semester', semester);
+      formData.append('rollNo', student.rollNo);
+      formData.append('name', student.name);
+      formData.append('gpa', student.gpa);
+      formData.append('cgpa', student.cgpa);
+      if (student.selectedFile) formData.append('dmcFile', student.selectedFile);
+
+      const res = await axios.post(`${API_BASE_URL}/results/upload`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      if (res.status === 200 || res.status === 201) {
+        const idx = updatedStudents.findIndex(s => s.rollNo === student.rollNo);
+        if (idx !== -1) {
+          updatedStudents[idx] = { 
+            ...updatedStudents[idx], 
+            dmcFile: res.data.dmcFile, 
+            selectedFile: null 
+          };
+        }
+        return student.rollNo;
+      } else {
+        throw new Error("Failed");
+      }
+    });
+
+    const results = await Promise.allSettled(uploadPromises);
+    
+    results.forEach(result => {
+      if (result.status === 'fulfilled') successCount++;
+      else failedCount++;
+    });
+
+    setStudentsList(updatedStudents);
+    setLoading(false);
+
+    if (failedCount === 0) {
+      showToast(`✨ Successfully saved all ${successCount} records!`);
+    } else {
+      showToast(`⚠️ Saved ${successCount} records, but ${failedCount} failed.`);
+    }
+  };
   // 👁️ VIEW UPLOADED DMC PDF TRIGGER
   const triggerDmcView = (student) => {
     if (student.localPreview) {
@@ -227,43 +297,57 @@ const saveOrUpdateRow = async (student) => {
   };
 
   return (
-    <div className="w-full space-y-6 p-2 sm:p-6 relative">
+    <div className="w-full p-0 sm:p-0 relative">
       {/* Toast Alert Notification */}
       {toast.show && (
-        <div className="fixed top-5 right-5 z-[100] bg-[#001f3f] text-white px-6 py-4 rounded-xl shadow-xl text-xs font-bold border border-[#d4a017]">
+        <div className="fixed top-5 right-5 z-[100] bg-[#001f3f] text-white px-6 py-4 rounded-lg shadow-xl text-xs font-bold border border-[#d4a017]">
           {toast.message}
         </div>
       )}
 
+      <div className="space-y-6">
       {/* FILTER PANEL */}
-      <div className="bg-white p-4 sm:p-6 rounded-3xl sm:rounded-[2rem] shadow-sm border border-slate-100">
+      <div className="bg-white p-4 sm:p-6 rounded-lg sm:rounded-lg shadow-sm border border-slate-100">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-          <h2 className="text-lg font-black text-[#001f3f] uppercase tracking-tight flex items-center gap-2">
-            <span className="w-3 h-6 bg-[#d4a017] rounded-full inline-block"></span>
-            TEACHER PORTAL / RESULTS MANAGEMENT
-          </h2>
-          {studentsList.length > 0 && (
-            <button onClick={exportSemesterPDF} className="px-4 py-2 bg-gradient-to-r from-[#001f3f] to-slate-800 text-white text-xs font-bold rounded-xl hover:opacity-90 transition-all shadow-md flex items-center gap-2 w-full sm:w-auto justify-center">
-              📄 Export Semester PDF
-            </button>
-          )}
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            {studentsList.length > 0 && (
+              <>
+                <button onClick={exportSemesterPDF} className="px-4 py-2 bg-gradient-to-r from-[#001f3f] to-slate-800 text-white text-xs font-bold rounded-lg hover:opacity-90 transition-all shadow-md flex items-center gap-2 w-full sm:w-auto justify-center">
+                  📄 Export Semester PDF
+                </button>
+                <button onClick={saveAllResults} disabled={loading} className="px-4 py-2 bg-gradient-to-r from-green-600 to-green-700 text-white text-xs font-bold rounded-lg hover:opacity-90 transition-all shadow-md flex items-center gap-2 w-full sm:w-auto justify-center disabled:opacity-50 disabled:cursor-not-allowed">
+                  {loading ? '🔄 Saving...' : '💾 Save All Records'}
+                </button>
+              </>
+            )}
+          </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">University Affiliation</label>
-            <input type="text" value={university} readOnly className="w-full px-4 py-3 bg-slate-100 text-[#001f3f] font-bold text-xs rounded-xl cursor-not-allowed" />
+            <input type="text" value={university} readOnly className="w-full px-4 py-3 bg-slate-100 text-[#001f3f] font-bold text-xs rounded-lg cursor-not-allowed" />
           </div>
           <div>
             <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">Department</label>
-            <select value={department} onChange={(e) => setDepartment(e.target.value)} className="w-full px-4 py-3 bg-[#f1f3f6] text-[#001f3f] font-bold text-xs rounded-xl focus:outline-none border-2 border-transparent focus:border-[#d4a017]">
+            <select 
+              value={department} 
+              onChange={(e) => setDepartment(e.target.value)} 
+              className="w-full px-4 pr-10 py-3 bg-[#f1f3f6] text-[#001f3f] font-bold text-xs rounded-lg focus:outline-none border-2 border-transparent focus:border-[#d4a017] appearance-none"
+              style={{ backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1em' }}
+            >
               <option value="">Select Department</option>
-              {DEPARTMENTS_LIST.map(d => <option key={d} value={d}>{d}</option>)}
+              {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">Semester</label>
-            <select value={semester} onChange={(e) => setSemester(e.target.value)} className="w-full px-4 py-3 bg-[#f1f3f6] text-[#001f3f] font-bold text-xs rounded-xl focus:outline-none border-2 border-transparent focus:border-[#d4a017]">
+            <select 
+              value={semester} 
+              onChange={(e) => setSemester(e.target.value)} 
+              className="w-full px-4 pr-10 py-3 bg-[#f1f3f6] text-[#001f3f] font-bold text-xs rounded-lg focus:outline-none border-2 border-transparent focus:border-[#d4a017] appearance-none"
+              style={{ backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1em' }}
+            >
               <option value="">Select Semester</option>
               {SEMESTERS_LIST.map(s => <option key={s} value={s}>{s} Semester</option>)}
             </select>
@@ -273,7 +357,7 @@ const saveOrUpdateRow = async (student) => {
 
       {/* RENDER TABLE COMPONENT */}
       {department && semester && (
-        <div className="bg-white p-4 sm:p-6 rounded-3xl sm:rounded-[2rem] shadow-sm border border-slate-100">
+        <div className="bg-white p-4 sm:p-6 rounded-lg sm:rounded-lg shadow-sm border border-slate-100">
           <h3 className="text-sm font-black text-[#001f3f] uppercase tracking-tight mb-4">
             📋 LIVE STUDENT RECORD LEDGER ({department.toUpperCase()} - {semester.toUpperCase()})
           </h3>
@@ -283,41 +367,38 @@ const saveOrUpdateRow = async (student) => {
               🔄 Syncing batch data with MongoDB collection...
             </div>
           ) : studentsList.length > 0 ? (
-            <div className="overflow-x-auto rounded-xl border border-slate-100">
-              <table className="w-full text-left border-collapse min-w-[1050px]">
+            <div className="overflow-x-auto rounded-lg border border-slate-100">
+              <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-[#001f3f] text-white text-[10px] font-black uppercase tracking-wider">
-                    <th className="p-4 w-[12%]">Roll Number</th>
-                    <th className="p-4 w-[18%]">Student Name</th>
-                    <th className="p-4 w-[10%] text-center">Semester GPA</th>
-                    <th className="p-4 w-[10%] text-center">Cumulative CGPA</th>
-                    <th className="p-4 w-[22%]">Attach DMC Transcript (PDF)</th>
-                    <th className="p-4 w-[28%] text-center">Actions</th>
+                    <th className="px-3 py-3 w-[10%]">Roll #</th>
+                    <th className="px-3 py-3 w-[20%]">Student Name</th>
+                    <th className="px-3 py-3 w-[12%] text-center">GPA</th>
+                    <th className="px-3 py-3 w-[12%] text-center">CGPA</th>
+                    <th className="px-3 py-3 w-[25%]">DMC Transcript</th>
+                    <th className="px-3 py-3 text-center">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="text-xs font-bold text-slate-600 divide-y divide-slate-100">
+                <tbody className="text-[11px] font-bold text-slate-600 divide-y divide-slate-100">
                   {studentsList.map((student) => (
                     <tr key={student._id} className="hover:bg-slate-50/50 transition-colors">
-                      <td className="p-4 text-[#001f3f] font-black">{student.rollNo}</td>
-                      <td className="p-4 uppercase text-slate-700">{student.name}</td>
-                      <td className="p-4 text-center">
-                        <input type="number" step="0.01" min="0" max="4" value={student.gpa} onChange={(e) => handleRowTextChange(student._id, 'gpa', e.target.value)} className="w-20 text-center px-2 py-2 bg-[#f1f3f6] rounded-lg focus:outline-none text-[#001f3f] font-black" />
+                      <td className="px-3 py-2.5 text-[#001f3f] font-black whitespace-nowrap">{student.rollNo}</td>
+                      <td className="px-3 py-2.5 uppercase text-slate-700 font-black">{student.name}</td>
+                      <td className="px-3 py-2.5 text-center">
+                        <input type="number" step="0.01" min="0" max="4" value={student.gpa} onChange={(e) => handleRowTextChange(student._id, 'gpa', e.target.value)} className="w-14 text-center px-1 py-1.5 bg-[#f1f3f6] rounded border-2 border-transparent focus:border-[#d4a017] focus:bg-white focus:outline-none text-[#001f3f] font-black transition-all" />
                       </td>
-                      <td className="p-4 text-center">
-                        <input type="number" step="0.01" min="0" max="4" value={student.cgpa} onChange={(e) => handleRowTextChange(student._id, 'cgpa', e.target.value)} className="w-20 text-center px-2 py-2 bg-[#f1f3f6] rounded-lg focus:outline-none text-[#001f3f] font-black" />
+                      <td className="px-3 py-2.5 text-center">
+                        <input type="number" step="0.01" min="0" max="4" value={student.cgpa} onChange={(e) => handleRowTextChange(student._id, 'cgpa', e.target.value)} className="w-14 text-center px-1 py-1.5 bg-[#f1f3f6] rounded border-2 border-transparent focus:border-[#d4a017] focus:bg-white focus:outline-none text-[#001f3f] font-black transition-all" />
                       </td>
-                      <td className="p-4">
-                        <input type="file" accept=".pdf" onChange={(e) => handleRowFileChange(student._id, e.target.files[0])} className="w-full text-[11px] text-slate-400 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-[10px] file:font-black file:bg-[#001f3f] file:text-white cursor-pointer" />
+                      <td className="px-3 py-2.5">
+                        <input type="file" accept=".pdf" onChange={(e) => handleRowFileChange(student._id, e.target.files[0])} className="w-full text-[10px] text-slate-400 file:mr-2 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-[9px] file:font-black file:bg-[#001f3f] file:text-white cursor-pointer hover:file:bg-blue-900 transition-all" />
                       </td>
-                      <td className="p-4 text-center flex items-center justify-center gap-1.5">
-                        <button type="button" onClick={() => triggerDmcView(student)} className="px-2.5 py-2 bg-slate-100 hover:bg-slate-200 text-[#001f3f] font-bold text-[10px] uppercase rounded-lg transition-all">
-                          👁️ DMC PDF
+                      <td className="px-3 py-2.5 flex items-center justify-center gap-1.5">
+                        <button type="button" onClick={() => triggerDmcView(student)} title="View Uploaded DMC" className="p-1.5 bg-slate-100 hover:bg-slate-200 text-[#001f3f] rounded transition-all">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
                         </button>
-                        <button type="button" onClick={() => downloadStudentResultPDF(student)} className="px-2.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold text-[10px] uppercase rounded-lg transition-all">
-                          📊 View GPA PDF
-                        </button>
-                        <button type="button" onClick={() => saveOrUpdateRow(student)} className="px-3 py-2 bg-[#d4a017] hover:bg-[#b88a14] text-[#001f3f] font-black text-[10px] uppercase rounded-lg shadow-sm transition-all">
-                          💾 Save/Edit
+                        <button type="button" onClick={() => downloadStudentResultPDF(student)} title="Download GPA PDF" className="p-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 rounded transition-all">
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                         </button>
                       </td>
                     </tr>
@@ -326,7 +407,7 @@ const saveOrUpdateRow = async (student) => {
               </table>
             </div>
           ) : (
-            <div className="bg-amber-50/50 border border-dashed border-amber-200 text-amber-800 p-8 rounded-2xl text-center text-xs font-bold">
+            <div className="bg-amber-50/50 border border-dashed border-amber-200 text-amber-800 p-8 rounded-lg text-center text-xs font-bold">
               ⚠️ No registered students found matching criteria in database records. Please verify user signups.
             </div>
           )}
@@ -336,17 +417,18 @@ const saveOrUpdateRow = async (student) => {
       {/* 🖼️ DMC POPUP MODAL */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[200] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-4xl h-[85vh] rounded-[2rem] p-6 flex flex-col shadow-2xl relative">
+          <div className="bg-white w-full max-w-4xl h-[85vh] rounded-lg p-6 flex flex-col shadow-2xl relative">
             <div className="flex justify-between items-center mb-4 border-b pb-2">
               <h3 className="font-black text-[#001f3f] uppercase text-sm">📄 DMC Official Document Viewer</h3>
               <button onClick={() => setShowModal(false)} className="w-8 h-8 rounded-full bg-slate-100 text-slate-600 font-bold flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">✕</button>
             </div>
-            <div className="flex-1 bg-slate-50 rounded-xl overflow-hidden">
-              <iframe src={previewUrl} title="DMC Transcript Document" className="w-full h-full border-0 rounded-xl" />
+            <div className="flex-1 bg-slate-50 rounded-lg overflow-hidden">
+              <iframe src={previewUrl} title="DMC Transcript Document" className="w-full h-full border-0 rounded-lg" />
             </div>
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };

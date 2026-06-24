@@ -138,6 +138,7 @@ const ManageAttendance = () => {
 
   useEffect(() => {
     if (view === 'applications') fetchLeaveApplications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [view]);
 
   const handleStatusChange = (id, newStatus) => {
@@ -324,29 +325,29 @@ const downloadApplicationPDF = (application) => {
     doc.save(`Application_${application.studentId?.rollNo}.pdf`);
 };
   return (
-    <div className="w-full min-h-screen p-3 md:p-6 bg-transparent text-slate-800 antialiased box-border overflow-x-hidden">
+    <div className="w-full min-h-screen p-0 sm:p-0 bg-transparent text-slate-800 antialiased box-border overflow-x-hidden">
       
       {/* --- MENU VIEW LAYER --- */}
       {view === 'menu' && (
         <div className="w-full max-w-5xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 pt-2">
-          <button onClick={() => setView('mark')} className="w-full bg-white border-b-4 border-[#001f3f] p-5 md:p-6 rounded-2xl shadow-md flex flex-col items-center text-center gap-3 transition-all active:scale-95 hover:shadow-lg">
-            <span className="text-3xl md:text-4xl bg-slate-50 p-3 rounded-xl">📝</span>
+          <button onClick={() => setView('mark')} className="w-full bg-white border-b-4 border-[#001f3f] p-5 md:p-6 rounded-lg shadow-md flex flex-col items-center text-center gap-3 transition-all active:scale-95 hover:shadow-lg">
+            <span className="text-3xl md:text-4xl bg-slate-50 p-3 rounded-lg">📝</span>
             <div>
               <h4 className="font-black text-[#001f3f] uppercase text-xs md:text-sm tracking-wider">Mark Attendance</h4>
               <p className="text-[11px] text-gray-400 font-medium mt-1">Add new student logs for today</p>
             </div>
           </button>
 
-          <button onClick={() => setView('history')} className="w-full bg-white border-b-4 border-[#d4a017] p-5 md:p-6 rounded-2xl shadow-md flex flex-col items-center text-center gap-3 transition-all active:scale-95 hover:shadow-lg">
-            <span className="text-3xl md:text-4xl bg-slate-50 p-3 rounded-xl">📅</span>
+          <button onClick={() => setView('history')} className="w-full bg-white border-b-4 border-[#d4a017] p-5 md:p-6 rounded-lg shadow-md flex flex-col items-center text-center gap-3 transition-all active:scale-95 hover:shadow-lg">
+            <span className="text-3xl md:text-4xl bg-slate-50 p-3 rounded-lg">📅</span>
             <div>
               <h4 className="font-black text-[#001f3f] uppercase text-xs md:text-sm tracking-wider">View History Panel</h4>
               <p className="text-[11px] text-gray-400 font-medium mt-1">Check permanent roster summaries</p>
             </div>
           </button>
 
-          <button onClick={() => setView('applications')} className="w-full bg-white border-b-4 border-amber-600 p-5 md:p-6 rounded-2xl shadow-md flex flex-col items-center text-center gap-3 transition-all active:scale-95 hover:shadow-lg sm:col-span-2 lg:col-span-1">
-            <span className="text-3xl md:text-4xl bg-slate-50 p-3 rounded-xl">📩</span>
+          <button onClick={() => setView('applications')} className="w-full bg-white border-b-4 border-amber-600 p-5 md:p-6 rounded-lg shadow-md flex flex-col items-center text-center gap-3 transition-all active:scale-95 hover:shadow-lg sm:col-span-2 lg:col-span-1">
+            <span className="text-3xl md:text-4xl bg-slate-50 p-3 rounded-lg">📩</span>
             <div>
               <h4 className="font-black text-[#001f3f] uppercase text-xs md:text-sm tracking-wider">Leave Applications</h4>
               <p className="text-[11px] text-gray-400 font-medium mt-1">Review and manage student leave requests</p>
@@ -357,22 +358,22 @@ const downloadApplicationPDF = (application) => {
 
       {/* --- MARK ATTENDANCE INTERFACE --- */}
       {view === 'mark' && (
-        <div className="w-full bg-white p-3 sm:p-6 rounded-2xl shadow-xl border border-gray-100 max-w-5xl mx-auto">
+        <div className="w-full bg-white p-3 sm:p-6 rounded-lg shadow-xl border border-gray-100 max-w-5xl mx-auto">
           <div className="flex justify-between items-center mb-4">
             <button onClick={() => setView('menu')} className="text-xs uppercase font-bold text-[#001f3f] hover:text-[#d4a017] transition-colors">← MAIN MENU</button>
           </div>
 
-          <div className="bg-slate-50 p-4 sm:p-5 rounded-2xl sm:rounded-[2rem] border border-slate-100 mb-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">Department</label>
-                <select value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)} className="w-full px-4 py-3 bg-[#f1f3f6] text-[#001f3f] font-bold text-xs rounded-xl focus:outline-none border-2 border-transparent focus:border-[#d4a017]">
+          <div className="bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200 mb-6 shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
+              <div className="flex flex-col gap-2">
+                <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">Department</label>
+                <select value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)} className="w-full px-4 py-3 bg-white text-[#001f3f] font-bold text-xs rounded-lg outline-none border border-slate-300 focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/20 transition-all shadow-sm">
                   {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
-              <div>
-                <label className="block text-[10px] font-black text-slate-400 uppercase mb-2">Semester</label>
-                <select value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)} className="w-full px-4 py-3 bg-[#f1f3f6] text-[#001f3f] font-bold text-xs rounded-xl focus:outline-none border-2 border-transparent focus:border-[#d4a017]">
+              <div className="flex flex-col gap-2">
+                <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">Semester</label>
+                <select value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)} className="w-full px-4 py-3 bg-white text-[#001f3f] font-bold text-xs rounded-lg outline-none border border-slate-300 focus:border-[#001f3f] focus:ring-2 focus:ring-[#001f3f]/20 transition-all shadow-sm">
                   {semestersList.map(s => <option key={s} value={s}>{s} Semester</option>)}
                 </select>
               </div>
@@ -380,7 +381,7 @@ const downloadApplicationPDF = (application) => {
           </div>
 
           {message.text && (
-            <div className={`p-3 mb-4 text-center text-xs font-bold rounded-xl ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+            <div className={`p-3 mb-4 text-center text-xs font-bold rounded-lg ${message.type === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
               {message.text}
             </div>
           )}
@@ -388,12 +389,12 @@ const downloadApplicationPDF = (application) => {
           {loading ? (
             <div className="text-center py-12 text-xs font-bold text-gray-400">Loading students list...</div>
           ) : students.length === 0 ? (
-            <div className="text-center py-12 text-xs text-red-500 font-bold bg-red-50 rounded-2xl border border-dashed border-red-200">
+            <div className="text-center py-12 text-xs text-red-500 font-bold bg-red-50 rounded-lg border border-dashed border-red-200">
               No students registered for these filters.
             </div>
           ) : (
             <div>
-              <div className="w-full overflow-x-auto border border-gray-100 rounded-2xl shadow-inner scrollbar-thin">
+              <div className="w-full overflow-x-auto border border-gray-100 rounded-lg shadow-inner scrollbar-thin">
                 <table className="w-full text-left border-collapse min-w-[500px]">
                   <thead>
                     <tr className="bg-[#001f3f] text-white text-[11px] md:text-xs uppercase tracking-wider">
@@ -409,9 +410,9 @@ const downloadApplicationPDF = (application) => {
                         <td className="p-3 md:p-4 font-extrabold uppercase text-slate-700 break-words max-w-[180px] sm:max-w-none">{s.name}</td>
                         <td className="p-3 md:p-4">
                           <div className="flex justify-center gap-1.5">
-                            <button onClick={() => handleStatusChange(s._id, 'PRESENT')} className={`w-8 h-8 rounded-xl font-black text-xs transition-all ${s.status === 'PRESENT' ? 'bg-green-600 text-white shadow-md shadow-green-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>P</button>
-                            <button onClick={() => handleStatusChange(s._id, 'ABSENT')} className={`w-8 h-8 rounded-xl font-black text-xs transition-all ${s.status === 'ABSENT' ? 'bg-red-600 text-white shadow-md shadow-red-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>A</button>
-                            <button onClick={() => handleStatusChange(s._id, 'LEAVE')} className={`w-8 h-8 rounded-xl font-black text-xs transition-all ${s.status === 'LEAVE' ? 'bg-amber-500 text-white shadow-md shadow-amber-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>L</button>
+                            <button onClick={() => handleStatusChange(s._id, 'PRESENT')} className={`w-8 h-8 rounded-lg font-black text-xs transition-all ${s.status === 'PRESENT' ? 'bg-green-600 text-white shadow-md shadow-green-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>P</button>
+                            <button onClick={() => handleStatusChange(s._id, 'ABSENT')} className={`w-8 h-8 rounded-lg font-black text-xs transition-all ${s.status === 'ABSENT' ? 'bg-red-600 text-white shadow-md shadow-red-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>A</button>
+                            <button onClick={() => handleStatusChange(s._id, 'LEAVE')} className={`w-8 h-8 rounded-lg font-black text-xs transition-all ${s.status === 'LEAVE' ? 'bg-amber-500 text-white shadow-md shadow-amber-200' : 'bg-slate-100 text-slate-400 hover:bg-slate-200'}`}>L</button>
                           </div>
                         </td>
                       </tr>
@@ -420,7 +421,7 @@ const downloadApplicationPDF = (application) => {
                 </table>
               </div>
               <div className="text-center mt-6">
-                <button onClick={handleSubmitAttendance} className="bg-[#001f3f] hover:bg-opacity-90 active:scale-95 text-white text-xs font-bold px-8 py-3 rounded-xl shadow-lg transition-all uppercase tracking-wider w-full sm:w-auto">
+                <button onClick={handleSubmitAttendance} className="bg-[#001f3f] hover:bg-opacity-90 active:scale-95 text-white text-xs font-bold px-8 py-3 rounded-lg shadow-lg transition-all uppercase tracking-wider w-full sm:w-auto">
                   Submit Attendance Sheet
                 </button>
               </div>
@@ -431,10 +432,10 @@ const downloadApplicationPDF = (application) => {
 
       {/* --- HISTORY PANEL LAYER --- */}
       {view === 'history' && (
-        <div className="w-full bg-white p-3 sm:p-6 rounded-2xl shadow-xl border border-gray-100 max-w-5xl mx-auto">
+        <div className="w-full bg-white p-3 sm:p-6 rounded-lg shadow-xl border border-gray-100 max-w-5xl mx-auto">
           <div className="flex flex-col gap-4 border-b pb-4 mb-5 md:flex-row md:justify-between md:items-center">
             <button onClick={() => setView('menu')} className="text-xs uppercase font-bold text-blue-900 hover:text-blue-700 transition-colors self-start">← Back to Menu</button>
-            <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 w-full md:w-auto overflow-x-auto scrollbar-none">
+            <div className="flex bg-slate-100 p-1 rounded-lg border border-slate-200 w-full md:w-auto overflow-x-auto scrollbar-none">
               {['daily', 'weekly', 'monthly'].map(tab => (
                 <button key={tab} onClick={() => setReportSubTab(tab)} className={`flex-1 md:flex-initial text-center px-4 py-2 rounded-lg text-[10px] font-black uppercase transition-all whitespace-nowrap ${reportSubTab === tab ? 'bg-[#d4a017] text-white shadow' : 'text-slate-500 hover:text-slate-800'}`}>
                   {tab} View
@@ -443,23 +444,29 @@ const downloadApplicationPDF = (application) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-2.5 bg-slate-50/80 rounded-2xl mb-5 border border-slate-100">
-            <select value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)} className="border rounded-xl px-3 py-2.5 text-xs font-bold bg-white text-slate-700 focus:outline-none w-full">
-              {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
-            </select>
-            <select value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)} className="border rounded-xl px-3 py-2.5 text-xs font-bold bg-white text-slate-700 focus:outline-none w-full">
-              {semestersList.map(s => <option key={s} value={s}>{s} Semester</option>)}
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 p-4 bg-slate-50 rounded-xl mb-6 border border-slate-200 shadow-sm">
+            <div className="flex flex-col gap-2">
+              <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">Department</label>
+              <select value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)} className="w-full border border-slate-300 rounded-lg px-4 py-3 text-xs font-bold bg-white text-[#001f3f] focus:outline-none focus:ring-2 focus:ring-[#001f3f]/20 transition-all shadow-sm">
+                {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </div>
+            <div className="flex flex-col gap-2">
+              <label className="text-[11px] font-black text-slate-500 uppercase tracking-wider">Semester</label>
+              <select value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)} className="w-full border border-slate-300 rounded-lg px-4 py-3 text-xs font-bold bg-white text-[#001f3f] focus:outline-none focus:ring-2 focus:ring-[#001f3f]/20 transition-all shadow-sm">
+                {semestersList.map(s => <option key={s} value={s}>{s} Semester</option>)}
+              </select>
+            </div>
           </div>
 
           {historyLoading ? (
             <div className="text-center py-12 text-xs font-bold text-gray-400">Syncing with database logs...</div>
           ) : historySheets.length === 0 ? (
-            <div className="text-center py-8 bg-amber-50 text-amber-800 text-xs font-bold rounded-2xl border border-dashed border-amber-200 uppercase tracking-wide">
+            <div className="text-center py-8 bg-amber-50 text-amber-800 text-xs font-bold rounded-lg border border-dashed border-amber-200 uppercase tracking-wide">
               No saved data found for the selected duration ({reportSubTab})!
             </div>
           ) : (
-            <div className="w-full overflow-x-auto border border-gray-100 rounded-2xl shadow-inner scrollbar-thin">
+            <div className="w-full overflow-x-auto border border-gray-100 rounded-lg shadow-inner scrollbar-thin">
               <table className="w-full text-left border-collapse min-w-[550px]">
                 <thead>
                   <tr className="bg-[#001f3f] text-white text-[11px] md:text-xs uppercase tracking-wider">
@@ -480,7 +487,7 @@ const downloadApplicationPDF = (application) => {
                         <td className="p-3 md:p-4 font-bold uppercase text-slate-600 truncate max-w-[130px] sm:max-w-none">{sheet.department}</td>
                         <td className="p-3 md:p-4 text-center font-extrabold text-green-700 bg-green-50/30 whitespace-nowrap">{sheet.records?.length || 0} Marked</td>
                         <td className="p-3 md:p-4 text-center" onClick={(e) => e.stopPropagation()}>
-                          <button onClick={() => downloadReportPDF(sheet)} className="bg-red-600 text-white font-black text-[10px] px-3 py-1.5 rounded-xl hover:bg-red-700 transition-colors shadow shadow-red-100 uppercase whitespace-nowrap">
+                          <button onClick={() => downloadReportPDF(sheet)} className="bg-red-600 text-white font-black text-[10px] px-3 py-1.5 rounded-lg hover:bg-red-700 transition-colors shadow shadow-red-100 uppercase whitespace-nowrap">
                             📥 PDF
                           </button>
                         </td>
@@ -489,7 +496,7 @@ const downloadApplicationPDF = (application) => {
                       {expandedSheetId === sheet._id && (
                         <tr>
                           <td colSpan="4" className="bg-slate-50/40 p-2 md:p-4 border-t border-b border-slate-100">
-                            <div className="w-full max-w-2xl bg-white border border-slate-100 rounded-2xl shadow-md overflow-hidden mx-auto">
+                            <div className="w-full max-w-2xl bg-white border border-slate-100 rounded-lg shadow-md overflow-hidden mx-auto">
                               <div className="bg-[#002f5f] text-white p-2.5 text-[10px] uppercase font-black tracking-widest text-center">
                                 Detailed Attendance Logs
                               </div>
@@ -524,22 +531,22 @@ const downloadApplicationPDF = (application) => {
 
       {/* --- LEAVE APPLICATIONS LAYOUT --- */}
       {view === 'applications' && (
-        <div className="w-full bg-white p-3 sm:p-6 rounded-2xl shadow-xl border border-gray-100 max-w-7xl mx-auto">
+        <div className="w-full bg-white p-3 sm:p-6 rounded-lg shadow-xl border border-gray-100 max-w-7xl mx-auto">
           <div className="flex flex-col gap-3 border-b pb-4 mb-5 md:flex-row md:justify-between md:items-center">
             <button onClick={() => setView('menu')} className="text-xs uppercase font-bold text-blue-900 hover:text-blue-700 transition-colors whitespace-nowrap self-start mt-1">← Main Menu</button>
-            <div className="flex flex-col sm:flex-row gap-2 w-full md:w-auto items-center">
-              <h4 className="text-[10px] sm:text-xs font-black bg-[#001f3f] text-white px-3 py-1.5 rounded-full tracking-wider uppercase truncate md:mr-2 self-start sm:self-auto">Active Leaves Hub</h4>
-              <select value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)} className="border border-slate-200 rounded-xl p-2 text-[11px] font-bold bg-white text-slate-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-900/20">
+            <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto items-center">
+              <h4 className="text-[10px] sm:text-xs font-black bg-[#001f3f] text-white px-4 py-2 rounded-lg tracking-wider uppercase truncate md:mr-2 self-start sm:self-auto shadow-sm">Active Leaves Hub</h4>
+              <select value={selectedDepartment} onChange={(e) => setSelectedDepartment(e.target.value)} className="border border-slate-300 rounded-lg px-4 py-2 text-xs font-bold bg-white text-[#001f3f] w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-[#001f3f]/20 shadow-sm transition-all">
                 {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
               </select>
-              <select value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)} className="border border-slate-200 rounded-xl p-2 text-[11px] font-bold bg-white text-slate-700 w-full sm:w-auto focus:outline-none focus:ring-2 focus:ring-blue-900/20">
+              <select value={selectedSemester} onChange={(e) => setSelectedSemester(e.target.value)} className="border border-slate-300 rounded-lg px-4 py-2 text-xs font-bold bg-white text-[#001f3f] w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-[#001f3f]/20 shadow-sm transition-all">
                 {semestersList.map(s => <option key={s} value={s}>{s} Semester</option>)}
               </select>
             </div>
           </div>
 
           {message.text && (
-            <div className="p-3 mb-4 text-center text-xs font-bold bg-green-100 text-green-800 rounded-xl">
+            <div className="p-3 mb-4 text-center text-xs font-bold bg-green-100 text-green-800 rounded-lg">
               {message.text}
             </div>
           )}
@@ -570,14 +577,14 @@ const downloadApplicationPDF = (application) => {
               
               if (filteredApplications.length === 0) {
                 return (
-                  <div className="text-center py-10 text-xs text-amber-600 bg-amber-50 rounded-2xl border border-dashed border-amber-200 font-bold uppercase tracking-wide">
+                  <div className="text-center py-10 text-xs text-amber-600 bg-amber-50 rounded-lg border border-dashed border-amber-200 font-bold uppercase tracking-wide">
                     No active applications found for {selectedDepartment} - {selectedSemester}.
                   </div>
                 );
               }
 
               return (
-            <div className="w-full overflow-x-auto border border-gray-100 rounded-2xl shadow-inner scrollbar-thin">
+            <div className="w-full overflow-x-auto border border-gray-100 rounded-lg shadow-inner scrollbar-thin">
               <table className="w-full text-left border-collapse min-w-[850px]">
                 <thead>
                   <tr className="bg-[#001f3f] text-white text-[11px] md:text-xs uppercase tracking-wider">

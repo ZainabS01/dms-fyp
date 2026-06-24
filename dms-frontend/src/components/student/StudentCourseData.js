@@ -35,9 +35,9 @@ const StudentCourseData = ({ selectedDept, selectedSem }) => {
   return (
     <div className="space-y-8">
       {/* --- TOP STATUS BAR --- */}
-      <div className="flex items-center justify-between bg-white/50 p-4 rounded-[1.5rem] border border-slate-100 shadow-sm">
+      <div className="flex items-center justify-between bg-white/50 p-4 rounded-lg border border-slate-100 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-[#d4a017]/10 text-[#d4a017] rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-[#d4a017]/10 text-[#d4a017] rounded-lg flex items-center justify-center">
             <FiActivity size={20} />
           </div>
           <div>
@@ -62,9 +62,9 @@ const StudentCourseData = ({ selectedDept, selectedSem }) => {
             <div 
               key={sub._id} 
               onClick={() => setSelectedSubject(sub)}
-              className="bg-white p-6 rounded-[2rem] shadow-md border border-slate-100 group hover:border-[#d4a017] transition-all duration-300 cursor-pointer relative overflow-hidden"
+              className="bg-white p-6 rounded-lg shadow-md border border-slate-100 group hover:border-[#d4a017] transition-all duration-300 cursor-pointer relative overflow-hidden"
             >
-              <div className="w-14 h-14 bg-blue-50 text-blue-900 rounded-2xl flex items-center justify-center text-2xl mb-4 group-hover:bg-[#001f3f] group-hover:text-[#d4a017] transition-all duration-500">
+              <div className="w-14 h-14 bg-blue-50 text-blue-900 rounded-lg flex items-center justify-center text-2xl mb-4 group-hover:bg-[#001f3f] group-hover:text-[#d4a017] transition-all duration-500">
                 <FiFolder size={28} />
               </div>
 
@@ -81,7 +81,7 @@ const StudentCourseData = ({ selectedDept, selectedSem }) => {
             </div>
           ))
         ) : (
-          <div className="col-span-full py-24 text-center bg-white rounded-[3rem] border border-slate-100 shadow-inner">
+          <div className="col-span-full py-24 text-center bg-white rounded-lg border border-slate-100 shadow-inner">
              <div className="bg-slate-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border border-slate-100">
                 <FiFileText size={30} className="text-slate-200" />
              </div>
@@ -95,21 +95,21 @@ const StudentCourseData = ({ selectedDept, selectedSem }) => {
       {/* --- MODAL (Download & View Logic) --- */}
       {selectedSubject && (
         <div className="fixed inset-0 bg-[#001f3f]/95 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-5xl max-h-[90vh] rounded-[3.5rem] overflow-hidden shadow-2xl relative flex flex-col border border-white/20">
+          <div className="bg-white w-full max-w-5xl max-h-[90vh] rounded-lg overflow-hidden shadow-2xl relative flex flex-col border border-white/20">
             
             <div className="p-4 sm:p-10 bg-slate-50/50 border-b flex justify-between items-center gap-4">
               <div>
                 <p className="text-[10px] font-black text-[#d4a017] uppercase tracking-[0.4em] mb-1">Subject Resources</p>
                 <h3 className="text-xl sm:text-2xl font-black text-[#001f3f] uppercase leading-tight">{selectedSubject.title}</h3>
               </div>
-              <button onClick={() => setSelectedSubject(null)} className="p-3 sm:p-4 bg-white text-slate-400 hover:text-red-500 rounded-2xl shadow-sm transition-all border border-slate-100 hover:rotate-90 shrink-0">
+              <button onClick={() => setSelectedSubject(null)} className="p-3 sm:p-4 bg-white text-slate-400 hover:text-red-500 rounded-lg shadow-sm transition-all border border-slate-100 hover:rotate-90 shrink-0">
                 <FiX size={20} className="sm:w-6 sm:h-6" />
               </button>
             </div>
 
             <div className="p-4 sm:p-10 overflow-y-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 custom-scrollbar">
               {selectedSubject.categories?.map((cat) => (
-                <div key={cat._id} className="bg-white p-6 rounded-[2.5rem] border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                <div key={cat._id} className="bg-white p-6 rounded-lg border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
                   <div className="flex items-center gap-3 mb-6 border-b border-slate-50 pb-4">
                     <div className="p-2 bg-yellow-50 text-[#d4a017] rounded-lg"><FiFolder size={18} /></div>
                     <h5 className="font-black text-[#001f3f] text-[11px] uppercase tracking-widest">{cat.name}</h5>
@@ -117,7 +117,7 @@ const StudentCourseData = ({ selectedDept, selectedSem }) => {
                   
                   <div className="space-y-3">
                     {cat.files?.map((file) => (
-                      <div key={file._id} className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl group hover:bg-[#001f3f] transition-all duration-300">
+                      <div key={file._id} className="flex items-center justify-between p-4 bg-slate-50 rounded-lg group hover:bg-[#001f3f] transition-all duration-300">
                         <div className="flex items-center gap-3 overflow-hidden">
                           <FiFileText className="text-[#d4a017] shrink-0" size={16} />
                           <span className="text-[10px] font-bold text-[#001f3f] group-hover:text-white truncate max-w-[120px]">{file.fileName}</span>
@@ -133,7 +133,7 @@ const StudentCourseData = ({ selectedDept, selectedSem }) => {
                       </div>
                     ))}
                     {(!cat.files || cat.files.length === 0) && (
-                      <div className="text-center py-4 border-2 border-dashed border-slate-100 rounded-2xl">
+                      <div className="text-center py-4 border-2 border-dashed border-slate-100 rounded-lg">
                          <p className="text-[9px] text-slate-300 font-bold uppercase">Empty Folder</p>
                       </div>
                     )}

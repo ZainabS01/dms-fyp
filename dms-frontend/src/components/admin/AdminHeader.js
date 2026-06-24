@@ -4,7 +4,7 @@ import { FiBell, FiMenu, FiArrowLeft } from 'react-icons/fi';
 import { Trash2 } from 'lucide-react';
 import axios from 'axios';
 
-const AdminHeader = ({ activeTab, adminName, onOpenNexi, setActiveTab, toggleSidebar }) => {
+const AdminHeader = ({ activeTab, adminName, adminProfilePic, onOpenNexi, setActiveTab, toggleSidebar }) => {
   const displayTitle = activeTab ? activeTab.replace('_', ' ') : 'Dashboard';
   const [notices, setNotices] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -67,7 +67,7 @@ const AdminHeader = ({ activeTab, adminName, onOpenNexi, setActiveTab, toggleSid
         {/* Hamburger Menu for Mobile */}
         <button 
           onClick={toggleSidebar} 
-          className="md:hidden p-1.5 text-[#001f3f] bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors flex-shrink-0 shadow-sm border border-slate-100"
+          className="md:hidden p-1.5 text-[#001f3f] bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors flex-shrink-0 shadow-sm border border-slate-100"
         >
           <FiMenu className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
@@ -76,7 +76,7 @@ const AdminHeader = ({ activeTab, adminName, onOpenNexi, setActiveTab, toggleSid
         {activeTab && activeTab.toLowerCase() !== 'overview' && activeTab.toLowerCase() !== 'dashboard' && (
           <button 
             onClick={() => setActiveTab && setActiveTab('dashboard')} 
-            className="p-1.5 text-[#001f3f] bg-slate-50 rounded-xl hover:bg-slate-100 transition-colors flex-shrink-0 shadow-sm border border-slate-100 ml-1"
+            className="p-1.5 text-[#001f3f] bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors flex-shrink-0 shadow-sm border border-slate-100 ml-1"
             title="Go Back"
           >
             <FiArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
@@ -101,7 +101,7 @@ const AdminHeader = ({ activeTab, adminName, onOpenNexi, setActiveTab, toggleSid
         <motion.div 
           onClick={onOpenNexi}
           whileHover={{ scale: 1.02 }}
-          className="flex items-center gap-1 sm:gap-3 px-1.5 sm:px-4 py-1.5 md:py-2.5 bg-[#f8fbff] border border-blue-100 rounded-xl cursor-pointer hover:bg-blue-50 transition-all h-8 sm:h-12 md:h-14 flex-shrink-0"
+          className="flex items-center gap-1 sm:gap-3 px-1.5 sm:px-4 py-1.5 md:py-2.5 bg-[#f8fbff] border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-50 transition-all h-8 sm:h-12 md:h-14 flex-shrink-0"
         >
            <img src="/nexi.png" alt="Nexi" className="w-5 h-5 sm:w-8 sm:h-8 object-contain flex-shrink-0" />
            <div className="text-left leading-tight hidden sm:block">
@@ -114,7 +114,7 @@ const AdminHeader = ({ activeTab, adminName, onOpenNexi, setActiveTab, toggleSid
         <div className="relative" ref={notifRef}>
           <div 
             onClick={() => setShowNotifications(!showNotifications)}
-            className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-white text-[#001f3f] rounded-xl cursor-pointer hover:bg-slate-50 hover:shadow-md transition-all border border-slate-200 shadow-sm flex items-center justify-center relative flex-shrink-0"
+            className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-white text-[#001f3f] rounded-lg cursor-pointer hover:bg-slate-50 hover:shadow-md transition-all border border-slate-200 shadow-sm flex items-center justify-center relative flex-shrink-0"
           >
             <FiBell className="w-4 h-4 sm:w-6 sm:h-6" strokeWidth={2.5} />
             {notices.length > 0 && (
@@ -129,7 +129,7 @@ const AdminHeader = ({ activeTab, adminName, onOpenNexi, setActiveTab, toggleSid
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 exit={{ opacity: 0, y: 10, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
-                className="fixed top-20 left-4 right-4 md:absolute md:top-16 md:right-0 md:left-auto md:w-96 bg-white/95 backdrop-blur-xl rounded-[24px] shadow-2xl border border-slate-200 overflow-hidden z-50"
+                className="fixed top-20 left-4 right-4 md:absolute md:top-16 md:right-0 md:left-auto md:w-96 bg-white/95 backdrop-blur-xl rounded-lg shadow-2xl border border-slate-200 overflow-hidden z-50"
               >
                 <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
                   <h3 className="font-black text-[#001f3f] text-sm uppercase tracking-wider">Notifications</h3>
@@ -150,7 +150,7 @@ const AdminHeader = ({ activeTab, adminName, onOpenNexi, setActiveTab, toggleSid
                       <div 
                         key={notice._id} 
                         onClick={() => handleNoticeClick(notice)}
-                        className={`p-4 mb-2 mx-2 rounded-2xl cursor-pointer transition-all border border-transparent hover:shadow-md relative group ${notice.link ? 'hover:border-blue-200 hover:bg-blue-50/30' : 'hover:bg-slate-50'}`}
+                        className={`p-4 mb-2 mx-2 rounded-lg cursor-pointer transition-all border border-transparent hover:shadow-md relative group ${notice.link ? 'hover:border-blue-200 hover:bg-blue-50/30' : 'hover:bg-slate-50'}`}
                       >
                         <div className="flex gap-3">
                           <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg flex-shrink-0 ${style.bg}`}>
@@ -183,16 +183,6 @@ const AdminHeader = ({ activeTab, adminName, onOpenNexi, setActiveTab, toggleSid
           </AnimatePresence>
         </div>
 
-        {/* PROFILE SECTION */}
-        <div className="flex items-center gap-1.5 sm:gap-4 pl-1.5 sm:pl-4 border-l border-slate-100 h-8 sm:h-12 md:h-14 flex-shrink-0">
-           <div className="text-right hidden md:block">
-              <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Admin</p>
-              <p className="text-sm font-black text-[#001f3f] uppercase tracking-tighter">{adminName || 'SUPER ADMIN'}</p>
-           </div>
-           <div className="w-8 h-8 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-[#001f3f] text-[#d4a017] rounded-xl flex items-center justify-center font-black text-sm sm:text-lg md:text-xl shadow-sm border-2 border-white shrink-0">
-              {adminName ? adminName.charAt(0).toUpperCase() : 'A'}
-           </div>
-        </div>
       </div>
     </header>
   );

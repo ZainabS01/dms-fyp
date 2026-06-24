@@ -35,25 +35,17 @@ const TeacherVerification = () => {
 
   return (
     <div className="w-full">
-      <div className="mb-10">
-        <h1 className="text-3xl md:text-4xl font-black text-[#001f3f]">
-          Teacher <span className="text-[#d4a017]">Verification</span>
-        </h1>
-        <div className="h-1.5 w-20 bg-[#d4a017] rounded-full mt-2"></div>
-        <p className="text-slate-400 text-xs font-bold mt-4 uppercase tracking-widest">
-          Approve or Reject new faculty registrations.
-        </p>
-      </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {pendingTeachers.length > 0 ? (
           pendingTeachers.map((teacher) => (
-            <div key={teacher._id} className="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-[40px] shadow-xl border border-slate-50 relative overflow-hidden group">
+            <div key={teacher._id} className="bg-white p-4 sm:p-8 rounded-lg sm:rounded-lg shadow-xl border border-slate-50 relative overflow-hidden group">
               {/* Decorative Circle */}
               <div className="absolute -right-5 -top-5 w-20 h-20 bg-slate-50 rounded-full group-hover:bg-[#d4a017]/10 transition-all"></div>
               
               <div className="flex items-center gap-4 mb-8">
-                <div className="w-14 h-14 bg-blue-50 rounded-2xl flex items-center justify-center text-[#001f3f] text-2xl">
+                <div className="w-14 h-14 bg-blue-50 rounded-lg flex items-center justify-center text-[#001f3f] text-2xl">
                   <FiUserCheck />
                 </div>
                 <div>
@@ -65,13 +57,13 @@ const TeacherVerification = () => {
               <div className="flex gap-3 mt-4">
                 <button 
                   onClick={() => handleVerify(teacher._id, 'approve')}
-                  className="flex-1 bg-[#001f3f] text-white py-4 rounded-2xl font-black text-[10px] uppercase flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-lg shadow-blue-900/20"
+                  className="flex-1 bg-[#001f3f] text-white py-4 rounded-lg font-black text-[10px] uppercase flex items-center justify-center gap-2 hover:bg-green-600 transition-all shadow-lg shadow-blue-900/20"
                 >
                   <FiCheckCircle className="text-sm" /> Approve
                 </button>
                 <button 
                   onClick={() => handleVerify(teacher._id, 'reject')}
-                  className="px-5 bg-red-50 text-red-500 rounded-2xl font-black text-sm hover:bg-red-500 hover:text-white transition-all"
+                  className="px-5 bg-red-50 text-red-500 rounded-lg font-black text-sm hover:bg-red-500 hover:text-white transition-all"
                 >
                   <FiXCircle />
                 </button>
@@ -79,7 +71,7 @@ const TeacherVerification = () => {
             </div>
           ))
         ) : (
-          <div className="col-span-full py-20 text-center bg-white rounded-[40px] border-2 border-dashed border-slate-200">
+          <div className="col-span-full py-20 text-center bg-white rounded-lg border-2 border-dashed border-slate-200">
             <p className="text-slate-400 font-bold uppercase tracking-widest">No pending verifications found ✨</p>
           </div>
         )}

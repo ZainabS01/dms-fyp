@@ -68,6 +68,10 @@ password: {
     date: {
         type: Date,
         default: Date.now
+    },
+    profilePic: {
+        type: String,
+        default: ''
     }
 });
 

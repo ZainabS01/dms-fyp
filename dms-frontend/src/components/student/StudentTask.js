@@ -85,14 +85,14 @@ const Task = ({ studentData }) => {
   };
 
   return (
-    <div className="space-y-6 p-2 sm:p-4">
+    <div className="p-0 sm:p-0">
       <ToastContainer position="top-right" autoClose={2000} />
-      <h3 className="text-xl md:text-2xl font-black text-[#002147] mb-6">Current Assignments & Tasks</h3>
       
+      <div className="space-y-6">
       {tasks.length > 0 ? (
         <div className="grid grid-cols-1 gap-6">
           {tasks.map((task) => (
-            <div key={task._id} className="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200 hover:shadow-md transition">
+            <div key={task._id} className="bg-white p-4 sm:p-6 rounded-lg shadow-sm border border-slate-200 hover:shadow-md transition">
               <div className="flex flex-col md:flex-row justify-between gap-4">
                 <div className="flex-1">
                   <h4 className="font-bold text-slate-800 text-lg">{task.title}</h4>
@@ -113,7 +113,7 @@ const Task = ({ studentData }) => {
                 const mySubmission = task.submissions?.find(s => s.studentId === studentData._id);
                 if (mySubmission) {
                   return (
-                    <div className="mt-4 p-4 bg-blue-50 rounded-xl border border-blue-100">
+                    <div className="mt-4 p-4 bg-blue-50 rounded-lg border border-blue-100">
                       <p className="text-xs font-black text-blue-700 uppercase">Status: {mySubmission.status}</p>
                       
                       {/* Feedback Section (Visible if teacher has graded) */}
@@ -153,6 +153,7 @@ const Task = ({ studentData }) => {
       ) : (
         <p className="text-slate-500 font-bold text-center py-10">No tasks assigned for this semester.</p>
       )}
+    </div>
     </div>
   );
 };

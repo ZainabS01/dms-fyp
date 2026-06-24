@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ArrowLeft } from 'lucide-react';
+// import { ArrowLeft } from 'lucide-react';
 
 const Timetable = () => {
     const [adminTimetables, setAdminTimetables] = useState([]);
@@ -55,15 +55,13 @@ const Timetable = () => {
 
 
     return (
-        <div className="p-2 sm:p-4 md:p-6 w-full">
+        <div className="p-0 sm:p-0 md:p-0 w-full">
             <ToastContainer />
-            <h2 className="text-2xl font-black text-[#001f3f] uppercase mb-8">
-                Timetable <span className="text-[#d4a017]">Management</span>
-            </h2>
+
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-4xl">
                 {/* ADMIN ASSIGNED OVERVIEW */}
-                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 border-t-8 border-[#d4a017]">
+                <div className="bg-white p-6 rounded-lg shadow-sm border border-slate-100 border-t-8 border-[#d4a017]">
                     <h3 className="font-black text-[#001f3f] uppercase text-sm mb-4">MY TIMETABLES</h3>
                     <div className="max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
                         {adminTimetables.length > 0 ? adminTimetables.map(t => (

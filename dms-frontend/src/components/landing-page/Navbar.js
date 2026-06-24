@@ -48,7 +48,7 @@ const Navbar = () => {
       <div className="hidden lg:flex items-center gap-4">
         <button 
           onClick={() => navigate('/login')}
-          className="border-2 border-[#002147] text-[#002147] px-8 py-2.5 rounded-xl font-black text-lg hover:bg-[#002147] hover:text-white transition-all duration-300"
+          className="border-2 border-[#002147] text-[#002147] px-8 py-2.5 rounded-lg font-black text-lg hover:bg-[#002147] hover:text-white transition-all duration-300"
         >
           Login
         </button>
@@ -58,7 +58,7 @@ const Navbar = () => {
           onMouseEnter={() => setShowRegDropdown(true)}
           onMouseLeave={() => setShowRegDropdown(false)}
         >
-          <button className="bg-[#d4a017] text-white px-8 py-3 rounded-xl font-black text-lg flex items-center gap-2 shadow-md hover:bg-[#b88a14] transition-all">
+          <button className="bg-[#d4a017] text-white px-8 py-3 rounded-lg font-black text-lg flex items-center gap-2 shadow-md hover:bg-[#b88a14] transition-all">
             Register <span>{showRegDropdown ? <ChevronUp size={20}/> : <ChevronDown size={20}/>}</span>
           </button>
 
@@ -68,7 +68,7 @@ const Navbar = () => {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 10 }}
-                className="absolute right-0 mt-2 w-64 bg-white border-2 border-[#002147] rounded-2xl shadow-2xl overflow-hidden z-[110]"
+                className="absolute right-0 mt-2 w-64 bg-white border-2 border-[#002147] rounded-lg shadow-2xl overflow-hidden z-[110]"
               >
                 <button onClick={() => navigate('/register', { state: { type: 'student' } })} className="w-full px-6 py-4 text-left font-bold text-[#002147] hover:bg-gray-50 border-b border-gray-100">Register as Student</button>
                 <button onClick={() => navigate('/register', { state: { type: 'teacher' } })} className="w-full px-6 py-4 text-left font-bold text-[#002147] hover:bg-gray-50">Register as Teacher</button>
@@ -119,13 +119,13 @@ const Navbar = () => {
                <p className="text-[#d4a017] font-black uppercase tracking-widest text-sm">Join Us Today</p>
                <button 
                  onClick={() => { navigate('/register', { state: { type: 'student' } }); setIsMobileMenuOpen(false); }}
-                 className="w-full bg-[#002147] text-white py-4 rounded-xl font-bold text-lg"
+                 className="w-full bg-[#002147] text-white py-4 rounded-lg font-bold text-lg"
                >
                  Register as Student
                </button>
                <button 
                  onClick={() => { navigate('/register', { state: { type: 'teacher' } }); setIsMobileMenuOpen(false); }}
-                 className="w-full border-2 border-[#002147] text-[#002147] py-4 rounded-xl font-bold text-lg"
+                 className="w-full border-2 border-[#002147] text-[#002147] py-4 rounded-lg font-bold text-lg"
                >
                  Register as Teacher
                </button>

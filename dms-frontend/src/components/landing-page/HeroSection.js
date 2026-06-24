@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { GraduationCap } from 'lucide-react';
 
 const Hero = () => {
   const navigate = useNavigate();
@@ -22,7 +23,7 @@ const Hero = () => {
             
             <button 
               onClick={() => navigate('/register')}
-              className="group bg-[#001f3f] text-white px-8 md:px-10 py-3 md:py-3.5 rounded-xl text-lg md:text-xl font-bold hover:shadow-[0_0_20px_rgba(0,31,63,0.4)] transition-all duration-300 flex items-center gap-3">
+              className="group bg-[#001f3f] text-white px-8 md:px-10 py-3 md:py-3.5 rounded-lg text-lg md:text-xl font-bold hover:shadow-[0_0_20px_rgba(0,31,63,0.4)] transition-all duration-300 flex items-center gap-3">
               Unlock the System
               <span className="group-hover:translate-x-2 transition-transform">→</span>
             </button>
@@ -53,12 +54,8 @@ const Hero = () => {
           <h2 className="text-xl md:text-2xl font-extrabold text-[#001f3f] tracking-tight">
             “Learning today, leading tomorrow.”
           </h2>
-          <div className="animate-bounce mt-3 md:mt-0">
-            <img 
-              src="https://cdn-icons-png.flaticon.com/512/3135/3135810.png" 
-              alt="Grad Cap" 
-              className="w-10 h-10 md:w-12 md:h-12"
-            />
+          <div className="animate-bounce mt-3 md:mt-0 text-[#001f3f]">
+            <GraduationCap className="w-10 h-10 md:w-12 md:h-12" />
           </div>
         </div>
       </section>

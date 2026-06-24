@@ -42,8 +42,8 @@ io.on('connection', (socket) => {
 
 // Middlewares
 app.use(cors());
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true })); 
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true })); 
 
 // --- UPLOADS FOLDER SETUP ---
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -67,6 +67,7 @@ app.use('/api/query', queryRoutes); // Mounted Query routes under API
 app.use('/api/ai', require('./routes/aiRoutes'));
 app.use('/api/notices', noticeRoutes);
 app.use('/api/departments', require('./routes/departmentRoutes')); // Mounted Department Routes
+app.use('/api/upload', require('./routes/uploadRoutes')); // Upload route
 // app.use('/api', studentRoutes);
 
 // DB Connection & Server Start

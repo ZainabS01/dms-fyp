@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+
+const COLORS = ['#d4a017', '#001f3f', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 const AdminOverview = ({ setActiveTab }) => {
-  const [stats, setStats] = useState({ totalStudents: 0, totalTeachers: 0 });
+  const [stats, setStats] = useState({ totalStudents: 0, totalTeachers: 0, departmentStats: [] });
+  const [queries, setQueries] = useState([]);
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -14,6 +18,20 @@ const AdminOverview = ({ setActiveTab }) => {
       }
     };
     fetchStats();
+  }, []);
+
+  useEffect(() => {
+    const fetchQueries = async () => {
+      try {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/query/all?role=admin&rollNumber=`);
+        setQueries(res.data || []);
+      } catch (err) {
+        console.error("Failed to load queries");
+      }
+    };
+    fetchQueries();
+    const interval = setInterval(fetchQueries, 5000);
+    return () => clearInterval(interval);
   }, []);
 
   const overviewCards = [
@@ -49,81 +67,136 @@ const AdminOverview = ({ setActiveTab }) => {
         </svg>
       ),
       iconBg: 'bg-green-50'
-    },
-    {
-      id: 'queries',
-      title: 'QUERIES',
-      desc: 'MANAGE ALL QUERIES',
-      icon: (
-        <svg className="w-6 h-6 text-[#001f3f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
-      ),
-      iconBg: 'bg-purple-50'
-    },
-    {
-      id: 'attendance_oversight',
-      title: 'ATTENDANCE',
-      desc: 'OVERSIGHT & REPORTS',
-      icon: (
-        <svg className="w-6 h-6 text-[#001f3f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      ),
-      iconBg: 'bg-teal-50'
-    },
-    {
-      id: 'notice_board',
-      title: 'NOTICE BOARD',
-      desc: 'MANAGE ANNOUNCEMENTS',
-      icon: (
-        <svg className="w-6 h-6 text-[#001f3f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-        </svg>
-      ),
-      iconBg: 'bg-red-50'
     }
   ];
 
+  const formatDeptName = (name) => {
+    if (!name) return '';
+    const clean = name.replace(/^BS\s+/i, '').trim().toUpperCase();
+    if (clean === 'COMPUTER SCIENCE') return 'CS';
+    if (clean === 'SOFTWARE ENGINEERING') return 'SE';
+    if (clean === 'INFORMATION TECHNOLOGY') return 'IT';
+    if (clean === 'ARTIFICIAL INTELLIGENCE') return 'AI';
+    if (clean === 'DATA SCIENCE') return 'DS';
+    if (clean === 'CYBER SECURITY') return 'CYS';
+    if (clean === 'BUSINESS ADMINISTRATION') return 'BBA';
+    // If it's multiple words and not matched above, make an acronym
+    if (clean.includes(' ')) {
+      return clean.split(' ').map(w => w[0]).join('');
+    }
+    return clean;
+  };
+
   return (
-    <div className="w-full py-2">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1600px] mx-auto p-2">
+    <div className="w-full h-full flex flex-col max-w-[1600px] mx-auto gap-4 md:gap-6 overflow-hidden">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 shrink-0">
         {overviewCards.map((card) => (
           <div
             key={card.id}
             onClick={() => setActiveTab(card.id)}
-            className="relative bg-white rounded-3xl p-6 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(212,160,23,0.12)] hover:-translate-y-2 transition-all duration-500 cursor-pointer group overflow-hidden"
+            className="relative bg-white rounded-lg p-3 sm:p-4 border border-slate-100 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(212,160,23,0.12)] hover:-translate-y-1 transition-all duration-500 cursor-pointer group overflow-hidden flex items-center gap-3 md:gap-4"
           >
-            {/* Top decorative line */}
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#d4a017] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-
-            {/* Glowing background blob */}
-            <div className={`absolute -top-12 -right-12 w-40 h-40 ${card.iconBg} rounded-full blur-3xl opacity-40 group-hover:opacity-70 transition-opacity duration-700`}></div>
-
-            <div className="relative z-10 flex flex-col items-start text-left">
-              <div className={`p-3 rounded-2xl ${card.iconBg} mb-4 shadow-sm border border-white group-hover:scale-110 group-hover:rotate-3 transition-all duration-500`}>
-                {card.icon}
-              </div>
-
-              <h3 className="text-xl font-black text-[#001f3f] tracking-tight mb-2 group-hover:text-[#d4a017] transition-colors duration-300">
+            <div className="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-transparent via-[#d4a017] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div className={`absolute -top-8 -right-8 w-24 h-24 ${card.iconBg} rounded-full blur-2xl opacity-40 group-hover:opacity-70 transition-opacity duration-700`}></div>
+            
+            <div className={`p-2 sm:p-3 rounded-lg ${card.iconBg} shadow-sm border border-white shrink-0 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 z-10`}>
+              {React.cloneElement(card.icon, { className: 'w-5 h-5 sm:w-6 sm:h-6 text-[#001f3f]' })}
+            </div>
+            
+            <div className="relative z-10 flex flex-col items-start text-left flex-1 min-w-0">
+              <h3 className="text-sm sm:text-base font-black text-[#001f3f] tracking-tight group-hover:text-[#d4a017] transition-colors duration-300 truncate w-full">
                 {card.title}
               </h3>
-
-              <div className="h-1 w-10 bg-slate-100 rounded-full mb-3 group-hover:bg-[#d4a017] transition-colors duration-300"></div>
-
-              <p className="text-[10px] font-bold text-slate-500 tracking-widest uppercase">
+              <p className="text-[9px] sm:text-[10px] font-bold text-slate-500 tracking-widest uppercase truncate w-full mt-0.5">
                 {card.desc}
               </p>
             </div>
             
-            {/* Bottom Arrow indicator */}
-            <div className="absolute bottom-8 right-8 opacity-0 translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500">
-              <svg className="w-6 h-6 text-[#d4a017]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            <div className="relative z-10 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-500 shrink-0">
+              <svg className="w-4 h-4 sm:w-5 sm:h-5 text-[#d4a017]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
               </svg>
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 flex-1 min-h-0 pb-2">
+        {/* Chart Section */}
+        <div className="bg-white rounded-lg p-4 sm:p-6 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col h-full min-h-0">
+          <div className="flex items-center justify-between mb-2 sm:mb-4 shrink-0">
+            <h3 className="text-base sm:text-lg font-black text-[#001f3f] tracking-tight">DEPARTMENT-WISE STUDENTS</h3>
+          </div>
+          <div className="flex-1 min-h-0 w-full flex items-center justify-center">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={stats.departmentStats || []}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius="50%"
+                  outerRadius="80%"
+                  paddingAngle={5}
+                  dataKey="students"
+                  nameKey="name"
+                  stroke="none"
+                >
+                  {(stats.departmentStats || []).map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  cursor={{ fill: '#f8fafc' }}
+                  contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)', padding: '12px 16px', fontWeight: 600 }}
+                  itemStyle={{ color: '#001f3f' }}
+                  formatter={(value, name) => [value, "Students"]}
+                  labelFormatter={(label) => label}
+                />
+                <Legend 
+                  iconType="circle" 
+                  layout="vertical" 
+                  verticalAlign="middle" 
+                  align="right"
+                  formatter={(value) => <span className="text-[#64748b] font-bold text-[10px] sm:text-[11px] uppercase tracking-wider">{formatDeptName(value)}</span>}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Live Queries Section */}
+        <div className="bg-white rounded-lg p-4 sm:p-6 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] flex flex-col h-full min-h-0 relative overflow-hidden">
+          <div className="absolute inset-0 bg-grid-slate-100/[0.05] bg-[size:20px_20px]" />
+          <div className="relative z-10 flex items-center justify-between mb-2 sm:mb-4 shrink-0 border-b border-slate-50 pb-2 sm:pb-4">
+            <h3 className="text-base sm:text-lg font-black text-[#001f3f] tracking-tight flex items-center gap-2">
+              LIVE QUERIES
+              <span className="relative flex h-3 w-3 ml-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-blue-500"></span>
+              </span>
+            </h3>
+            <button onClick={() => setActiveTab('queries')} className="text-xs font-bold text-blue-600 hover:text-blue-800 uppercase tracking-wider">View All</button>
+          </div>
+          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-3 relative z-10 min-h-0">
+            {queries.length > 0 ? queries.map(q => (
+              <div 
+                key={q._id} 
+                onClick={() => setActiveTab('queries')}
+                className="p-4 bg-slate-50/50 hover:bg-slate-50 border border-slate-100 rounded-lg cursor-pointer transition-all hover:shadow-md hover:-translate-y-0.5"
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <span className="font-black text-xs text-[#001f3f] uppercase line-clamp-1 flex-1 pr-2">{q.subject}</span>
+                  <span className={`text-[9px] font-black px-2 py-0.5 rounded-full uppercase shrink-0 ${q.status === 'RESOLVED' || q.status === 'REPLIED' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>{q.status}</span>
+                </div>
+                <p className="text-[10px] text-slate-500 font-bold uppercase mb-2 flex items-center gap-1">
+                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                  {q.studentName} {q.department !== 'N/A' && <span className="text-[#d4a017]">({q.department})</span>}
+                </p>
+                <p className="text-xs text-slate-600 font-medium line-clamp-2 leading-relaxed bg-white p-2 rounded border border-slate-50">{q.message}</p>
+              </div>
+            )) : <p className="text-xs text-slate-400 font-bold text-center mt-10">No queries yet.</p>}
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -92,16 +92,19 @@ const AdminDashboard = ({ user }) => {
         }} 
         sidebarOpen={sidebarOpen} 
         toggleSidebar={toggleSidebar} 
+        adminName={adminInfo.name}
+        adminProfilePic={adminInfo.profilePic}
       />
  
       {/* Main Container */}
-      <main className={`flex-1 ml-0 md:ml-64 h-full flex flex-col transition-all duration-300 ease-in-out ${activeTab === 'nexi' ? 'overflow-hidden' : 'overflow-y-auto custom-scrollbar'}`}>
+      <main className={`flex-1 ml-0 md:ml-64 h-full flex flex-col transition-all duration-300 ease-in-out ${(activeTab === 'nexi' || activeTab === 'dashboard') ? 'overflow-hidden' : 'overflow-y-auto custom-scrollbar'}`}>
         
         {/* Sticky Header Area */}
-        <div className={`sticky top-0 z-30 bg-[#f1f3f6]/80 backdrop-blur-md flex-shrink-0 ${activeTab === 'nexi' ? 'p-1.5 sm:p-3 md:p-4' : 'p-2 sm:p-4 md:p-6 lg:p-8'}`}>
+        <div className={`sticky top-0 z-30 bg-[#f1f3f6]/80 backdrop-blur-md flex-shrink-0 ${activeTab === 'nexi' ? 'p-1.5 sm:p-3 md:p-4' : 'p-0'}`}>
            <AdminHeader 
              activeTab={activeTab} 
              adminName={adminInfo.name} 
+             adminProfilePic={adminInfo.profilePic}
              onOpenNexi={() => setActiveTab('nexi')}
              setActiveTab={setActiveTab}
              toggleSidebar={toggleSidebar}
@@ -109,13 +112,13 @@ const AdminDashboard = ({ user }) => {
         </div>
 
         {/* Display Current Tab Panel Container */}
-        <div className={`px-2 sm:px-4 md:px-6 lg:px-8 ${activeTab === 'nexi' ? 'flex-1 pb-4 min-h-0 overflow-hidden flex flex-col' : 'pb-12'}`}>
+        <div className={`px-4 pt-6 sm:px-6 md:px-8 lg:px-10 ${(activeTab === 'nexi' || activeTab === 'dashboard') ? 'flex-1 pb-4 min-h-0 overflow-hidden flex flex-col' : 'pb-12'}`}>
           <motion.div
             key={activeTab}
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
-            className={`mx-auto w-full ${activeTab === 'nexi' ? 'flex-1 h-full flex flex-col max-w-none' : 'max-w-[1600px]'}`}
+            className={`mx-auto w-full ${(activeTab === 'nexi' || activeTab === 'dashboard') ? 'flex-1 h-full flex flex-col min-h-0 max-w-[1600px]' : 'max-w-[1600px]'}`}
           >
             {renderContent()}
           </motion.div>

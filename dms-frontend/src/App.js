@@ -21,6 +21,14 @@ import AdminDashboard from './components/admin/AdminDashboard';
 
 
 // --- LayoutHandler: Handles UI Flow and Sidebar/Navbar logic ---
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 function LayoutHandler({ user, setUser, onLogout }) {
   const location = useLocation();
   // Checks if we are on any dashboard page
@@ -127,6 +135,7 @@ function App() {
 
   return (
     <Router>
+      <ScrollToTop />
       <Toaster position="top-center" reverseOrder={false} />
       <LayoutHandler user={user} setUser={setUser} onLogout={handleLogout} />
     </Router>

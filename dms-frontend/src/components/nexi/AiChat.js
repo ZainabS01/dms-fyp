@@ -39,7 +39,7 @@ const parseMarkdownImagesAndBold = (text) => {
             key={`img-${index}`} 
             src={url} 
             alt={alt} 
-            className="max-w-full md:max-w-md rounded-2xl my-3.5 border border-slate-200 shadow-md block hover:scale-[1.01] transition-transform duration-300"
+            className="max-w-full md:max-w-md rounded-lg my-3.5 border border-slate-200 shadow-md block hover:scale-[1.01] transition-transform duration-300"
           />
         );
       }
@@ -586,7 +586,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
     }
   };
 
-  const containerClass = "flex flex-col lg:flex-row h-full w-full bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden";
+  const containerClass = "flex flex-col lg:flex-row h-full w-full bg-white rounded-lg border border-slate-200 shadow-sm overflow-hidden";
 
   return (
     <div className={containerClass}>
@@ -635,7 +635,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
               <div key={itemId} className="relative group w-full">
                 <button 
                   onClick={() => handleSelectConversation(itemId)}
-                  className={`w-full text-left p-3.5 pr-10 rounded-xl text-xs font-black transition-all truncate border block ${
+                  className={`w-full text-left p-3.5 pr-10 rounded-lg text-xs font-black transition-all truncate border block ${
                     isActive 
                       ? 'bg-[#001f3f] border-[#d4a017] text-[#d4a017] shadow-sm font-black' 
                       : 'bg-slate-200/50 hover:bg-slate-200 border-transparent text-[#001f3f]/80 hover:text-[#001f3f]'
@@ -745,13 +745,13 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
                     {msg.sender === 'user' ? (
                       // User Message (Right Side blue bubble)
                       <div className="flex flex-col items-end w-full">
-                        <div className="bg-[#001f3f] text-white rounded-2xl py-3 px-5 max-w-[75%] font-bold shadow-sm text-xs lg:text-sm leading-relaxed relative">
+                        <div className="bg-[#001f3f] text-white rounded-lg py-3 px-5 max-w-[75%] font-bold shadow-sm text-xs lg:text-sm leading-relaxed relative">
                           {isEditing ? (
                             <div className="flex flex-col gap-2 min-w-[220px]">
                               <textarea
                                 value={editingText}
                                 onChange={(e) => setEditingText(e.target.value)}
-                                className="bg-[#001831] text-white text-xs lg:text-sm p-2 rounded-xl outline-none resize-none w-full border border-[#d4a017]/30 focus:border-[#d4a017] custom-scrollbar"
+                                className="bg-[#001831] text-white text-xs lg:text-sm p-2 rounded-lg outline-none resize-none w-full border border-[#d4a017]/30 focus:border-[#d4a017] custom-scrollbar"
                                 rows={2}
                               />
                               <div className="flex justify-end gap-1.5 text-[10px]">
@@ -773,7 +773,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
                             <div className="flex flex-col">
                               {msg.image && (
                                 msg.image.startsWith('data:application/pdf') ? (
-                                  <div className="flex items-center gap-2 p-3 bg-white/10 rounded-xl mb-2 border border-white/20 max-w-xs">
+                                  <div className="flex items-center gap-2 p-3 bg-white/10 rounded-lg mb-2 border border-white/20 max-w-xs">
                                     <span className="text-xl">📄</span>
                                     <div className="text-left">
                                       <p className="text-xs font-black text-white truncate max-w-[150px]">Document.pdf</p>
@@ -787,7 +787,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
                                     </div>
                                   </div>
                                 ) : msg.image.startsWith('data:text/plain') ? (
-                                  <div className="flex items-center gap-2 p-3 bg-white/10 rounded-xl mb-2 border border-white/20 max-w-xs">
+                                  <div className="flex items-center gap-2 p-3 bg-white/10 rounded-lg mb-2 border border-white/20 max-w-xs">
                                     <span className="text-xl">📝</span>
                                     <div className="text-left">
                                       <p className="text-xs font-black text-white truncate max-w-[150px]">Document.txt</p>
@@ -804,7 +804,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
                                   <img 
                                     src={msg.image} 
                                     alt="Attached Input" 
-                                    className="max-w-full md:max-w-sm rounded-xl mb-2 border border-[#d4a017]/20 shadow-sm block"
+                                    className="max-w-full md:max-w-sm rounded-lg mb-2 border border-[#d4a017]/20 shadow-sm block"
                                   />
                                 )
                               )}
@@ -843,12 +843,12 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
                           <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 border border-slate-200">
                             <NexiLogo className="w-5 h-5" />
                           </div>
-                          <div className="bg-[#eef2f6] text-[#001f3f] rounded-2xl py-4 px-6 max-w-[80%] font-bold shadow-sm text-xs lg:text-sm leading-relaxed">
+                          <div className="bg-[#eef2f6] text-[#001f3f] rounded-lg py-4 px-6 max-w-[80%] font-bold shadow-sm text-xs lg:text-sm leading-relaxed">
                             {msg.image && (
                               <img 
                                 src={msg.image.startsWith('data:') || msg.image.startsWith('http') ? msg.image : `${process.env.REACT_APP_API_URL}/${msg.image}`} 
                                 alt="Generated Output" 
-                                className="max-w-full md:max-w-sm rounded-xl mb-2 border border-slate-200 shadow-sm block"
+                                className="max-w-full md:max-w-sm rounded-lg mb-2 border border-slate-200 shadow-sm block"
                               />
                             )}
                             {formatResponseText(msg.text)}
@@ -881,7 +881,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
                               <button
                                 key={idx}
                                 onClick={() => sendMessage(sug)}
-                                className="bg-slate-100 hover:bg-[#d4a017]/10 text-[#001f3f] hover:text-[#d4a017] border border-slate-200 hover:border-[#d4a017] px-4.5 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer shadow-sm hover:shadow active:scale-95 block"
+                                className="bg-slate-100 hover:bg-[#d4a017]/10 text-[#001f3f] hover:text-[#d4a017] border border-slate-200 hover:border-[#d4a017] px-4.5 py-2.5 rounded-lg text-xs font-black transition-all cursor-pointer shadow-sm hover:shadow active:scale-95 block"
                               >
                                 {sug}
                               </button>
@@ -901,7 +901,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
                     <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center flex-shrink-0 border border-slate-200">
                       <NexiLogo className="w-5 h-5 animate-spin" />
                     </div>
-                    <div className="bg-[#eef2f6] text-slate-400 rounded-2xl py-3.5 px-5 max-w-[80%] font-bold shadow-sm text-xs lg:text-sm">
+                    <div className="bg-[#eef2f6] text-slate-400 rounded-lg py-3.5 px-5 max-w-[80%] font-bold shadow-sm text-xs lg:text-sm">
                       NEXI is thinking...
                     </div>
                   </div>
@@ -918,7 +918,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
           <div className="max-w-3xl mx-auto w-full flex flex-col gap-2.5">
             {/* Image Preview Block */}
             {attachedImage && (
-              <div className="relative w-24 h-24 rounded-2xl overflow-hidden border-2 border-[#d4a017] shadow-md group/preview bg-slate-100 flex items-center justify-center">
+              <div className="relative w-24 h-24 rounded-lg overflow-hidden border-2 border-[#d4a017] shadow-md group/preview bg-slate-100 flex items-center justify-center">
                 {attachedImage.startsWith('data:application/pdf') ? (
                   <div className="flex flex-col items-center justify-center p-2 text-center">
                     <span className="text-3xl mb-1">📄</span>
@@ -946,7 +946,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
               </div>
             )}
 
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-2 sm:p-3 flex items-center shadow-inner gap-2 sm:gap-3 w-full">
+            <div className="bg-slate-50 border border-slate-200 rounded-lg p-2 sm:p-3 flex items-center shadow-inner gap-2 sm:gap-3 w-full">
               {/* Hidden file input */}
               <input 
                 type="file" 
@@ -960,7 +960,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
               <button
                 onClick={handleImageAttachClick}
                 disabled={isLoading}
-                className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-[#d4a017] hover:bg-slate-200/60 transition-all cursor-pointer disabled:opacity-50 flex-shrink-0"
+                className="p-1.5 sm:p-2 rounded-lg text-slate-400 hover:text-[#d4a017] hover:bg-slate-200/60 transition-all cursor-pointer disabled:opacity-50 flex-shrink-0"
                 title="Attach Image (Vision AI)"
               >
                 <FiPaperclip size={18} />
@@ -995,7 +995,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
                 {/* Microphone Button (Speech-to-Text) */}
                 <button
                   onClick={toggleListening}
-                  className={`p-1.5 sm:p-2 rounded-xl transition-all flex items-center justify-center cursor-pointer ${
+                  className={`p-1.5 sm:p-2 rounded-lg transition-all flex items-center justify-center cursor-pointer ${
                     isListening 
                       ? 'bg-red-500 text-white animate-pulse shadow-md' 
                       : 'text-slate-400 hover:text-[#d4a017] hover:bg-slate-200/60'
@@ -1009,7 +1009,7 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
                 <button 
                   onClick={() => sendMessage(inputText)}
                   disabled={isLoading || (!inputText.trim() && !attachedImage)}
-                  className={`p-1.5 sm:p-2 rounded-xl transition-all flex items-center justify-center ${
+                  className={`p-1.5 sm:p-2 rounded-lg transition-all flex items-center justify-center ${
                     (inputText.trim() || attachedImage) 
                       ? 'bg-[#001f3f] text-[#d4a017] hover:bg-opacity-95 shadow-md cursor-pointer' 
                       : 'text-slate-300 cursor-not-allowed'

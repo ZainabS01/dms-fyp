@@ -18,7 +18,7 @@ const Attendance = () => {
   const [endDate, setEndDate] = useState("");
   const [targetTeacherId, setTargetTeacherId] = useState("");
   const [teachers, setTeachers] = useState([]);
-  const [history, setHistory] = useState([]);
+  // const [history, setHistory] = useState([]);
   
   // Modal States
   const [deleteModal, setDeleteModal] = useState({ show: false, id: null });
@@ -86,6 +86,7 @@ const Attendance = () => {
     fetchAttendance();
     fetchLeaveHistory();
     fetchTeachers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchTeachers = async () => {
@@ -294,110 +295,115 @@ const Attendance = () => {
   }, { present: 0, absent: 0, late: 0, leave: 0 });
 
   return (
-    <div className="space-y-8 p-2 sm:p-6">
+    <div className="p-0 sm:p-0">
       <ToastContainer />
       
-      {/* Attendance Log Table */}
-      <div className="bg-white p-4 sm:p-8 rounded-[2rem] shadow-xl border border-slate-100">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
-          <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
-            <h3 className="text-xl font-black text-[#002147]">Attendance Log</h3>
+      <div className="space-y-6">
+      {/* Top Section: Stats & Table */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        
+        {/* Stats Grid (Left Side) */}
+        <div className="lg:col-span-4 bg-white p-4 sm:p-6 rounded-lg shadow-xl border border-slate-100 flex flex-col justify-center">
+          <h3 className="text-lg font-black text-[#002147] mb-4">Summary</h3>
+          <div className="grid grid-cols-2 gap-3 flex-1">
+            <div className="bg-green-50 border border-green-100 p-4 rounded-lg flex flex-col justify-center items-center shadow-sm">
+              <span className="text-[10px] font-black text-green-600 uppercase tracking-widest">Present</span>
+              <span className="text-3xl font-black text-green-700">{attendanceStats.present}</span>
+            </div>
+            <div className="bg-red-50 border border-red-100 p-4 rounded-lg flex flex-col justify-center items-center shadow-sm">
+              <span className="text-[10px] font-black text-red-600 uppercase tracking-widest">Absent</span>
+              <span className="text-3xl font-black text-red-700">{attendanceStats.absent}</span>
+            </div>
+            <div className="bg-amber-50 border border-amber-100 p-4 rounded-lg flex flex-col justify-center items-center shadow-sm">
+              <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Late</span>
+              <span className="text-3xl font-black text-amber-700">{attendanceStats.late}</span>
+            </div>
+            <div className="bg-blue-50 border border-blue-100 p-4 rounded-lg flex flex-col justify-center items-center shadow-sm">
+              <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Leave</span>
+              <span className="text-3xl font-black text-blue-700">{attendanceStats.leave}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Attendance Log Table (Right Side) */}
+        <div className="lg:col-span-8 bg-white p-4 sm:p-6 rounded-lg shadow-xl border border-slate-100 flex flex-col">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
             <select 
                 value={filter} 
                 onChange={(e) => setFilter(e.target.value)}
-                className="border-2 border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-[#002147] outline-none focus:border-[#002147] w-full sm:w-auto"
+                className="border-2 border-slate-200 rounded-lg px-4 py-2 text-sm font-bold text-[#002147] outline-none focus:border-[#002147] w-full sm:w-auto"
             >
                 <option value="daily">Daily (Today)</option>
                 <option value="weekly">Weekly</option>
                 <option value="monthly">Monthly</option>
                 <option value="all">All Time</option>
             </select>
+            <button onClick={downloadReport} className="bg-[#002147] hover:bg-blue-900 transition-colors text-white px-5 py-2.5 rounded-lg text-sm font-bold shadow-lg w-full sm:w-auto flex items-center justify-center gap-2">
+              <FiDownload /> Download Log
+            </button>
           </div>
-          <button onClick={downloadReport} className="bg-green-600 hover:bg-green-700 transition-colors text-white px-6 py-3 rounded-full text-sm font-bold shadow-lg shadow-green-200 w-full sm:w-auto flex items-center justify-center gap-2">
-            <FiDownload /> Download {filter.charAt(0).toUpperCase() + filter.slice(1)} Log
-          </button>
-        </div>
 
-        {/* Stats Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <div className="bg-green-50 border border-green-100 p-4 rounded-2xl flex flex-col justify-center items-center">
-            <span className="text-[10px] font-black text-green-600 uppercase tracking-widest">Present</span>
-            <span className="text-3xl font-black text-green-700">{attendanceStats.present}</span>
+          <div className="overflow-y-auto custom-scrollbar rounded-lg border border-slate-100 flex-1">
+            <table className="w-full text-left relative">
+              <thead className="bg-[#002147] text-white text-[10px] uppercase sticky top-0 z-10 shadow-md">
+                <tr><th className="px-4 py-2.5">Date</th><th className="px-4 py-2.5 text-center">Status</th></tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100 bg-white">
+               {filteredData.map((log, i) => (
+                  <tr key={i} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-4 py-2.5 text-sm font-semibold text-slate-700">{log.date}</td>
+                      <td className="px-4 py-2.5 text-center">
+                        {(() => {
+                          const status = log.records.find(r => r.studentId === currentStudentId)?.status || "N/A";
+                          return (
+                            <span className={`text-[10px] font-black px-3 py-1 rounded-full ${
+                              status === 'PRESENT' ? 'bg-green-100 text-green-700' :
+                              status === 'ABSENT' ? 'bg-red-100 text-red-700' :
+                              status === 'LATE' ? 'bg-amber-100 text-amber-700' :
+                              'bg-slate-100 text-slate-700'
+                            }`}>
+                              {status}
+                            </span>
+                          );
+                        })()}
+                      </td>
+                  </tr>
+              ))}
+              {filteredData.length === 0 && (
+                  <tr>
+                      <td colSpan="2" className="p-8 text-center text-slate-500 font-semibold">No attendance records found.</td>
+                  </tr>
+              )}
+              </tbody>
+            </table>
           </div>
-          <div className="bg-red-50 border border-red-100 p-4 rounded-2xl flex flex-col justify-center items-center">
-            <span className="text-[10px] font-black text-red-600 uppercase tracking-widest">Absent</span>
-            <span className="text-3xl font-black text-red-700">{attendanceStats.absent}</span>
-          </div>
-          <div className="bg-amber-50 border border-amber-100 p-4 rounded-2xl flex flex-col justify-center items-center">
-            <span className="text-[10px] font-black text-amber-600 uppercase tracking-widest">Late</span>
-            <span className="text-3xl font-black text-amber-700">{attendanceStats.late}</span>
-          </div>
-          <div className="bg-blue-50 border border-blue-100 p-4 rounded-2xl flex flex-col justify-center items-center">
-            <span className="text-[10px] font-black text-blue-600 uppercase tracking-widest">Leave</span>
-            <span className="text-3xl font-black text-blue-700">{attendanceStats.leave}</span>
-          </div>
-        </div>
-
-        <div className="overflow-hidden rounded-2xl border border-slate-100">
-          <table className="w-full text-left">
-            <thead className="bg-[#002147] text-white text-[10px] uppercase">
-              <tr><th className="p-4">Date</th><th className="p-4 text-center">Status</th></tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100">
-             {filteredData.map((log, i) => (
-                <tr key={i} className="hover:bg-slate-50 transition-colors">
-                    <td className="p-4 font-semibold text-slate-700">{log.date}</td>
-                    <td className="p-4 text-center">
-                      {(() => {
-                        const status = log.records.find(r => r.studentId === currentStudentId)?.status || "N/A";
-                        return (
-                          <span className={`text-[10px] font-black px-3 py-1 rounded-full ${
-                            status === 'PRESENT' ? 'bg-green-100 text-green-700' :
-                            status === 'ABSENT' ? 'bg-red-100 text-red-700' :
-                            status === 'LATE' ? 'bg-amber-100 text-amber-700' :
-                            'bg-slate-100 text-slate-700'
-                          }`}>
-                            {status}
-                          </span>
-                        );
-                      })()}
-                    </td>
-                </tr>
-            ))}
-            {filteredData.length === 0 && (
-                <tr>
-                    <td colSpan="2" className="p-8 text-center text-slate-500 font-semibold">No attendance records found for this period.</td>
-                </tr>
-            )}
-            </tbody>
-          </table>
         </div>
       </div>
 
       {/* Leave Management & History */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white p-4 sm:p-8 rounded-[2rem] shadow-xl border border-slate-100">
-          <h3 className="text-xl font-black text-[#002147] mb-4">Leave Management</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-start">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-xl border border-slate-100">
+          <h3 className="text-lg font-black text-[#002147] mb-4">Leave Management</h3>
           {!showAppForm ? (
-            <button onClick={() => setShowAppForm(true)} className="bg-[#002147] text-white px-6 py-3 rounded-2xl font-bold">+ Request Leave</button>
+            <button onClick={() => setShowAppForm(true)} className="bg-[#002147] text-white px-6 py-3 rounded-lg font-bold">+ Request Leave</button>
           ) : (
             <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <input className="p-3.5 bg-slate-100 text-slate-500 rounded-xl border border-slate-200 cursor-not-allowed text-sm font-bold" value={user?.name || ''} readOnly />
-                <input className="p-3.5 bg-slate-100 text-slate-500 rounded-xl border border-slate-200 cursor-not-allowed text-sm font-bold" value={user?.rollNo || user?.rollno || ''} readOnly />
-                <input className="p-3.5 bg-slate-100 text-slate-500 rounded-xl border border-slate-200 cursor-not-allowed text-sm font-bold" value={user?.department || 'N/A'} readOnly />
-                <input className="p-3.5 bg-slate-100 text-slate-500 rounded-xl border border-slate-200 cursor-not-allowed text-sm font-bold" value={`Semester: ${user?.semester || 'N/A'}`} readOnly />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <input className="p-2.5 bg-slate-100 text-slate-500 rounded-lg border border-slate-200 cursor-not-allowed text-xs font-bold" value={user?.name || ''} readOnly />
+                <input className="p-2.5 bg-slate-100 text-slate-500 rounded-lg border border-slate-200 cursor-not-allowed text-xs font-bold" value={user?.rollNo || user?.rollno || ''} readOnly />
+                <input className="p-2.5 bg-slate-100 text-slate-500 rounded-lg border border-slate-200 cursor-not-allowed text-xs font-bold" value={user?.department || 'N/A'} readOnly />
+                <input className="p-2.5 bg-slate-100 text-slate-500 rounded-lg border border-slate-200 cursor-not-allowed text-xs font-bold" value={`Semester: ${user?.semester || 'N/A'}`} readOnly />
               </div>
-              <input type="text" placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} className="w-full p-4 rounded-xl border" />
-              <textarea placeholder="Reason" value={reason} onChange={(e) => setReason(e.target.value)} className="w-full p-4 rounded-xl border" rows="3"></textarea>
+              <input type="text" placeholder="Subject" value={subject} onChange={(e) => setSubject(e.target.value)} className="w-full p-2.5 text-sm rounded-lg border" />
+              <textarea placeholder="Reason" value={reason} onChange={(e) => setReason(e.target.value)} className="w-full p-2.5 text-sm rounded-lg border" rows="2"></textarea>
               <div className="flex flex-col sm:flex-row gap-2">
-                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full sm:w-1/2 p-2 border rounded-xl" />
-                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full sm:w-1/2 p-2 border rounded-xl" />
+                <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="w-full sm:w-1/2 p-2 text-sm border rounded-lg" />
+                <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="w-full sm:w-1/2 p-2 text-sm border rounded-lg" />
               </div>
               <div>
-                <label className="block text-[#001f3f] font-bold text-sm mb-2 uppercase tracking-wide">Select Teacher</label>
+                <label className="block text-[#001f3f] font-bold text-xs mb-1.5 uppercase tracking-wide">Select Teacher</label>
                 <select 
-                  className="w-full bg-slate-50 border border-slate-200 p-4 rounded-xl font-bold text-slate-700 outline-none focus:ring-2 focus:ring-[#d4a017]/30 transition-all"
+                  className="w-full bg-slate-50 border border-slate-200 p-2.5 text-sm rounded-lg font-bold text-slate-700 outline-none focus:ring-2 focus:ring-[#d4a017]/30 transition-all"
                   value={targetTeacherId}
                   onChange={(e) => setTargetTeacherId(e.target.value)}
                   required
@@ -428,11 +434,11 @@ const Attendance = () => {
           )}
         </div>
 
-        <div className="bg-white p-4 sm:p-8 rounded-[2rem] shadow-xl border border-slate-100">
-          <h3 className="text-xl font-black text-[#002147] mb-4">Status & History</h3>
-          <div className="space-y-3">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-xl border border-slate-100">
+          <h3 className="text-lg font-black text-[#002147] mb-4">Status & History</h3>
+          <div className="space-y-3 overflow-y-auto max-h-[220px] custom-scrollbar pr-2">
             {leaveHistory.map((h) => (
-              <div key={h._id} className="flex justify-between items-center p-3 sm:p-4 bg-slate-50 rounded-xl border transition-all hover:shadow-md">
+              <div key={h._id} className="flex justify-between items-center p-2.5 sm:p-3 bg-slate-50 rounded-lg border transition-all hover:shadow-md">
                 <span className="text-xs sm:text-sm font-bold text-slate-600 truncate max-w-[50%] sm:max-w-none">{h.subject}</span>
                 <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
                   <span className={`text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider ${h.status === 'APPROVED' ? 'bg-green-100 text-green-600' : h.status === 'REJECTED' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
@@ -472,15 +478,15 @@ const Attendance = () => {
       {/* Custom Delete Modal */}
       {deleteModal.show && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in duration-300">
+          <div className="bg-white rounded-lg p-6 sm:p-8 max-w-sm w-full shadow-2xl animate-in fade-in zoom-in duration-300">
             <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
               <FiTrash2 className="w-8 h-8" />
             </div>
             <h3 className="text-xl font-black text-center text-gray-900 mb-2">Delete Request?</h3>
             <p className="text-gray-500 text-sm text-center mb-8">Are you sure you want to delete this leave request? This action cannot be undone.</p>
             <div className="flex gap-3">
-              <button onClick={() => setDeleteModal({ show: false, id: null })} className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors">Cancel</button>
-              <button onClick={confirmDelete} className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-xl transition-colors shadow-lg">Delete</button>
+              <button onClick={() => setDeleteModal({ show: false, id: null })} className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-lg transition-colors">Cancel</button>
+              <button onClick={confirmDelete} className="flex-1 py-3 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg transition-colors shadow-lg">Delete</button>
             </div>
           </div>
         </div>
@@ -489,7 +495,7 @@ const Attendance = () => {
       {/* Custom Edit Modal */}
       {editModal.show && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-[2rem] p-6 sm:p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in duration-300 relative">
+          <div className="bg-white rounded-lg p-6 sm:p-8 max-w-md w-full shadow-2xl animate-in fade-in zoom-in duration-300 relative">
             <button onClick={() => setEditModal({ show: false, data: null })} className="absolute top-6 right-6 p-2 bg-slate-50 hover:bg-slate-100 text-slate-500 rounded-full transition-colors">
               <FiX className="w-5 h-5" />
             </button>
@@ -499,31 +505,31 @@ const Attendance = () => {
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase ml-1 mb-1 block">Subject</label>
-                <input type="text" value={editModal.data.subject} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, subject: e.target.value } })} className="w-full p-3.5 rounded-xl border-2 border-slate-100 focus:border-blue-500 outline-none transition-colors" />
+                <input type="text" value={editModal.data.subject} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, subject: e.target.value } })} className="w-full p-3.5 rounded-lg border-2 border-slate-100 focus:border-blue-500 outline-none transition-colors" />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase ml-1 mb-1 block">Reason</label>
-                <textarea value={editModal.data.reason} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, reason: e.target.value } })} className="w-full p-3.5 rounded-xl border-2 border-slate-100 focus:border-blue-500 outline-none transition-colors" rows="3"></textarea>
+                <textarea value={editModal.data.reason} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, reason: e.target.value } })} className="w-full p-3.5 rounded-lg border-2 border-slate-100 focus:border-blue-500 outline-none transition-colors" rows="3"></textarea>
               </div>
               <div className="flex gap-3">
                 <div className="flex-1">
                   <label className="text-xs font-bold text-slate-500 uppercase ml-1 mb-1 block">Start</label>
-                  <input type="date" value={editModal.data.startDate} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, startDate: e.target.value } })} className="w-full p-3.5 border-2 border-slate-100 rounded-xl focus:border-blue-500 outline-none transition-colors" />
+                  <input type="date" value={editModal.data.startDate} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, startDate: e.target.value } })} className="w-full p-3.5 border-2 border-slate-100 rounded-lg focus:border-blue-500 outline-none transition-colors" />
                 </div>
                 <div className="flex-1">
                   <label className="text-xs font-bold text-slate-500 uppercase ml-1 mb-1 block">End</label>
-                  <input type="date" value={editModal.data.endDate} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, endDate: e.target.value } })} className="w-full p-3.5 border-2 border-slate-100 rounded-xl focus:border-blue-500 outline-none transition-colors" />
+                  <input type="date" value={editModal.data.endDate} onChange={(e) => setEditModal({ ...editModal, data: { ...editModal.data, endDate: e.target.value } })} className="w-full p-3.5 border-2 border-slate-100 rounded-lg focus:border-blue-500 outline-none transition-colors" />
                 </div>
               </div>
               <div className="pt-4 flex gap-3">
-                <button onClick={() => setEditModal({ show: false, data: null })} className="flex-1 py-3.5 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-colors">Cancel</button>
-                <button onClick={handleEditSubmit} className="flex-1 py-3.5 bg-blue-600 text-white rounded-xl font-bold shadow-lg hover:bg-blue-700 transition-colors">Save Changes</button>
+                <button onClick={() => setEditModal({ show: false, data: null })} className="flex-1 py-3.5 bg-slate-100 text-slate-600 rounded-lg font-bold hover:bg-slate-200 transition-colors">Cancel</button>
+                <button onClick={handleEditSubmit} className="flex-1 py-3.5 bg-blue-600 text-white rounded-lg font-bold shadow-lg hover:bg-blue-700 transition-colors">Save Changes</button>
               </div>
             </div>
           </div>
         </div>
       )}
-
+    </div>
     </div>
   );
 };

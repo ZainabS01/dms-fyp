@@ -68,18 +68,18 @@ const NoticeBoard = () => {
     <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-6">
       {modal.isOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white p-4 sm:p-8 rounded-3xl shadow-2xl max-w-sm mx-4 w-full text-center">
+          <div className="bg-white p-4 sm:p-8 rounded-lg shadow-2xl max-w-sm mx-4 w-full text-center">
             <h3 className="text-xl font-black text-[#001f3f] mb-2">Delete Notice?</h3>
             <p className="text-xs text-slate-500 font-bold mb-6">Are you sure you want to permanently delete this notice?</p>
             <div className="flex gap-3">
-              <button onClick={() => setModal({ isOpen: false, idToDelete: null })} className="flex-1 py-3 bg-slate-100 font-bold rounded-xl text-slate-600 hover:bg-slate-200 transition-colors">Cancel</button>
-              <button onClick={confirmDeleteNotice} className="flex-1 py-3 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 transition-colors">Delete</button>
+              <button onClick={() => setModal({ isOpen: false, idToDelete: null })} className="flex-1 py-3 bg-slate-100 font-bold rounded-lg text-slate-600 hover:bg-slate-200 transition-colors">Cancel</button>
+              <button onClick={confirmDeleteNotice} className="flex-1 py-3 bg-red-500 text-white font-bold rounded-lg hover:bg-red-600 transition-colors">Delete</button>
             </div>
           </div>
         </div>
       )}
       <div className="lg:col-span-2">
-         <div className="bg-white p-4 sm:p-8 rounded-2xl sm:rounded-[40px] shadow-2xl border border-slate-50">
+         <div className="bg-white p-4 sm:p-8 rounded-lg sm:rounded-lg shadow-2xl border border-slate-50">
             <h3 className="text-xl font-black text-[#001f3f] uppercase mb-4">Create New Announcement</h3>
             <div className="space-y-4">
               <input 
@@ -87,13 +87,13 @@ const NoticeBoard = () => {
                 placeholder="Notice Title..." 
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                className="w-full p-5 bg-slate-50 rounded-2xl border-none focus:ring-2 focus:ring-[#d4a017]" 
+                className="w-full p-5 bg-slate-50 rounded-lg border-none focus:ring-2 focus:ring-[#d4a017]" 
               />
               <textarea 
                 placeholder="Write full announcement here..." 
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="w-full p-5 bg-slate-50 rounded-2xl border-none h-28 focus:ring-2 focus:ring-[#d4a017]"
+                className="w-full p-5 bg-slate-50 rounded-lg border-none h-28 focus:ring-2 focus:ring-[#d4a017]"
               ></textarea>
               
               <div className="flex flex-col gap-2">
@@ -117,7 +117,7 @@ const NoticeBoard = () => {
               <button 
                 onClick={handlePostNotice}
                 disabled={loading}
-                className={`w-full ${loading ? 'bg-slate-400' : 'bg-[#001f3f] hover:bg-[#002f5f]'} text-[#d4a017] py-5 rounded-2xl font-black uppercase tracking-widest shadow-lg transition-colors`}
+                className={`w-full ${loading ? 'bg-slate-400' : 'bg-[#001f3f] hover:bg-[#002f5f]'} text-[#d4a017] py-5 rounded-lg font-black uppercase tracking-widest shadow-lg transition-colors`}
               >
                 {loading ? 'Posting...' : 'Post Notice'}
               </button>
@@ -131,7 +131,7 @@ const NoticeBoard = () => {
               <p className="text-slate-400 text-sm ">No recent notices found.</p>
             ) : (
               notices.slice(0, 3).map((notice) => (
-                <div key={notice._id} className="bg-white p-4 sm:p-6 rounded-2xl sm:rounded-[30px] shadow-xl border border-slate-100 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
+                <div key={notice._id} className="bg-white p-4 sm:p-6 rounded-lg sm:rounded-lg shadow-xl border border-slate-100 relative overflow-hidden group hover:-translate-y-1 transition-all duration-300">
                   {/* Decorative Side Bar */}
                   <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-[#001f3f] to-[#d4a017]"></div>
                   

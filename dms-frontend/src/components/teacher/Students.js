@@ -3,23 +3,41 @@ import axios from 'axios';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable'; // FIX 1: Import directly
 import { FiUsers, FiSearch, FiFolder, FiChevronDown, FiChevronUp, FiX, FiActivity, FiClipboard } from 'react-icons/fi';
+import { DEPARTMENTS_LIST } from '../../constants/data';
 
 const Students = () => {
   const [allStudents, setAllStudents] = useState([]);
-  const [selectedDept, setSelectedDept] = useState('COMPUTER SCIENCE');
+  const [selectedDept, setSelectedDept] = useState('');
   const [globalSearch, setGlobalSearch] = useState('');
   const [openSemester, setOpenSemester] = useState(null);
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [departmentsList, setDepartmentsList] = useState([]);
 
   useEffect(() => {
-    const fetchStudents = async () => {
+    const fetchData = async () => {
       try {
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/students`);
-        setAllStudents(response.data);
+        const students = response.data;
+        setAllStudents(students);
+        
+        // Extract unique departments from student data
+        const uniqueDepts = students.map(s => s.department?.toUpperCase()).filter(Boolean);
+        
+        // Strip "BS " prefix from the constant department list to match student data format
+        const staticDepts = DEPARTMENTS_LIST.map(d => d.replace(/^BS\s+/i, '').toUpperCase());
+        
+        // Merge both to ensure all departments show up even if empty
+        const combinedDepts = [...new Set([...staticDepts, ...uniqueDepts])].sort();
+        
+        setDepartmentsList(combinedDepts);
+        
+        if (combinedDepts.length > 0 && selectedDept && !combinedDepts.includes(selectedDept)) {
+          setSelectedDept('');
+        }
       } catch (err) { console.log("Data error:", err); }
     };
-    fetchStudents();
-  }, []);
+    fetchData();
+  }, []); // Run only once on mount
 
   // --- PDF GENERATION LOGIC ---
   const downloadMarksSheet = (student) => {
@@ -78,11 +96,11 @@ const Students = () => {
   });
 
   return (
-    <div className="p-2 sm:p-6 max-w-7xl mx-auto min-h-screen bg-slate-50">
+    <div className="p-0 sm:p-0 max-w-7xl mx-auto min-h-screen bg-slate-50">
       {/* --- TOP SEARCH SECTION --- */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10 bg-white p-4 sm:p-6 rounded-3xl sm:rounded-[2rem] shadow-sm">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-10 bg-white p-4 sm:p-6 rounded-lg sm:rounded-lg shadow-sm">
         <div className="flex items-center gap-4">
-          <div className="p-3 sm:p-4 bg-[#001f3f] text-[#d4a017] rounded-2xl shadow-lg shrink-0">
+          <div className="p-3 sm:p-4 bg-[#001f3f] text-[#d4a017] rounded-lg shadow-lg shrink-0">
             <FiUsers size={24} className="sm:w-7 sm:h-7" />
           </div>
           <div>
@@ -98,7 +116,7 @@ const Students = () => {
             placeholder="Search by Name, Roll No, or Department..." 
             value={globalSearch} 
             onChange={(e) => setGlobalSearch(e.target.value)}
-            className="w-full pl-12 pr-4 py-3 sm:py-4 bg-slate-50 border-none rounded-2xl focus:ring-2 ring-[#d4a017] outline-none font-bold text-sm transition-all"
+            className="w-full pl-12 pr-4 py-3 sm:py-4 bg-slate-50 border-none rounded-lg focus:ring-2 ring-[#d4a017] outline-none font-bold text-sm transition-all"
           />
         </div>
       </div>
@@ -109,7 +127,7 @@ const Students = () => {
           <h3 className="text-xs font-black text-slate-400 mb-4 uppercase tracking-[0.2em] ml-2">Quick Search Results</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredResults.length > 0 ? filteredResults.map(s => (
-              <div key={s._id} className="bg-white p-5 rounded-[2rem] shadow-md hover:shadow-xl transition-all border-t-4 border-[#d4a017] group">
+              <div key={s._id} className="bg-white p-5 rounded-lg shadow-md hover:shadow-xl transition-all border-t-4 border-[#d4a017] group">
                 <div className="flex justify-between items-start mb-4">
                   <div>
                     <h4 className="text-lg font-black text-[#001f3f] uppercase leading-tight">{s.name}</h4>
@@ -119,12 +137,6 @@ const Students = () => {
                 </div>
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-100">
                   <p className="text-[11px] font-bold text-slate-500 uppercase tracking-tighter">Semester: {s.semester}</p>
-                  <button 
-                    onClick={() => setSelectedStudent(s)}
-                    className="bg-[#001f3f] text-white px-5 py-2 rounded-xl text-[10px] font-black uppercase hover:bg-[#d4a017] hover:text-[#001f3f] transition-all"
-                  >
-                    View Full Profile
-                  </button>
                 </div>
               </div>
             )) : <div className="col-span-full p-10 text-center font-bold text-slate-300">No matching records found.</div>}
@@ -137,29 +149,34 @@ const Students = () => {
         <>
           <div className="mb-6">
             <label className="text-[10px] font-black text-slate-400 uppercase ml-4 mb-2 block">Browse by Department</label>
-            <select 
-              value={selectedDept} 
-              onChange={(e) => setSelectedDept(e.target.value)}
-              className="w-full p-5 bg-white border-none rounded-[1.5rem] text-sm font-black text-[#001f3f] shadow-sm outline-none cursor-pointer"
-            >
-              <option value="COMPUTER SCIENCE">COMPUTER SCIENCE</option>
-              <option value="INFORMATION TECHNOLOGY">INFORMATION TECHNOLOGY</option>
-              <option value="SOFTWARE ENGINEERING">SOFTWARE ENGINEERING</option>
-            </select>
+            <div className="bg-white rounded-lg shadow-sm border border-slate-100 transition-all hover:border-[#d4a017]">
+              <select 
+                value={selectedDept} 
+                onChange={(e) => setSelectedDept(e.target.value)}
+                className="w-full p-6 bg-transparent border-none text-sm font-black text-[#001f3f] outline-none cursor-pointer appearance-none"
+                style={{ backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1.5rem center', backgroundSize: '1em' }}
+              >
+                <option value="" disabled>Select Department</option>
+                {departmentsList.map(dept => (
+                  <option key={dept} value={dept}>{dept}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="space-y-4">
-            {["1", "2", "3", "4", "5", "6", "7", "8"].map(sem => {
-              const semStudents = allStudents.filter(s => String(s.semester) === sem && s.department.toUpperCase() === selectedDept.toUpperCase());
-              return (
-                <div key={sem} className="bg-white rounded-[1.5rem] shadow-sm overflow-hidden border border-slate-100 transition-all hover:border-[#d4a017]">
+          {selectedDept ? (
+            <div className="space-y-4">
+              {["1", "2", "3", "4", "5", "6", "7", "8"].map(sem => {
+                const semStudents = allStudents.filter(s => String(s.semester) === sem && s.department?.toUpperCase() === selectedDept.toUpperCase());
+                return (
+                  <div key={sem} className="bg-white rounded-lg shadow-sm overflow-hidden border border-slate-100 transition-all hover:border-[#d4a017]">
                   <button 
                     onClick={() => setOpenSemester(openSemester === sem ? null : sem)} 
                     className={`w-full p-6 flex justify-between items-center ${openSemester === sem ? 'bg-[#001f3f] text-white' : 'bg-white'}`}
                   >
                     <div className="flex items-center gap-4">
                       <FiFolder className={semStudents.length > 0 ? "text-[#d4a017]" : "text-slate-200"} size={22} />
-                      <span className="font-black text-sm uppercase tracking-wider">Semester {sem}</span>
+                      <span className="font-black text-sm uppercase tracking-wider">{sem} Semester</span>
                       {semStudents.length > 0 && (
                         <span className="bg-[#d4a017] text-[#001f3f] text-[9px] px-2 py-0.5 rounded-md font-black">{semStudents.length} Students</span>
                       )}
@@ -169,12 +186,11 @@ const Students = () => {
                   {openSemester === sem && (
                     <div className="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 bg-slate-50">
                       {semStudents.map(s => (
-                        <div key={s._id} className="bg-white p-4 rounded-2xl flex justify-between items-center shadow-sm">
+                        <div key={s._id} className="bg-white p-4 rounded-lg flex justify-between items-center shadow-sm">
                           <div>
                             <p className="text-xs font-black text-[#001f3f] uppercase">{s.name}</p>
                             <p className="text-[9px] font-bold text-[#d4a017]">{s.rollNo}</p>
                           </div>
-                          <button onClick={() => setSelectedStudent(s)} className="p-2 bg-slate-100 rounded-lg hover:bg-[#d4a017] transition-all"><FiActivity size={14}/></button>
                         </div>
                       ))}
                     </div>
@@ -182,80 +198,13 @@ const Students = () => {
                 </div>
               );
             })}
-          </div>
+            </div>
+          ) : (
+            <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-lg p-10 text-center font-bold text-slate-400 uppercase tracking-widest">
+              Please select a department to view semesters and students.
+            </div>
+          )}
         </>
-      )}
-
-      {/* --- STUDENT MODAL (Detailed Record) --- */}
-      {selectedStudent && (
-        <div className="fixed inset-0 bg-[#001f3f]/90 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl sm:rounded-[3rem] shadow-2xl relative animate-in zoom-in-95 scrollbar-thin">
-            {/* Modal Header */}
-            <div className="p-4 sm:p-8 border-b border-slate-100 flex justify-between items-start gap-4">
-              <div>
-                <span className="bg-[#d4a017] text-[#001f3f] text-[10px] font-black px-4 py-1 rounded-full uppercase tracking-widest">{selectedStudent.department}</span>
-                <h2 className="text-2xl sm:text-3xl font-black text-[#001f3f] uppercase mt-2 leading-tight">{selectedStudent.name}</h2>
-                <p className="text-slate-400 font-bold text-sm">Roll Number: {selectedStudent.rollNo} | Semester {selectedStudent.semester}</p>
-              </div>
-              <button onClick={() => setSelectedStudent(null)} className="p-3 sm:p-4 bg-slate-100 rounded-full hover:rotate-90 transition-all duration-300 shrink-0"><FiX size={20} className="sm:w-6 sm:h-6" /></button>
-            </div>
-
-            {/* Modal Content */}
-            <div className="p-4 sm:p-8 grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
-              {/* Attendance Section */}
-              <div className="bg-slate-50 p-4 sm:p-6 rounded-[2rem]">
-                <div className="flex items-center gap-2 mb-4">
-                  <FiActivity className="text-[#d4a017]" />
-                  <h4 className="text-xs font-black uppercase text-[#001f3f]">Attendance</h4>
-                </div>
-                <div className="text-3xl font-black text-[#001f3f]">88%</div>
-                <div className="w-full bg-slate-200 h-2 rounded-full mt-2 overflow-hidden">
-                  <div className="bg-[#d4a017] h-full" style={{width: '88%'}}></div>
-                </div>
-                <p className="text-[10px] font-bold text-slate-400 mt-2">Excellent Performance!</p>
-              </div>
-
-              {/* Grades Section */}
-              <div className="bg-slate-50 p-4 sm:p-6 rounded-[2rem]">
-                <div className="flex items-center gap-2 mb-4">
-                  <FiClipboard className="text-[#d4a017]" />
-                  <h4 className="text-xs font-black uppercase text-[#001f3f]">Results/GPA</h4>
-                </div>
-                <div className="space-y-2">
-                  <div className="flex justify-between text-xs font-bold"><span>Current GPA:</span> <span className="text-green-600">3.85</span></div>
-                  <div className="flex justify-between text-xs font-bold"><span>Midterm Marks:</span> <span>44/50</span></div>
-                  <div className="flex justify-between text-xs font-bold"><span>Total Grade:</span> <span className="text-[#001f3f]">A+</span></div>
-                </div>
-              </div>
-
-              {/* Leave Application Section */}
-              <div className="bg-slate-50 p-4 sm:p-6 rounded-[2rem]">
-                <h4 className="text-xs font-black uppercase text-[#001f3f] mb-4">Leave Records</h4>
-                <div className="space-y-3">
-                  <div className="p-3 bg-white rounded-xl border-l-4 border-green-500 shadow-sm">
-                    <p className="text-[10px] font-black">Medical Leave</p>
-                    <p className="text-[8px] font-bold text-slate-400 uppercase">Status: Approved</p>
-                  </div>
-                  <div className="p-3 bg-white rounded-xl border-l-4 border-yellow-500 shadow-sm">
-                    <p className="text-[10px] font-black">Family Event</p>
-                    <p className="text-[8px] font-bold text-slate-400 uppercase">Status: Pending</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Bottom Actions */}
-            <div className="p-4 sm:p-8 pt-0 flex flex-col sm:flex-row gap-3 sm:gap-4">
-              <button 
-                onClick={() => downloadMarksSheet(selectedStudent)} 
-                className="flex-1 py-4 bg-[#001f3f] text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-[#d4a017] hover:text-[#001f3f] transition-all"
-              >
-                Download Marks Sheet
-              </button>
-              <button className="px-8 py-4 bg-slate-100 text-[#001f3f] rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-slate-200 transition-all">Edit Record</button>
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { User } from 'lucide-react';
 
 const FacultyManagement = () => {
   const [faculty, setFaculty] = useState([]);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [editTarget, setEditTarget] = useState(null);
-  const [editForm, setEditForm] = useState({ name: '', department: '' });
+  const [editForm, setEditForm] = useState({ name: '', department: '', profilePic: '', profilePicFile: null });
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchFaculty();
@@ -43,38 +45,55 @@ const FacultyManagement = () => {
 
   const handleEditTeacher = async (e) => {
     e.preventDefault();
+    setUploading(true);
     try {
-      const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/admin/faculty/${editTarget._id}`, editForm);
+      let finalProfilePic = editForm.profilePic;
+
+      // Handle Image Upload First
+      if (editForm.profilePicFile) {
+        const formData = new FormData();
+        formData.append('image', editForm.profilePicFile);
+
+        const uploadRes = await axios.post(`${process.env.REACT_APP_API_URL}/api/upload`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+
+        if (uploadRes.data.success) {
+          finalProfilePic = uploadRes.data.imageUrl;
+        }
+      }
+
+      const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/admin/faculty/${editTarget._id}`, {
+        name: editForm.name,
+        department: editForm.department,
+        profilePic: finalProfilePic
+      });
+
       if (res.data.success) {
-        setFaculty(faculty.map(f => f._id === editTarget._id ? { ...f, name: editForm.name, department: editForm.department } : f));
+        setFaculty(faculty.map(f => f._id === editTarget._id ? { ...f, name: editForm.name, department: editForm.department, profilePic: finalProfilePic } : f));
         setEditTarget(null);
       }
     } catch (err) {
       console.error('Error updating teacher', err);
+    } finally {
+      setUploading(false);
     }
   };
 
   const openEditModal = (teacher) => {
     setEditTarget(teacher);
-    setEditForm({ name: teacher.name, department: teacher.department });
+    setEditForm({ name: teacher.name, department: teacher.department, profilePic: teacher.profilePic || '', profilePicFile: null });
   };
 
   return (
     <div className="w-full animate-fadeIn pb-10">
-      <div className="flex justify-between items-center mb-10">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-black text-[#001f3f] uppercase">
-            Faculty <span className="text-[#d4a017]">Directory</span>
-          </h1>
-          <div className="h-1.5 w-20 bg-[#d4a017] rounded-full mt-2"></div>
-        </div>
-      </div>
+
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {faculty.map((f) => (
           <div 
             key={f._id} 
-            className="relative bg-white p-4 sm:p-8 rounded-2xl sm:rounded-[2rem] border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(212,160,23,0.12)] hover:-translate-y-2 transition-all duration-500 flex flex-col items-center text-center group overflow-hidden"
+            className="relative bg-white p-4 sm:p-8 rounded-lg sm:rounded-lg border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] hover:shadow-[0_8px_30px_rgb(212,160,23,0.12)] hover:-translate-y-2 transition-all duration-500 flex flex-col items-center text-center group overflow-hidden"
           >
             {/* Top decorative gradient line */}
             <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[#d4a017] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
@@ -91,8 +110,12 @@ const FacultyManagement = () => {
             )}
 
             {/* Avatar */}
-            <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-4xl mb-4 border-4 border-white shadow-md relative z-10 group-hover:scale-105 transition-transform duration-300">
-              👨‍🏫
+            <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-4xl mb-4 border-4 border-white shadow-md relative z-10 group-hover:scale-105 transition-transform duration-300 overflow-hidden">
+              {f.profilePic ? (
+                <img src={`${process.env.REACT_APP_API_URL}${f.profilePic}`} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <User size={40} className="text-slate-400" />
+              )}
             </div>
 
             {/* Teacher Details */}
@@ -100,7 +123,7 @@ const FacultyManagement = () => {
             
             <p className="text-xs font-black text-blue-500 uppercase tracking-widest mb-4 relative z-10">{f.department}</p>
             
-            <div className="w-full bg-slate-50 rounded-2xl p-4 mb-6 relative z-10 text-left space-y-3 border border-slate-100/50">
+            <div className="w-full bg-slate-50 rounded-lg p-4 mb-6 relative z-10 text-left space-y-3 border border-slate-100/50">
               <div className="flex items-center gap-3 text-xs text-slate-600 font-bold w-full overflow-hidden">
                 <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center shrink-0 shadow-sm">
                   <svg className="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
@@ -119,7 +142,7 @@ const FacultyManagement = () => {
             <div className="w-full flex gap-2 relative z-10 mt-auto">
               <button 
                 onClick={() => handleToggleHOD(f._id, f.isHOD)}
-                className={`flex-1 text-[10px] font-black uppercase px-2 py-3 rounded-xl transition-all duration-300 flex items-center justify-center gap-1
+                className={`flex-1 text-[10px] font-black uppercase px-2 py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-1
                   ${f.isHOD 
                     ? 'bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200/50' 
                     : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/50'}`}
@@ -128,12 +151,12 @@ const FacultyManagement = () => {
               </button>
               <button 
                 onClick={() => openEditModal(f)}
-                className="w-10 bg-blue-50 hover:bg-blue-500 text-blue-500 hover:text-white border border-blue-100 flex items-center justify-center rounded-xl transition-all duration-300 shrink-0">
+                className="w-10 bg-blue-50 hover:bg-blue-500 text-blue-500 hover:text-white border border-blue-100 flex items-center justify-center rounded-lg transition-all duration-300 shrink-0">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
               </button>
               <button 
                 onClick={() => setDeleteTarget(f._id)}
-                className="w-10 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white border border-red-100 flex items-center justify-center rounded-xl transition-all duration-300 shrink-0">
+                className="w-10 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white border border-red-100 flex items-center justify-center rounded-lg transition-all duration-300 shrink-0">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
               </button>
             </div>
@@ -144,7 +167,7 @@ const FacultyManagement = () => {
       {/* Delete Confirmation Modal */}
       {deleteTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl p-4 sm:p-8 max-w-sm mx-4 w-full shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in duration-300">
+          <div className="bg-white rounded-lg p-4 sm:p-8 max-w-sm mx-4 w-full shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in duration-300">
             <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
             </div>
@@ -153,12 +176,12 @@ const FacultyManagement = () => {
             <div className="flex gap-3">
               <button 
                 onClick={() => setDeleteTarget(null)} 
-                className="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] uppercase tracking-wider rounded-xl transition-colors">
+                className="flex-1 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] uppercase tracking-wider rounded-lg transition-colors">
                 Cancel
               </button>
               <button 
                 onClick={() => handleDeleteTeacher(deleteTarget)} 
-                className="flex-1 py-3.5 bg-red-500 hover:bg-red-600 text-white font-bold text-[11px] uppercase tracking-wider rounded-xl transition-colors shadow-lg shadow-red-500/30">
+                className="flex-1 py-3.5 bg-red-500 hover:bg-red-600 text-white font-bold text-[11px] uppercase tracking-wider rounded-lg transition-colors shadow-lg shadow-red-500/30">
                 Delete
               </button>
             </div>
@@ -168,7 +191,7 @@ const FacultyManagement = () => {
       {/* Edit Modal */}
       {editTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-sm mx-4 w-full shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in duration-300">
+          <div className="bg-white rounded-lg p-6 sm:p-8 max-w-sm mx-4 w-full shadow-[0_20px_50px_rgba(0,0,0,0.2)] animate-in fade-in zoom-in duration-300">
             <h3 className="text-xl font-black text-center text-[#001f3f] mb-6">Edit Teacher Details</h3>
             <form onSubmit={handleEditTeacher} className="space-y-4">
               <div>
@@ -177,7 +200,7 @@ const FacultyManagement = () => {
                   type="text" 
                   value={editForm.name} 
                   onChange={(e) => setEditForm({...editForm, name: e.target.value})} 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold text-slate-700 outline-none focus:border-blue-500" 
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 font-bold text-slate-700 outline-none focus:border-blue-500" 
                   required 
                 />
               </div>
@@ -187,21 +210,31 @@ const FacultyManagement = () => {
                   type="text" 
                   value={editForm.department} 
                   onChange={(e) => setEditForm({...editForm, department: e.target.value})} 
-                  className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 font-bold text-slate-700 outline-none focus:border-blue-500 uppercase" 
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-3 font-bold text-slate-700 outline-none focus:border-blue-500 uppercase" 
                   required 
+                />
+              </div>
+              <div>
+                <label className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1 block">Profile Picture (Optional)</label>
+                <input 
+                  type="file" 
+                  accept="image/*"
+                  onChange={(e) => setEditForm({...editForm, profilePicFile: e.target.files[0]})} 
+                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-sm font-medium text-slate-700 outline-none focus:border-blue-500" 
                 />
               </div>
               <div className="flex gap-3 pt-4">
                 <button 
                   type="button"
                   onClick={() => setEditTarget(null)} 
-                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] uppercase tracking-wider rounded-xl transition-colors">
+                  className="flex-1 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px] uppercase tracking-wider rounded-lg transition-colors">
                   Cancel
                 </button>
                 <button 
                   type="submit" 
-                  className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold text-[11px] uppercase tracking-wider rounded-xl transition-colors shadow-lg shadow-blue-500/30">
-                  Save Changes
+                  disabled={uploading}
+                  className="flex-1 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold text-[11px] uppercase tracking-wider rounded-lg transition-colors shadow-lg shadow-blue-500/30 disabled:opacity-50">
+                  {uploading ? 'Saving...' : 'Save Changes'}
                 </button>
               </div>
             </form>

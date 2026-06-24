@@ -30,6 +30,25 @@ router.get('/faculty', async (req, res) => {
     }
 });
 
+// Admin Profile Update
+router.put('/update-profile', async (req, res) => {
+    try {
+        const { email, name, profilePic } = req.body;
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (profilePic !== undefined) updateData.profilePic = profilePic;
+
+        const user = await User.findOneAndUpdate({ email: email.toLowerCase(), role: 'admin' }, updateData, { new: true }).select('-password');
+        if (!user) {
+            return res.status(404).json({ success: false, message: "Admin not found!" });
+        }
+        res.json({ success: true, message: "Admin Profile updated successfully!", user });
+    } catch (error) {
+        console.error("Admin Profile Update Error: ", error);
+        res.status(500).json({ success: false, message: "Server error updating profile" });
+    }
+});
+
 // 2. Get All Students (Sirf wo jin ka role 'student' hai)
 router.get('/students', async (req, res) => {
     try {
@@ -196,8 +215,8 @@ router.put('/faculty/:id/:action', async (req, res) => {
 router.put('/faculty/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        const { name, department } = req.body;
-        const user = await User.findByIdAndUpdate(id, { name, department }, { new: true });
+        const { name, department, profilePic } = req.body;
+        const user = await User.findByIdAndUpdate(id, { name, department, profilePic }, { new: true });
         if (!user) {
             return res.status(404).json({ message: "Teacher not found" });
         }
@@ -228,7 +247,14 @@ router.get('/dashboard-stats', async (req, res) => {
     try {
         const totalStudents = await User.countDocuments({ role: 'student' });
         const totalTeachers = await User.countDocuments({ role: 'teacher' });
-        res.status(200).json({ totalStudents, totalTeachers });
+        
+        const departmentStats = await User.aggregate([
+            { $match: { role: 'student' } },
+            { $group: { _id: "$department", students: { $sum: 1 } } },
+            { $project: { name: "$_id", students: 1, _id: 0 } }
+        ]);
+
+        res.status(200).json({ totalStudents, totalTeachers, departmentStats });
     } catch (err) {
         console.error("Dashboard stats error:", err);
         res.status(500).json({ message: "Server error while fetching stats" });

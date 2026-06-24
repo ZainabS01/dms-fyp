@@ -4,7 +4,7 @@ import {
   FiBookOpen, FiPlus, FiFolder, FiUpload, 
   FiChevronDown, FiX, FiEye, FiTrash2, FiEdit2, FiCheckCircle, FiAlertCircle 
 } from 'react-icons/fi';
-import { DEPARTMENTS_LIST, SEMESTERS_LIST } from '../../constants/data';
+import { SEMESTERS_LIST } from '../../constants/data';
 
 const StudentAcademicData = () => {
   const [selectedDept, setSelectedDept] = useState('BS COMPUTER SCIENCE');
@@ -32,6 +32,14 @@ const StudentAcademicData = () => {
     setToast({ show: true, msg, type });
     setTimeout(() => setToast({ show: false, msg: '', type: '' }), 2500);
   };
+
+  const [departmentsList, setDepartmentsList] = useState([]);
+
+  useEffect(() => {
+    axios.get(`${process.env.REACT_APP_API_URL}/api/departments`)
+      .then(res => setDepartmentsList(res.data.map(d => d.name.replace(/^BS\s+/i, '').trim().toUpperCase())))
+      .catch(err => console.error("Error fetching departments:", err));
+  }, []);
 
   useEffect(() => {
     fetchData();
@@ -139,7 +147,7 @@ const StudentAcademicData = () => {
     if (!confirmModal.show) return null;
     return (
       <div className="fixed inset-0 bg-[#001f3f]/80 backdrop-blur-sm z-[3000] flex items-center justify-center p-4">
-        <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl border-t-8 border-red-500 text-center animate-in zoom-in duration-300">
+        <div className="bg-white w-full max-w-sm rounded-lg p-8 shadow-2xl border-t-8 border-red-500 text-center animate-in zoom-in duration-300">
           <div className="p-4 bg-red-50 w-fit rounded-full mx-auto mb-4 text-red-500">
             <FiTrash2 size={30} />
           </div>
@@ -148,14 +156,14 @@ const StudentAcademicData = () => {
             Are you sure you want to remove <br/> <span className="text-red-500">"{confirmModal.title}"</span>?
           </p>
           <div className="flex gap-3">
-            <button onClick={() => setConfirmModal({ ...confirmModal, show: false })} className="flex-1 py-3 bg-slate-100 text-slate-500 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-slate-200 transition-all">Cancel</button>
+            <button onClick={() => setConfirmModal({ ...confirmModal, show: false })} className="flex-1 py-3 bg-slate-100 text-slate-500 rounded-lg font-black uppercase text-[10px] tracking-widest hover:bg-slate-200 transition-all">Cancel</button>
             <button 
               onClick={() => {
                 if(confirmModal.type === 'folder') handleDeleteFolder(confirmModal.subCode, confirmModal.id);
                 else handleDeleteSubject(confirmModal.id);
                 setConfirmModal({ ...confirmModal, show: false });
               }}
-              className="flex-1 py-3 bg-red-500 text-white rounded-2xl font-black uppercase text-[10px] tracking-widest shadow-lg shadow-red-200 hover:scale-105 transition-all"
+              className="flex-1 py-3 bg-red-500 text-white rounded-lg font-black uppercase text-[10px] tracking-widest shadow-lg shadow-red-200 hover:scale-105 transition-all"
             >
               Yes, Delete
             </button>
@@ -170,16 +178,16 @@ const StudentAcademicData = () => {
       <DeleteConfirmModal />
       
       {toast.show && (
-        <div className={`fixed top-10 right-4 md:right-10 z-[100] flex items-center gap-3 px-6 py-4 rounded-2xl shadow-2xl border-b-4 ${toast.type === 'success' ? 'bg-[#001f3f] text-[#d4a017] border-[#d4a017]' : 'bg-white text-red-600 border-red-600'}`}>
+        <div className={`fixed top-10 right-4 md:right-10 z-[100] flex items-center gap-3 px-6 py-4 rounded-lg shadow-2xl border-b-4 ${toast.type === 'success' ? 'bg-[#001f3f] text-[#d4a017] border-[#d4a017]' : 'bg-white text-red-600 border-red-600'}`}>
           {toast.type === 'success' ? <FiCheckCircle size={22}/> : <FiAlertCircle size={22}/>}
           <span className="text-[12px] font-black uppercase">{toast.msg}</span>
         </div>
       )}
 
       {/* Header Section */}
-      <div className="bg-white p-4 sm:p-6 rounded-3xl sm:rounded-[2.5rem] shadow-sm flex flex-col lg:flex-row justify-between items-center gap-4 mb-10 border border-slate-100">
+      <div className="bg-white p-4 sm:p-6 rounded-lg sm:rounded-lg shadow-sm flex flex-col lg:flex-row justify-between items-center gap-4 mb-10 border border-slate-100">
         <div className="flex items-center gap-4 self-start lg:self-auto">
-          <div className="p-3 bg-[#001f3f] rounded-2xl text-[#d4a017] shadow-lg"><FiBookOpen size={24} /></div>
+          <div className="p-3 bg-[#001f3f] rounded-lg text-[#d4a017] shadow-lg"><FiBookOpen size={24} /></div>
           <div>
             <h3 className="text-lg font-black text-[#001f3f] uppercase">Teacher Portal / <span className="text-[#d4a017]">Data</span></h3>
             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Academic Records Management</p>
@@ -187,13 +195,23 @@ const StudentAcademicData = () => {
         </div>
         
         <div className="flex flex-col sm:flex-row sm:flex-wrap justify-center items-stretch sm:items-center gap-3 w-full lg:w-auto">
-          <select value={selectedDept} onChange={(e)=>setSelectedDept(e.target.value)} className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 font-bold text-[#001f3f] text-[11px] outline-none w-full sm:w-auto">
-            {DEPARTMENTS_LIST.map(dept => <option key={dept} value={dept}>{dept}</option>)}
+          <select 
+            value={selectedDept} 
+            onChange={(e)=>setSelectedDept(e.target.value)} 
+            className="bg-slate-50 border-2 border-slate-100 rounded-lg px-4 pr-10 py-3 font-bold text-[#001f3f] text-[11px] outline-none w-full sm:w-auto appearance-none"
+            style={{ backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1em' }}
+          >
+            {departmentsList.map(dept => <option key={dept} value={dept}>{dept}</option>)}
           </select>
-          <select value={selectedSem} onChange={(e)=>setSelectedSem(e.target.value)} className="bg-slate-50 border-2 border-slate-100 rounded-xl px-4 py-3 font-bold text-[#001f3f] text-[11px] outline-none w-full sm:w-auto">
+          <select 
+            value={selectedSem} 
+            onChange={(e)=>setSelectedSem(e.target.value)} 
+            className="bg-slate-50 border-2 border-slate-100 rounded-lg px-4 pr-10 py-3 font-bold text-[#001f3f] text-[11px] outline-none w-full sm:w-auto appearance-none"
+            style={{ backgroundImage: 'url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3e%3cpolyline points=\'6 9 12 15 18 9\'%3e%3c/polyline%3e%3c/svg%3e")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 1rem center', backgroundSize: '1em' }}
+          >
             {SEMESTERS_LIST.map(sem => <option key={sem} value={sem}>{sem} Semester</option>)}
           </select>
-          <button onClick={()=>setShowSubjectModal(true)} className="bg-[#d4a017] text-[#001f3f] px-6 py-3 rounded-2xl text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-md w-full sm:w-auto">
+          <button onClick={()=>setShowSubjectModal(true)} className="bg-[#d4a017] text-[#001f3f] px-6 py-3 rounded-lg text-[11px] font-black uppercase tracking-widest hover:scale-105 transition-all flex items-center justify-center gap-2 shadow-md w-full sm:w-auto">
               <FiPlus strokeWidth={3}/> Add Subject
           </button>
         </div>
@@ -202,7 +220,7 @@ const StudentAcademicData = () => {
       {/* Subjects List */}
       <div className="space-y-4">
         {subjects.map(sub => (
-          <div key={sub._id} className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 overflow-hidden">
+          <div key={sub._id} className="bg-white rounded-lg shadow-sm border border-slate-100 overflow-hidden">
             <div className="p-6 flex items-center justify-between hover:bg-slate-50/50 cursor-pointer">
               <div className="flex items-center gap-4 flex-1" onClick={() => setExpandedSubject(expandedSubject === sub.code ? null : sub.code)}>
                 <FiFolder size={24} className={expandedSubject === sub.code ? "text-[#d4a017]" : "text-slate-300"} />
@@ -214,14 +232,14 @@ const StudentAcademicData = () => {
               <div className="flex items-center gap-2 md:gap-4">
                 <button 
                   onClick={(e) => { e.stopPropagation(); setEditingSubject({oldCode: sub.code, code: sub.code, title: sub.title}); setEditSubjectModal(true); }} 
-                  className="p-2 text-blue-400 hover:bg-blue-50 rounded-xl transition-all"
+                  className="p-2 text-blue-400 hover:bg-blue-50 rounded-lg transition-all"
                 >
                   <FiEdit2 size={18} />
                 </button>
 
                 <button 
                   onClick={(e) => { e.stopPropagation(); setConfirmModal({show: true, type: 'subject', id: sub._id, subCode: '', title: sub.title}); }} 
-                  className="p-2 text-red-400 hover:bg-red-50 rounded-xl transition-all"
+                  className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all"
                 >
                   <FiTrash2 size={18} />
                 </button>
@@ -234,7 +252,7 @@ const StudentAcademicData = () => {
                 <div className="flex justify-end mb-6">
                   <button 
                     onClick={() => { setActiveSubCode(sub.code); setShowFolderModal(true); }}
-                    className="flex items-center gap-2 bg-[#001f3f] text-[#d4a017] px-5 py-2.5 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-md"
+                    className="flex items-center gap-2 bg-[#001f3f] text-[#d4a017] px-5 py-2.5 rounded-lg font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-md"
                   >
                     <FiPlus strokeWidth={4} /> Add New Folder
                   </button>
@@ -242,9 +260,9 @@ const StudentAcademicData = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
                   {sub.categories?.map(cat => (
-                    <div key={cat._id} className="bg-white p-4 sm:p-6 rounded-[2rem] sm:rounded-[2.5rem] border border-slate-200 shadow-sm relative group transition-all hover:shadow-lg">
+                    <div key={cat._id} className="bg-white p-4 sm:p-6 rounded-lg sm:rounded-lg border border-slate-200 shadow-sm relative group transition-all hover:shadow-lg">
                       <div className="flex justify-between items-start mb-6">
-                        <div className="p-3 bg-slate-50 rounded-2xl text-[#d4a017]"><FiFolder /></div>
+                        <div className="p-3 bg-slate-50 rounded-lg text-[#d4a017]"><FiFolder /></div>
                         <div className="flex gap-2">
                            <button onClick={() => { setEditingFolder({id: cat._id, name: cat.name, subCode: sub.code}); setEditFolderModal(true); }} className="p-1.5 text-blue-400 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:scale-110"><FiEdit2 size={14}/></button>
                            <button onClick={() => setConfirmModal({show: true, type: 'folder', id: cat._id, subCode: sub.code, title: cat.name})} className="p-1.5 text-red-400 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all hover:scale-110"><FiTrash2 size={14}/></button>
@@ -253,7 +271,7 @@ const StudentAcademicData = () => {
                       </div>
                       <h6 className="text-[11px] font-black text-[#001f3f] uppercase mb-4 tracking-widest">{cat.name}</h6>
                       
-                      <label className="flex items-center justify-center gap-2 w-full py-4 bg-slate-50 border-2 border-dashed rounded-[1.5rem] cursor-pointer hover:border-[#d4a017] hover:bg-white transition-all mb-4">
+                      <label className="flex items-center justify-center gap-2 w-full py-4 bg-slate-50 border-2 border-dashed rounded-lg cursor-pointer hover:border-[#d4a017] hover:bg-white transition-all mb-4">
                         <FiUpload size={14} className="text-slate-400" />
                         <span className="text-[9px] font-black text-slate-400 uppercase">Upload File</span>
                         <input type="file" className="hidden" onChange={(e) => handleFileUpload(sub.code, cat._id, e.target.files[0])} />
@@ -261,7 +279,7 @@ const StudentAcademicData = () => {
 
                       <div className="space-y-2 max-h-40 overflow-y-auto pr-2 custom-scrollbar">
                         {cat.files?.map((file) => (
-                          <div key={file._id} className="flex items-center justify-between p-3 bg-slate-50 rounded-xl hover:bg-white border border-transparent hover:border-slate-100">
+                          <div key={file._id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-white border border-transparent hover:border-slate-100">
                             <span className="text-[10px] font-bold text-[#001f3f] truncate w-24">{file.fileName}</span>
                             <div className="flex gap-1">
                               <a href={`${process.env.REACT_APP_API_URL}${file.fileUrl}`} target="_blank" rel="noreferrer" className="p-1.5 text-blue-400 hover:scale-110"><FiEye size={12}/></a>
@@ -283,16 +301,16 @@ const StudentAcademicData = () => {
       {/* Edit Subject Modal */}
       {editSubjectModal && (
         <div className="fixed inset-0 bg-[#001f3f]/80 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative border-t-8 border-blue-400 animate-in fade-in zoom-in duration-300">
+          <div className="bg-white w-full max-w-sm rounded-lg p-8 shadow-2xl relative border-t-8 border-blue-400 animate-in fade-in zoom-in duration-300">
               <button onClick={()=>setEditSubjectModal(false)} className="absolute top-6 right-6 text-slate-400 hover:text-red-500"><FiX size={20}/></button>
               <div className="text-center mb-6">
                  <div className="p-4 bg-blue-50 w-fit rounded-full mx-auto mb-4 text-blue-400"><FiEdit2 size={30} /></div>
                  <h3 className="font-black text-[#001f3f] uppercase">Edit Subject</h3>
               </div>
               <div className="space-y-4">
-                <input placeholder="Code" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm focus:border-blue-400" value={editingSubject.code} onChange={e=>setEditingSubject({...editingSubject, code: e.target.value.toUpperCase()})} />
-                <input placeholder="Title" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm focus:border-blue-400" value={editingSubject.title} onChange={e=>setEditingSubject({...editingSubject, title: e.target.value})} />
-                <button onClick={handleUpdateSubject} className="w-full py-4 bg-[#001f3f] text-blue-400 rounded-2xl font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all">Update Subject</button>
+                <input placeholder="Code" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-lg outline-none font-bold text-sm focus:border-blue-400" value={editingSubject.code} onChange={e=>setEditingSubject({...editingSubject, code: e.target.value.toUpperCase()})} />
+                <input placeholder="Title" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-lg outline-none font-bold text-sm focus:border-blue-400" value={editingSubject.title} onChange={e=>setEditingSubject({...editingSubject, title: e.target.value})} />
+                <button onClick={handleUpdateSubject} className="w-full py-4 bg-[#001f3f] text-blue-400 rounded-lg font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all">Update Subject</button>
               </div>
           </div>
         </div>
@@ -301,14 +319,14 @@ const StudentAcademicData = () => {
       {/* Edit Folder Modal */}
       {editFolderModal && (
         <div className="fixed inset-0 bg-[#001f3f]/80 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative border-t-8 border-[#d4a017] animate-in fade-in zoom-in duration-300">
+          <div className="bg-white w-full max-w-sm rounded-lg p-8 shadow-2xl relative border-t-8 border-[#d4a017] animate-in fade-in zoom-in duration-300">
               <button onClick={()=>setEditFolderModal(false)} className="absolute top-6 right-6 text-slate-400 hover:text-red-500"><FiX size={20}/></button>
               <div className="text-center mb-6">
                  <div className="p-4 bg-yellow-50 w-fit rounded-full mx-auto mb-4 text-[#d4a017]"><FiFolder size={30} /></div>
                  <h3 className="font-black text-[#001f3f] uppercase">Rename Folder</h3>
               </div>
-              <input placeholder="Folder Name" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm focus:border-[#d4a017] mb-4" value={editingFolder.name} onChange={e=>setEditingFolder({...editingFolder, name: e.target.value})} />
-              <button onClick={handleRenameFolder} className="w-full py-4 bg-[#001f3f] text-[#d4a017] rounded-2xl font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all">Save Changes</button>
+              <input placeholder="Folder Name" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-lg outline-none font-bold text-sm focus:border-[#d4a017] mb-4" value={editingFolder.name} onChange={e=>setEditingFolder({...editingFolder, name: e.target.value})} />
+              <button onClick={handleRenameFolder} className="w-full py-4 bg-[#001f3f] text-[#d4a017] rounded-lg font-black uppercase tracking-widest shadow-lg hover:scale-105 transition-all">Save Changes</button>
           </div>
         </div>
       )}
@@ -316,14 +334,14 @@ const StudentAcademicData = () => {
       {/* Create Subject Modal */}
       {showSubjectModal && (
         <div className="fixed inset-0 bg-[#001f3f]/80 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative border-t-8 border-[#d4a017] animate-in zoom-in duration-300">
+          <div className="bg-white w-full max-w-sm rounded-lg p-8 shadow-2xl relative border-t-8 border-[#d4a017] animate-in zoom-in duration-300">
             <button onClick={()=>setShowSubjectModal(false)} className="absolute top-6 right-6 text-slate-400 hover:text-red-500"><FiX size={20}/></button>
             <h3 className="font-black text-[#001f3f] uppercase mb-6 text-center">New Subject</h3>
             <div className="space-y-4">
-              <input placeholder="CODE (e.g. CS-101)" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm" value={newSub.code} onChange={e=>setNewSub({...newSub, code: e.target.value.toUpperCase()})} />
-              <input placeholder="SUBJECT TITLE" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm" value={newSub.title} onChange={e=>setNewSub({...newSub, title: e.target.value})} />
-              <input placeholder="CREDIT HOURS" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm" value={newSub.cr} onChange={e=>setNewSub({...newSub, cr: e.target.value})} />
-              <button onClick={handleAddSubject} className="w-full py-4 bg-[#d4a017] text-[#001f3f] rounded-2xl font-black uppercase text-[12px] tracking-widest shadow-lg">Create Subject</button>
+              <input placeholder="CODE (e.g. CS-101)" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-lg outline-none font-bold text-sm" value={newSub.code} onChange={e=>setNewSub({...newSub, code: e.target.value.toUpperCase()})} />
+              <input placeholder="SUBJECT TITLE" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-lg outline-none font-bold text-sm" value={newSub.title} onChange={e=>setNewSub({...newSub, title: e.target.value})} />
+              <input placeholder="CREDIT HOURS" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-lg outline-none font-bold text-sm" value={newSub.cr} onChange={e=>setNewSub({...newSub, cr: e.target.value})} />
+              <button onClick={handleAddSubject} className="w-full py-4 bg-[#d4a017] text-[#001f3f] rounded-lg font-black uppercase text-[12px] tracking-widest shadow-lg">Create Subject</button>
             </div>
           </div>
         </div>
@@ -332,11 +350,11 @@ const StudentAcademicData = () => {
       {/* Create Folder Modal */}
       {showFolderModal && (
         <div className="fixed inset-0 bg-[#001f3f]/80 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
-          <div className="bg-white w-full max-w-sm rounded-[2.5rem] p-8 shadow-2xl relative border-t-8 border-[#d4a017] animate-in zoom-in duration-300">
+          <div className="bg-white w-full max-w-sm rounded-lg p-8 shadow-2xl relative border-t-8 border-[#d4a017] animate-in zoom-in duration-300">
             <button onClick={()=>setShowFolderModal(false)} className="absolute top-6 right-6 text-slate-400 hover:text-red-500"><FiX size={20}/></button>
             <h3 className="font-black text-[#001f3f] uppercase mb-6 text-center text-sm">Create Sub-Folder</h3>
-            <input placeholder="FOLDER NAME (e.g. Midterm Papers)" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-2xl outline-none font-bold text-sm mb-4" value={newFolderName} onChange={e=>setNewFolderName(e.target.value)} />
-            <button onClick={handleAddCategory} className="w-full py-4 bg-[#001f3f] text-[#d4a017] rounded-2xl font-black uppercase text-[12px] tracking-widest shadow-lg">Create Now</button>
+            <input placeholder="FOLDER NAME (e.g. Midterm Papers)" className="w-full p-4 bg-slate-50 border-2 border-slate-100 rounded-lg outline-none font-bold text-sm mb-4" value={newFolderName} onChange={e=>setNewFolderName(e.target.value)} />
+            <button onClick={handleAddCategory} className="w-full py-4 bg-[#001f3f] text-[#d4a017] rounded-lg font-black uppercase text-[12px] tracking-widest shadow-lg">Create Now</button>
           </div>
         </div>
       )}

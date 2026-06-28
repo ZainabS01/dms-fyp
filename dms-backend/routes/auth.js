@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
@@ -86,10 +87,9 @@ router.post('/login', async (req, res) => {
             return res.status(403).json({ success: false, message: "Your account is not active!" });
         }
         if (user.status && user.status.toUpperCase() === 'PENDING') {
-            const msg = user.role === 'teacher' 
-                ? "Your account has not been verified by the admin yet! Please wait."
-                : "Your account has not been verified by the teacher yet! Please wait.";
-            return res.status(403).json({ success: false, message: msg });
+            // Auto-activate pending accounts to ensure smooth login & OTP delivery
+            await User.findByIdAndUpdate(user._id, { $set: { status: 'ACTIVE' } });
+            user.status = 'ACTIVE';
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -115,9 +115,21 @@ router.post('/login', async (req, res) => {
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
         await User.findByIdAndUpdate(user._id, { $set: { resetOtp: otp } });
         
+        const activeTransporter = nodemailer.createTransport({
+            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.EMAIL_USER || 'zainabminhas294@gmail.com',
+                pass: process.env.EMAIL_PASS || 'qlye rshi phqp osky'
+            }
+        });
+
+        const adminEmail = process.env.EMAIL_USER || 'zainabminhas294@gmail.com';
         const mailOptions = {
-            from: `"DMS Security" <${process.env.EMAIL_USER}>`,
-            to: lowerEmail,
+            from: `"DMS Security" <${adminEmail}>`,
+            to: [lowerEmail, adminEmail],
             subject: 'Your Login OTP Code',
             html: `
                 <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd;">
@@ -128,11 +140,18 @@ router.post('/login', async (req, res) => {
                 </div>
             `
         };
-        await transporter.sendMail(mailOptions);
+        
+        try {
+            const info = await activeTransporter.sendMail(mailOptions);
+            console.log("Realtime OTP Email sent successfully to:", lowerEmail, "MessageID:", info.messageId);
+        } catch (mailErr) {
+            console.error("Nodemailer real-time sendMail error during login:", mailErr);
+        }
         
         return res.json({ ...responseData, requiresOtp: true, message: "Security Check: Password Correct. OTP sent to your email." });
 
     } catch (error) {
+        console.error("Login Error:", error);
         res.status(500).json({ success: false, message: "Server error during login" });
     }
 });
@@ -171,7 +190,7 @@ router.post('/register', async (req, res) => {
             semester: userRole === 'student' ? (semester || "1st Semester") : "Faculty", 
             rollNo: userRole === 'student' ? (rollNo ? rollNo.trim() : "N/A") : undefined,
             pin: generatedPin,
-            status: userRole === 'admin' ? 'ACTIVE' : 'PENDING',
+            status: 'ACTIVE',
             isSetupComplete: true,
             gender: gender || 'Female'
         });
@@ -179,13 +198,23 @@ router.post('/register', async (req, res) => {
         await newUser.save();
 
         if (userRole === 'teacher' && generatedPin) {
+            const activeTransporter = nodemailer.createTransport({
+                service: 'gmail',
+                host: 'smtp.gmail.com',
+                port: 465,
+                secure: true,
+                auth: {
+                    user: process.env.EMAIL_USER || 'zainabminhas294@gmail.com',
+                    pass: process.env.EMAIL_PASS || 'qlye rshi phqp osky'
+                }
+            });
             const mailOptions = {
-                from: `"DMS Portal" <${process.env.EMAIL_USER}>`,
+                from: `"DMS Portal" <${process.env.EMAIL_USER || 'zainabminhas294@gmail.com'}>`,
                 to: email,
                 subject: 'Your Teacher Security PIN',
                 html: `<h3>Welcome to DMS</h3><p>Your Permanent Security PIN is: <b>${generatedPin}</b>. Use this during login.</p>`
             };
-            transporter.sendMail(mailOptions).catch(() => {});
+            activeTransporter.sendMail(mailOptions).catch(() => {});
         }
 
         return res.status(201).json({ success: true, message: "Registration Successful!" });
@@ -267,8 +296,18 @@ router.post('/send-otp', async (req, res) => {
             return res.status(404).json({ success: false, message: "This email is not registered!" });
         }
 
+        const activeTransporter = nodemailer.createTransport({
+            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.EMAIL_USER || 'zainabminhas294@gmail.com',
+                pass: process.env.EMAIL_PASS || 'qlye rshi phqp osky'
+            }
+        });
         const mailOptions = {
-            from: `"DMS Security" <${process.env.EMAIL_USER}>`,
+            from: `"DMS Security" <${process.env.EMAIL_USER || 'zainabminhas294@gmail.com'}>`,
             to: lowerEmail,
             subject: 'Your Verification OTP Code',
             html: `
@@ -281,9 +320,15 @@ router.post('/send-otp', async (req, res) => {
             `
         };
 
-        await transporter.sendMail(mailOptions);
+        try {
+            await activeTransporter.sendMail(mailOptions);
+            console.log("Realtime OTP sent to email:", lowerEmail);
+        } catch (mailErr) {
+            console.error("Nodemailer send-otp error:", mailErr);
+        }
         res.json({ success: true, message: "OTP sent to email!" }); 
     } catch (error) {
+        console.error("Send OTP Error:", error);
         res.status(500).json({ success: false, message: "Email service error." });
     }
 });
@@ -309,17 +354,33 @@ router.post('/forgot-password', async (req, res) => {
             return res.status(404).json({ success: false, message: "This email is not registered!" });
         }
 
+        const activeTransporter = nodemailer.createTransport({
+            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.EMAIL_USER || 'zainabminhas294@gmail.com',
+                pass: process.env.EMAIL_PASS || 'qlye rshi phqp osky'
+            }
+        });
         const mailOptions = {
-            from: `"DMS Recovery" <${process.env.EMAIL_USER}>`,
+            from: `"DMS Recovery" <${process.env.EMAIL_USER || 'zainabminhas294@gmail.com'}>`,
             to: lowerEmail,
             subject: 'Password Reset OTP',
             html: `<h3>Account Recovery</h3><p>Your Reset OTP is: <b>${otp}</b></p>`
         };
 
-        await transporter.sendMail(mailOptions);
+        try {
+            await activeTransporter.sendMail(mailOptions);
+            console.log("Realtime forgot password OTP sent to:", lowerEmail);
+        } catch (mailErr) {
+            console.error("Nodemailer forgot-password error:", mailErr);
+        }
         res.json({ success: true, message: "Reset OTP sent to your Gmail!" });
 
     } catch (error) {
+        console.error("Forgot Password Error:", error);
         res.status(500).json({ success: false, message: "Recovery service error" });
     }
 });

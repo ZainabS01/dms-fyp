@@ -100,7 +100,7 @@ const Footer = () => {
               </Link>
             </li>
             <li>
-              <a href="/DMS_Documentation.pdf" download className="hover:text-[#002147] transition-colors">Documentation</a>
+              <a href="/GGCP-CS26-116 (DMS).pdf" download="GGCP-CS26-116 (DMS).pdf" className="hover:text-[#002147] transition-colors">Documentation</a>
             </li>
           </ul>
         </div>

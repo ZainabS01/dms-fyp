@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FiCheckCircle, FiXCircle, FiUser } from 'react-icons/fi';
+import toast from 'react-hot-toast';
 
 const StudentVerification = ({ teacherDept }) => {
   const [pendingStudents, setPendingStudents] = useState([]);
@@ -22,14 +23,14 @@ const StudentVerification = ({ teacherDept }) => {
     try {
       const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/admin/students/${id}/${action}`);
       if (res.data.success) {
-        alert(`Student ${action === 'approve' ? 'Verified' : 'Rejected'} Successfully!`);
+        toast.success(`Student ${action === 'approve' ? 'Verified' : 'Rejected'} Successfully!`);
         setPendingStudents(pendingStudents.filter(s => s._id !== id));
       } else {
-        alert(res.data.message || 'Action failed!');
+        toast.error(res.data.message || 'Action failed!');
       }
     } catch (err) {
       console.error("Error processing student action:", err);
-      alert('Error connecting to server.');
+      toast.error('Error connecting to server.');
     }
   };
 

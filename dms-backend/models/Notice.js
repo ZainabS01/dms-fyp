@@ -15,6 +15,18 @@ const noticeSchema = new mongoose.Schema({
         required: true, 
         default: 'all' 
     },
+    targetDepartment: {
+        type: String,
+        default: 'all'
+    },
+    targetSemester: {
+        type: String,
+        default: 'all'
+    },
+    targetUser: {
+        type: String,
+        default: 'all'
+    },
     type: {
         type: String,
         enum: ['Admin Notice', 'Query', 'Attendance', 'Result', 'Course', 'General'],

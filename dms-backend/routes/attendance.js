@@ -78,6 +78,8 @@ router.post('/submit', async (req, res) => {
             title: `Attendance Marked`,
             content: `Attendance for ${department.trim()} - ${semester.trim()} has been updated for ${targetDate}.`,
             target: 'student',
+            targetDepartment: department.trim(),
+            targetSemester: semester.trim(),
             type: 'Attendance',
             link: 'attendance'
         });

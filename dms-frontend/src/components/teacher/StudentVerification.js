@@ -2,21 +2,21 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FiCheckCircle, FiXCircle, FiUser } from 'react-icons/fi';
 
-const StudentVerification = () => {
+const StudentVerification = ({ teacherDept }) => {
   const [pendingStudents, setPendingStudents] = useState([]);
 
-  // To fetch data (Only those students whose status is 'pending')
   useEffect(() => {
     const fetchPending = async () => {
       try {
-        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/students?status=pending`);
+        const query = teacherDept ? `&department=${encodeURIComponent(teacherDept)}` : '';
+        const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/students?status=pending${query}`);
         setPendingStudents(res.data);
       } catch (err) {
         console.error("Error fetching students:", err);
       }
     };
     fetchPending();
-  }, []);
+  }, [teacherDept]);
 
   const handleAction = async (id, action) => {
     try {

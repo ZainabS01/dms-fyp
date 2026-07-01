@@ -57,6 +57,10 @@ password: {
         type: String,
         default: null 
     },
+    approvalToken: {
+        type: String,
+        default: null
+    },
     status: {
         type: String,
         default: 'ACTIVE'

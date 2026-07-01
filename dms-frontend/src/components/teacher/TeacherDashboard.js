@@ -79,7 +79,7 @@ const TeacherDashboard = ({ user, setUser }) => { // 'user' prop is received her
     switch (activeTab) {
       case 'dashboard': return <TeacherOverview setActiveTab={setActiveTab} />;
       case 'students': return <Students />;
-      case 'verification': return <StudentVerification />;
+      case 'verification': return <StudentVerification teacherDept={teacher?.department} />;
       case 'attendance': return <ManageAttendance />;
       case 'queries': return <QuerySection userRole="teacher" user={teacher} />;
       case 'nexi': return <NexiChat user={teacher} setActiveTab={setActiveTab} backTab="dashboard" />;

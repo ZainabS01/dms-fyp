@@ -25,6 +25,8 @@ router.post('/add', async (req, res) => {
             title: `New Task Assigned`,
             content: `A new task "${newTask.title || 'Assignment'}" has been assigned.`,
             target: 'student',
+            targetDepartment: newTask.department,
+            targetSemester: newTask.semester,
             type: 'Course',
             link: 'task'
         });
@@ -115,6 +117,7 @@ router.put('/feedback/:taskId/:studentId', async (req, res) => {
             title: `Task Graded`,
             content: `Your submission for task "${task.title || 'Assignment'}" has been graded: ${grade}`,
             target: 'student',
+            targetUser: req.params.studentId, // studentId is rollNo or userId? In task submission, studentId is usually _id or rollNo. We'll use the param.
             type: 'Course',
             link: 'task'
         });

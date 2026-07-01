@@ -96,6 +96,7 @@ router.post('/add', async (req, res) => {
             title: `New Message from ${savedQuery.studentName}`,
             content: `Subject: ${savedQuery.subject}\nMessage: ${savedQuery.message.substring(0, 50)}...`,
             target: noticeTarget,
+            targetUser: noticeTarget === 'teacher' ? savedQuery.targetTeacherId : 'all',
             type: 'Query',
             link: 'queries'
         });
@@ -143,6 +144,7 @@ router.put('/reply/:id', async (req, res) => {
                 title: `Query Replied: ${updatedQuery.subject}`,
                 content: `Your message has received a reply.\nReply: ${reply.substring(0, 50)}...`,
                 target: noticeTarget,
+                targetUser: updatedQuery.rollNumber !== 'N/A' ? updatedQuery.rollNumber : 'all',
                 type: 'Query',
                 link: 'queries'
             });

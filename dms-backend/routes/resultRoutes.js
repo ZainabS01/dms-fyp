@@ -146,6 +146,7 @@ router.post('/upload', upload.single('dmcFile'), async (req, res) => {
             title: `Result Updated`,
             content: `Result has been updated for Roll No: ${rollNo} in Semester ${semester}.`,
             target: 'student',
+            targetUser: rollNo.toString(),
             type: 'Result',
             link: 'result'
         });

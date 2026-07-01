@@ -30,16 +30,71 @@ router.post('/', async (req, res) => {
 // Get notices based on target audience
 router.get('/', async (req, res) => {
     try {
-        const { role } = req.query; // role can be 'student', 'teacher', or 'admin' (for all)
+        const { role, userId } = req.query; // role can be 'student', 'teacher', or 'admin' (for all)
         
         let query = {};
         
-        if (role === 'student') {
-            query = { target: { $in: ['student', 'all'] } };
-        } else if (role === 'teacher') {
-            query = { target: { $in: ['teacher', 'all'] } };
-        } else if (role === 'admin') {
-            query = { target: { $in: ['admin', 'all'] } };
+        if (userId) {
+            const User = require('../models/User');
+            const user = await User.findById(userId);
+            
+            if (user) {
+                if (user.role === 'student') {
+                    query = {
+                        target: { $in: ['student', 'all'] },
+                        $and: [
+                            {
+                                $or: [
+                                    { targetDepartment: 'all' },
+                                    { targetDepartment: user.department }
+                                ]
+                            },
+                            {
+                                $or: [
+                                    { targetSemester: 'all' },
+                                    { targetSemester: user.semester }
+                                ]
+                            },
+                            {
+                                $or: [
+                                    { targetUser: 'all' },
+                                    { targetUser: user.rollNo },
+                                    { targetUser: user._id.toString() }
+                                ]
+                            }
+                        ]
+                    };
+                } else if (user.role === 'teacher') {
+                    query = {
+                        target: { $in: ['teacher', 'all'] },
+                         $and: [
+                            {
+                                $or: [
+                                    { targetUser: 'all' },
+                                    { targetUser: user.teacherId },
+                                    { targetUser: user._id.toString() }
+                                ]
+                            }
+                        ]
+                    };
+                } else if (user.role === 'admin') {
+                    query = { target: { $in: ['admin', 'all'] } };
+                }
+            } else {
+                // Fallback if user not found but role is provided
+                if (role === 'student') query = { target: { $in: ['student', 'all'] } };
+                else if (role === 'teacher') query = { target: { $in: ['teacher', 'all'] } };
+                else if (role === 'admin') query = { target: { $in: ['admin', 'all'] } };
+            }
+        } else {
+            // Fallback for requests without userId
+            if (role === 'student') {
+                query = { target: { $in: ['student', 'all'] } };
+            } else if (role === 'teacher') {
+                query = { target: { $in: ['teacher', 'all'] } };
+            } else if (role === 'admin') {
+                query = { target: { $in: ['admin', 'all'] } };
+            }
         }
 
         const notices = await Notice.find(query).sort({ createdAt: -1 });

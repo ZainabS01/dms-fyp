@@ -87,9 +87,7 @@ router.post('/login', async (req, res) => {
             return res.status(403).json({ success: false, message: "Your account is not active!" });
         }
         if (user.status && user.status.toUpperCase() === 'PENDING') {
-            // Auto-activate pending accounts to ensure smooth login & OTP delivery
-            await User.findByIdAndUpdate(user._id, { $set: { status: 'ACTIVE' } });
-            user.status = 'ACTIVE';
+            return res.status(403).json({ success: false, message: "Your account is pending teacher approval. Please wait." });
         }
 
         const isMatch = await bcrypt.compare(password, user.password);
@@ -173,12 +171,10 @@ router.post('/register', async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
-        let generatedPin = null;
+        const crypto = require('crypto');
+        const approvalToken = crypto.randomBytes(20).toString('hex');
+        
         const userRole = role ? role.toLowerCase() : 'student';
-
-        if (userRole === 'teacher') {
-            generatedPin = Math.floor(1000 + Math.random() * 9000).toString();
-        }
 
         const newUser = new User({
             name: name.trim(),
@@ -189,38 +185,167 @@ router.post('/register', async (req, res) => {
             phone: phone ? phone.trim() : "", 
             semester: userRole === 'student' ? (semester || "1st Semester") : "Faculty", 
             rollNo: userRole === 'student' ? (rollNo ? rollNo.trim() : "N/A") : undefined,
-            pin: generatedPin,
-            status: 'ACTIVE',
+            pin: null, // PIN generated upon approval for teachers
+            status: 'PENDING',
+            approvalToken: approvalToken,
             isSetupComplete: true,
             gender: gender || 'Female'
         });
 
         await newUser.save();
 
-        if (userRole === 'teacher' && generatedPin) {
-            const activeTransporter = nodemailer.createTransport({
-                service: 'gmail',
-                host: 'smtp.gmail.com',
-                port: 465,
-                secure: true,
-                auth: {
-                    user: process.env.EMAIL_USER || 'zainabminhas294@gmail.com',
-                    pass: process.env.EMAIL_PASS || 'qlye rshi phqp osky'
-                }
-            });
-            const mailOptions = {
+        const activeTransporter = nodemailer.createTransport({
+            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.EMAIL_USER || 'zainabminhas294@gmail.com',
+                pass: process.env.EMAIL_PASS || 'qlye rshi phqp osky'
+            }
+        });
+
+        const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
+        if (userRole === 'teacher') {
+            // 1. Notify Teacher
+            const teacherMailOptions = {
                 from: `"DMS Portal" <${process.env.EMAIL_USER || 'zainabminhas294@gmail.com'}>`,
                 to: email,
-                subject: 'Your Teacher Security PIN',
-                html: `<h3>Welcome to DMS</h3><p>Your Permanent Security PIN is: <b>${generatedPin}</b>. Use this during login.</p>`
+                subject: 'Registration Pending Approval',
+                html: `<h3>Registration Successful</h3><p>Your teacher registration is currently <b>pending approval</b> by the Admin. You will receive an email with your Security PIN once approved.</p>`
             };
-            activeTransporter.sendMail(mailOptions).catch(() => {});
+            activeTransporter.sendMail(teacherMailOptions).catch(() => {});
+
+            // 2. Notify Admin
+            const adminEmail = process.env.EMAIL_USER || 'zainabminhas294@gmail.com'; // Send to system admin email
+            const adminMailOptions = {
+                from: `"DMS Portal" <${process.env.EMAIL_USER || 'zainabminhas294@gmail.com'}>`,
+                to: adminEmail,
+                subject: 'New Teacher Registration Pending Approval',
+                html: `<h3>New Teacher Registration</h3>
+                       <p>A new teacher (<b>${newUser.name}</b>, Dept: ${newUser.department}) has registered.</p>
+                       <div style="margin-top: 20px;">
+                           <a href="${baseUrl}/api/auth/quick-action?userId=${newUser._id}&token=${approvalToken}&action=approve" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">Approve</a>
+                           <a href="${baseUrl}/api/auth/quick-action?userId=${newUser._id}&token=${approvalToken}&action=reject" style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reject</a>
+                       </div>`
+            };
+            activeTransporter.sendMail(adminMailOptions).catch(() => {});
+
+        } else if (userRole === 'student') {
+            // 1. Notify Student
+            const studentMailOptions = {
+                from: `"DMS Portal" <${process.env.EMAIL_USER || 'zainabminhas294@gmail.com'}>`,
+                to: email,
+                subject: 'Registration Pending Approval',
+                html: `<h3>Registration Successful</h3><p>Your registration is currently <b>pending approval</b> by your department teacher. You will receive an email once it is approved, and then you will be able to login.</p>`
+            };
+            activeTransporter.sendMail(studentMailOptions).catch(() => {});
+
+            // 2. Notify Department Teachers
+            const teachers = await User.find({ role: 'teacher', department: newUser.department, status: 'ACTIVE' });
+            if (teachers && teachers.length > 0) {
+                const teacherEmails = teachers.map(t => t.email);
+                const teacherMailOptions = {
+                    from: `"DMS Portal" <${process.env.EMAIL_USER || 'zainabminhas294@gmail.com'}>`,
+                    to: teacherEmails,
+                    subject: 'New Student Registration Pending Approval',
+                    html: `<h3>New Student Registration</h3>
+                           <p>A new student (<b>${newUser.name}</b>, Roll No: ${newUser.rollNo}) has registered in the <b>${newUser.department}</b> department.</p>
+                           <div style="margin-top: 20px;">
+                               <a href="${baseUrl}/api/auth/quick-action?userId=${newUser._id}&token=${approvalToken}&action=approve" style="background-color: #28a745; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-right: 10px;">Approve</a>
+                               <a href="${baseUrl}/api/auth/quick-action?userId=${newUser._id}&token=${approvalToken}&action=reject" style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reject</a>
+                           </div>`
+                };
+                activeTransporter.sendMail(teacherMailOptions).catch(() => {});
+            }
         }
 
-        return res.status(201).json({ success: true, message: "Registration Successful!" });
+        const successMessage = userRole === 'student' 
+            ? "Registration Successful! Pending Teacher Approval." 
+            : "Registration Successful!";
+        return res.status(201).json({ success: true, message: successMessage });
 
     } catch (error) {
         res.status(500).json({ success: false, message: "Registration failed" });
+    }
+});
+
+// --- NEW ROUTE: QUICK EMAIL ACTION ---
+router.get('/quick-action', async (req, res) => {
+    try {
+        const { userId, token, action } = req.query;
+
+        if (!userId || !token || !action) {
+            return res.status(400).send('<h1 style="color:red; text-align:center; font-family:sans-serif; margin-top:50px;">Invalid Request! Missing parameters.</h1>');
+        }
+
+        const user = await User.findOne({ _id: userId, approvalToken: token });
+
+        if (!user) {
+            return res.status(400).send('<h1 style="color:red; text-align:center; font-family:sans-serif; margin-top:50px;">Invalid or Expired Link!</h1>');
+        }
+
+        const activeTransporter = nodemailer.createTransport({
+            service: 'gmail',
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.EMAIL_USER || 'zainabminhas294@gmail.com',
+                pass: process.env.EMAIL_PASS || 'qlye rshi phqp osky'
+            }
+        });
+
+        if (action === 'approve') {
+            user.status = 'ACTIVE';
+            user.approvalToken = null; // Clear token
+
+            if (user.role === 'teacher') {
+                const generatedPin = Math.floor(1000 + Math.random() * 9000).toString();
+                user.pin = generatedPin;
+                
+                const mailOptions = {
+                    from: `"DMS Portal" <${process.env.EMAIL_USER || 'zainabminhas294@gmail.com'}>`,
+                    to: user.email,
+                    subject: 'Your Teacher Account is Approved & Security PIN',
+                    html: `<h3>Welcome to DMS</h3><p>Your Teacher account has been approved by the Admin.</p><p>Your Permanent Security PIN is: <b>${generatedPin}</b>. Use this during login.</p>`
+                };
+                await activeTransporter.sendMail(mailOptions).catch(() => {});
+            } else if (user.role === 'student') {
+                const mailOptions = {
+                    from: `"DMS Portal" <${process.env.EMAIL_USER || 'zainabminhas294@gmail.com'}>`,
+                    to: user.email,
+                    subject: 'Your Student Registration is Approved',
+                    html: `<h3>Congratulations!</h3><p>Your registration has been approved by your department teacher. You can now login to the portal.</p>`
+                };
+                await activeTransporter.sendMail(mailOptions).catch(() => {});
+            }
+
+            await user.save();
+            return res.send('<h1 style="color:green; text-align:center; font-family:sans-serif; margin-top:50px;">User Approved Successfully! You can close this window.</h1>');
+
+        } else if (action === 'reject') {
+            // Delete the pending user
+            const userEmail = user.email;
+            const userRole = user.role;
+            await User.findByIdAndDelete(user._id);
+
+            const mailOptions = {
+                from: `"DMS Portal" <${process.env.EMAIL_USER || 'zainabminhas294@gmail.com'}>`,
+                to: userEmail,
+                subject: 'Registration Rejected',
+                html: `<h3>Registration Update</h3><p>We are sorry to inform you that your registration for the ${userRole} account has been rejected.</p>`
+            };
+            await activeTransporter.sendMail(mailOptions).catch(() => {});
+
+            return res.send('<h1 style="color:orange; text-align:center; font-family:sans-serif; margin-top:50px;">User Rejected Successfully! You can close this window.</h1>');
+        } else {
+            return res.status(400).send('<h1 style="color:red; text-align:center; font-family:sans-serif; margin-top:50px;">Invalid Action!</h1>');
+        }
+    } catch (error) {
+        console.error("Quick Action Error:", error);
+        res.status(500).send('<h1 style="color:red; text-align:center; font-family:sans-serif; margin-top:50px;">Server error during quick action.</h1>');
     }
 });
 

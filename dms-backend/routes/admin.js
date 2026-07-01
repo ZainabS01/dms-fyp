@@ -56,6 +56,9 @@ router.get('/students', async (req, res) => {
         if (req.query.status) {
             filter.status = new RegExp('^' + req.query.status + '$', 'i');
         }
+        if (req.query.department) {
+            filter.department = new RegExp('^' + req.query.department + '$', 'i');
+        }
         const students = await User.find(filter);
         res.status(200).json(students);
     } catch (err) {

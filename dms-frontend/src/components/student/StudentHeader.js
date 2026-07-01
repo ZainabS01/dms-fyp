@@ -41,7 +41,9 @@ const StudentHeader = ({ activePage, userName, studentProfilePic, onOpenNexi, se
   useEffect(() => {
     const fetchNotices = async () => {
       try {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/notices?role=student`);
+        const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
+        const userId = savedUser._id || '';
+        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/notices?role=student&userId=${userId}`);
         setNotices(response.data);
       } catch (error) {
         console.error('Error fetching notices:', error);

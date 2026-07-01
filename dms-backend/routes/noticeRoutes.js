@@ -59,7 +59,8 @@ router.get('/', async (req, res) => {
                                 $or: [
                                     { targetUser: 'all' },
                                     { targetUser: user.rollNo },
-                                    { targetUser: user._id.toString() }
+                                    { targetUser: user._id.toString() },
+                                    { targetUser: user.email }
                                 ]
                             }
                         ]
@@ -72,7 +73,8 @@ router.get('/', async (req, res) => {
                                 $or: [
                                     { targetUser: 'all' },
                                     { targetUser: user.teacherId },
-                                    { targetUser: user._id.toString() }
+                                    { targetUser: user._id.toString() },
+                                    { targetUser: user.email }
                                 ]
                             }
                         ]

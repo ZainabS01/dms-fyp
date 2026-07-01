@@ -54,7 +54,8 @@ const QuerySection = ({ user }) => {
   const fetchHistory = useCallback(async () => {
     try {
       const roll = user?.rollNo || user?.rollno || '';
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/query/all?rollNumber=${encodeURIComponent(roll)}`);
+      const email = user?.email || '';
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/query/all?rollNumber=${encodeURIComponent(roll)}&email=${encodeURIComponent(email)}`);
       setHistory(res.data.reverse()); 
     } catch (err) { toast.error("Could not load history"); }
   }, [user]);

@@ -438,34 +438,42 @@ const Attendance = () => {
           <h3 className="text-lg font-black text-[#002147] mb-4">Status & History</h3>
           <div className="space-y-3 overflow-y-auto max-h-[220px] custom-scrollbar pr-2">
             {leaveHistory.map((h) => (
-              <div key={h._id} className="flex justify-between items-center p-2.5 sm:p-3 bg-slate-50 rounded-lg border transition-all hover:shadow-md">
-                <span className="text-xs sm:text-sm font-bold text-slate-600 truncate max-w-[50%] sm:max-w-none">{h.subject}</span>
-                <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
-                  <span className={`text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider ${h.status === 'APPROVED' ? 'bg-green-100 text-green-600' : h.status === 'REJECTED' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
-                    {h.status}
-                  </span>
-                  <button 
-                    onClick={() => downloadLeavePDF(h)}
-                    className="p-1.5 sm:p-2 bg-[#001f3f]/10 text-[#001f3f] rounded-lg hover:bg-[#001f3f] hover:text-white transition-colors"
-                    title="Download PDF"
-                  >
-                    <FiDownload className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  </button>
-                  <button 
-                    onClick={() => setEditModal({ show: true, data: h })}
-                    className="p-1.5 sm:p-2 bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-500 hover:text-white transition-colors"
-                    title="Edit Request"
-                  >
-                    <FiEdit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  </button>
-                  <button 
-                    onClick={() => setDeleteModal({ show: true, id: h._id })}
-                    className="p-1.5 sm:p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors"
-                    title="Delete Request"
-                  >
-                    <FiTrash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  </button>
+              <div key={h._id} className="p-2.5 sm:p-3 bg-slate-50 rounded-lg border transition-all hover:shadow-md">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs sm:text-sm font-bold text-slate-600 truncate max-w-[50%] sm:max-w-none">{h.subject}</span>
+                  <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+                    <span className={`text-[9px] sm:text-[10px] font-black px-2 py-1 rounded uppercase tracking-wider ${h.status === 'APPROVED' ? 'bg-green-100 text-green-600' : h.status === 'REJECTED' ? 'bg-red-100 text-red-600' : 'bg-amber-100 text-amber-600'}`}>
+                      {h.status}
+                    </span>
+                    <button 
+                      onClick={() => downloadLeavePDF(h)}
+                      className="p-1.5 sm:p-2 bg-[#001f3f]/10 text-[#001f3f] rounded-lg hover:bg-[#001f3f] hover:text-white transition-colors"
+                      title="Download PDF"
+                    >
+                      <FiDownload className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    </button>
+                    <button 
+                      onClick={() => setEditModal({ show: true, data: h })}
+                      className="p-1.5 sm:p-2 bg-blue-50 text-blue-500 rounded-lg hover:bg-blue-500 hover:text-white transition-colors"
+                      title="Edit Request"
+                    >
+                      <FiEdit2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    </button>
+                    <button 
+                      onClick={() => setDeleteModal({ show: true, id: h._id })}
+                      className="p-1.5 sm:p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-500 hover:text-white transition-colors"
+                      title="Delete Request"
+                    >
+                      <FiTrash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    </button>
+                  </div>
                 </div>
+                {h.teacherRemarks && (
+                  <div className="mt-2 text-xs text-blue-800 bg-blue-50 p-2 rounded border border-blue-100 flex items-start gap-1">
+                    <span className="font-bold whitespace-nowrap">Reply:</span>
+                    <span>{h.teacherRemarks}</span>
+                  </div>
+                )}
               </div>
             ))}
             {leaveHistory.length === 0 && (

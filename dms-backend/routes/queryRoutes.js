@@ -37,13 +37,16 @@ router.get('/all', async (req, res) => {
             };
         } else {
             // Student
-            if (rollNumber) {
+            const { email } = req.query;
+            if (rollNumber && rollNumber !== 'N/A' && rollNumber !== '000000') {
                 filter = {
                     $or: [
                         { rollNumber: rollNumber },
                         { recipient: rollNumber } // If admin sent direct message to student
                     ]
                 };
+            } else if (email) {
+                filter = { email: email };
             }
         }
 
@@ -144,7 +147,7 @@ router.put('/reply/:id', async (req, res) => {
                 title: `Query Replied: ${updatedQuery.subject}`,
                 content: `Your message has received a reply.\nReply: ${reply.substring(0, 50)}...`,
                 target: noticeTarget,
-                targetUser: updatedQuery.rollNumber !== 'N/A' ? updatedQuery.rollNumber : 'all',
+                targetUser: (updatedQuery.rollNumber !== 'N/A' && updatedQuery.rollNumber !== '000000') ? updatedQuery.rollNumber : (updatedQuery.email || 'all'),
                 type: 'Query',
                 link: 'queries'
             });

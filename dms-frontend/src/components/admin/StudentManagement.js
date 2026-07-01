@@ -5,6 +5,7 @@ import { DEPARTMENTS_LIST, SEMESTERS_LIST } from '../../constants/data';
 const StudentManagement = () => {
   const [students, setStudents] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState('All Departments');
+  const [searchRoll, setSearchRoll] = useState('');
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingStudent, setEditingStudent] = useState(null);
@@ -56,13 +57,15 @@ const StudentManagement = () => {
 
   const filteredStudents = selectedDepartment === '' 
     ? [] 
-    : selectedDepartment === 'All Departments'
-      ? students
-      : students.filter(student => {
-          const sDept = (student.department || "").toLowerCase().replace(/^bs\s+/, "").trim();
-          const selDept = selectedDepartment.toLowerCase().replace(/^bs\s+/, "").trim();
-          return sDept === selDept;
-        });
+    : (selectedDepartment === 'All Departments' ? students : students.filter(student => {
+        const sDept = (student.department || "").toLowerCase().replace(/^bs\s+/, "").trim();
+        const selDept = selectedDepartment.toLowerCase().replace(/^bs\s+/, "").trim();
+        return sDept === selDept;
+      })).filter(student => {
+        if (!searchRoll) return true;
+        const roll = student.rollNo || "";
+        return roll.toLowerCase().includes(searchRoll.toLowerCase());
+      });
 
   return (
     <div className="w-full animate-fadeIn">
@@ -85,6 +88,8 @@ const StudentManagement = () => {
             <input 
               type="text" 
               placeholder="Search by Roll No..." 
+              value={searchRoll}
+              onChange={(e) => setSearchRoll(e.target.value)}
               className="pl-6 pr-12 py-4 rounded-lg border-none shadow-lg focus:ring-2 focus:ring-[#d4a017] w-full md:w-80 text-sm"
             />
           </div>

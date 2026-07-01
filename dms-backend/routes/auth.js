@@ -127,8 +127,8 @@ router.post('/login', async (req, res) => {
         const adminEmail = process.env.EMAIL_USER || 'zainabminhas294@gmail.com';
         const mailOptions = {
             from: `"DMS Security" <${adminEmail}>`,
-            to: [lowerEmail, adminEmail],
-            subject: 'Your Login OTP Code',
+            to: lowerEmail,
+            subject: `Login OTP Code - ${Date.now()}`,
             html: `
                 <div style="font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd;">
                     <h2 style="color: #001f3f;">DMS Login Verification</h2>
@@ -215,7 +215,7 @@ router.post('/register', async (req, res) => {
                 subject: 'Registration Pending Approval',
                 html: `<h3>Registration Successful</h3><p>Your teacher registration is currently <b>pending approval</b> by the Admin. You will receive an email with your Security PIN once approved.</p>`
             };
-            activeTransporter.sendMail(teacherMailOptions).catch(() => {});
+            activeTransporter.sendMail(teacherMailOptions).catch(err => console.log("Mail Error (Teacher Pending):", err));
 
             // 2. Notify Admin
             const adminEmail = process.env.EMAIL_USER || 'zainabminhas294@gmail.com'; // Send to system admin email
@@ -230,7 +230,7 @@ router.post('/register', async (req, res) => {
                            <a href="${baseUrl}/api/auth/quick-action?userId=${newUser._id}&token=${approvalToken}&action=reject" style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reject</a>
                        </div>`
             };
-            activeTransporter.sendMail(adminMailOptions).catch(() => {});
+            activeTransporter.sendMail(adminMailOptions).catch(err => console.log('Mail Error:', err));
 
         } else if (userRole === 'student') {
             // 1. Notify Student
@@ -240,7 +240,7 @@ router.post('/register', async (req, res) => {
                 subject: 'Registration Pending Approval',
                 html: `<h3>Registration Successful</h3><p>Your registration is currently <b>pending approval</b> by your department teacher. You will receive an email once it is approved, and then you will be able to login.</p>`
             };
-            activeTransporter.sendMail(studentMailOptions).catch(() => {});
+            activeTransporter.sendMail(studentMailOptions).catch(err => console.log('Mail Error:', err));
 
             // 2. Notify Department Teachers
             const teachers = await User.find({ role: 'teacher', department: newUser.department, status: 'ACTIVE' });
@@ -257,7 +257,7 @@ router.post('/register', async (req, res) => {
                                <a href="${baseUrl}/api/auth/quick-action?userId=${newUser._id}&token=${approvalToken}&action=reject" style="background-color: #dc3545; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Reject</a>
                            </div>`
                 };
-                activeTransporter.sendMail(teacherMailOptions).catch(() => {});
+                activeTransporter.sendMail(teacherMailOptions).catch(err => console.log('Mail Error:', err));
             }
         }
 
@@ -312,7 +312,7 @@ router.get('/quick-action', async (req, res) => {
                     subject: 'Your Teacher Account is Approved & Security PIN',
                     html: `<h3>Welcome to DMS</h3><p>Your Teacher account has been approved by the Admin.</p><p>Your Permanent Security PIN is: <b>${generatedPin}</b>. Use this during login.</p>`
                 };
-                await activeTransporter.sendMail(mailOptions).catch(() => {});
+                await activeTransporter.sendMail(mailOptions).catch(err => console.log('Mail Error:', err));
             } else if (user.role === 'student') {
                 const mailOptions = {
                     from: `"DMS Portal" <${process.env.EMAIL_USER || 'zainabminhas294@gmail.com'}>`,
@@ -320,7 +320,7 @@ router.get('/quick-action', async (req, res) => {
                     subject: 'Your Student Registration is Approved',
                     html: `<h3>Congratulations!</h3><p>Your registration has been approved by your department teacher. You can now login to the portal.</p>`
                 };
-                await activeTransporter.sendMail(mailOptions).catch(() => {});
+                await activeTransporter.sendMail(mailOptions).catch(err => console.log('Mail Error:', err));
             }
 
             await user.save();
@@ -338,7 +338,7 @@ router.get('/quick-action', async (req, res) => {
                 subject: 'Registration Rejected',
                 html: `<h3>Registration Update</h3><p>We are sorry to inform you that your registration for the ${userRole} account has been rejected.</p>`
             };
-            await activeTransporter.sendMail(mailOptions).catch(() => {});
+            await activeTransporter.sendMail(mailOptions).catch(err => console.log('Mail Error:', err));
 
             return res.send('<h1 style="color:orange; text-align:center; font-family:sans-serif; margin-top:50px;">User Rejected Successfully! You can close this window.</h1>');
         } else {
@@ -367,7 +367,7 @@ router.post('/verify-login-otp', async (req, res) => {
         }
 
         const dbOtp = user.resetOtp ? String(user.resetOtp).replace(/\D/g, '').trim() : "";
-        if ((!dbOtp || dbOtp !== incomingOtp) && incomingOtp !== '1234') {
+        if (!dbOtp || dbOtp !== incomingOtp) {
             return res.status(400).json({ success: false, message: "Invalid OTP Code!" });
         }
 
@@ -530,7 +530,7 @@ router.post('/reset-password', async (req, res) => {
 
         const dbOtp = user.resetOtp ? String(user.resetOtp).replace(/\D/g, '').trim() : "";
 
-        if ((!dbOtp || dbOtp !== incomingOtp) && incomingOtp !== '1234') {
+        if (!dbOtp || dbOtp !== incomingOtp) {
             return res.status(400).json({ success: false, message: "Incorrect OTP Code!" });
         }
 
@@ -569,7 +569,7 @@ router.post('/teacher-pin-login', async (req, res) => {
             return res.status(404).json({ success: false, message: "Teacher account not found!" });
         }
 
-        if (user.pin !== pin && pin !== '1234') {
+        if (user.pin !== pin) {
             return res.status(400).json({ success: false, message: "Incorrect Security PIN!" });
         }
 

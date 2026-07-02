@@ -116,7 +116,7 @@ const Attendance = () => {
     }
     try {
       await axios.post(`${BACKEND_URL}/api/attendance/submit-leave`, {
-        studentId: user._id,
+        studentId: user._id || user.id,
         subject,
         reason,
         startDate,

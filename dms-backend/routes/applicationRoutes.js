@@ -71,11 +71,15 @@ router.get('/teacher/view-all', verifyToken, async (req, res) => {
 
         // 🎯 POPULATE FIXED: Student name and roll number linked to generate report
         // Also filter by targetTeacherId (allow null for backward compatibility)
-        const applications = await Application.find({ 
-            studentId: { $in: studentIds },
+        const applications = await Application.find({
             $or: [
                 { targetTeacherId: req.user.id },
-                { targetTeacherId: null }
+                {
+                    $and: [
+                        { targetTeacherId: null },
+                        { studentId: { $in: studentIds } }
+                    ]
+                }
             ]
         })
             .populate({
@@ -119,6 +123,26 @@ router.put('/status-update/:id', verifyToken, async (req, res) => {
 
         if (!updatedApp) {
             return res.status(404).json({ success: false, message: "Application not found." });
+        }
+
+        try {
+            const Notice = require('../models/Notice');
+            await Notice.create({
+                title: `Leave Application ${updatedApp.status}`,
+                content: `Your leave application for ${updatedApp.subject} has been ${updatedApp.status.toLowerCase()}. Remarks: ${updatedApp.teacherRemarks || 'None'}`,
+                target: 'student',
+                targetUser: updatedApp.studentId, // We might need rollNo instead if targetUser expects rollNo
+                type: 'General',
+                link: 'attendance' // Directs student to attendance tab
+            });
+            
+            // Delete the old 'New Leave Application' notification targeted at the teacher
+            await Notice.deleteMany({
+                title: `New Leave Application`,
+                targetUser: req.user.id
+            });
+        } catch (err) {
+            console.error("Failed to process leave application notice:", err);
         }
 
         return res.json({

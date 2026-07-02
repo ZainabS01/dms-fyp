@@ -143,6 +143,16 @@ router.put('/reply/:id', async (req, res) => {
             else if (updatedQuery.recipient === 'admin') noticeTarget = updatedQuery.rollNumber === 'N/A' ? 'teacher' : 'student';
             else if (updatedQuery.recipient === 'teacher') noticeTarget = 'student';
 
+            try {
+                const Notice = require('../models/Notice');
+                await Notice.deleteMany({
+                    type: 'Query',
+                    title: `New Message from ${updatedQuery.studentName}`
+                });
+            } catch (err) {
+                console.error("Failed to delete old query notice:", err);
+            }
+
             await Notice.create({
                 title: `Query Replied: ${updatedQuery.subject}`,
                 content: `Your message has received a reply.\nReply: ${reply.substring(0, 50)}...`,

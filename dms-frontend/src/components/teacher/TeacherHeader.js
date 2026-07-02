@@ -20,11 +20,21 @@ const TeacherHeader = ({ activeTab, teacherName, teacherProfilePic, isHOD, onOpe
     }
   };
 
-  const handleNoticeClick = (notice) => {
+  const handleNoticeClick = async (notice) => {
     if (notice.link && setActiveTab) {
       setActiveTab(notice.link);
     }
     setShowNotifications(false);
+    
+    // Auto-remove personal notifications when clicked
+    if (notice.targetUser && notice.targetUser !== 'all') {
+      try {
+        await axios.delete(`${process.env.REACT_APP_API_URL}/api/notices/${notice._id}`);
+        setNotices(prev => prev.filter(n => n._id !== notice._id));
+      } catch (error) {
+        console.error('Error auto-deleting notice:', error);
+      }
+    }
   };
 
   const handleDeleteNotification = async (e, id) => {
@@ -41,7 +51,7 @@ const TeacherHeader = ({ activeTab, teacherName, teacherProfilePic, isHOD, onOpe
     const fetchNotices = async () => {
       try {
         const savedUser = JSON.parse(localStorage.getItem('user') || '{}');
-        const userId = savedUser._id || '';
+        const userId = savedUser._id || savedUser.id || '';
         const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/notices?role=teacher&userId=${userId}`);
         setNotices(response.data);
       } catch (error) {

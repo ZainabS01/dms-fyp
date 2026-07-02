@@ -7,7 +7,7 @@ import {
 import { SEMESTERS_LIST } from '../../constants/data';
 
 const StudentAcademicData = () => {
-  const [selectedDept, setSelectedDept] = useState('BS COMPUTER SCIENCE');
+  const [selectedDept, setSelectedDept] = useState('COMPUTER SCIENCE');
   const [selectedSem, setSelectedSem] = useState('1');
   const [subjects, setSubjects] = useState([]);
   const [expandedSubject, setExpandedSubject] = useState(null);

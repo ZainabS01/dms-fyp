@@ -8,7 +8,7 @@ const ManageAttendance = () => {
   const [view, setView] = useState('menu'); // views: 'menu', 'mark', 'history', 'applications'
   const [students, setStudents] = useState([]);
   const [selectedSemester, setSelectedSemester] = useState('1');
-  const [selectedDepartment, setSelectedDepartment] = useState('BS COMPUTER SCIENCE');
+  const [selectedDepartment, setSelectedDepartment] = useState('COMPUTER SCIENCE');
   
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -630,9 +630,13 @@ const downloadApplicationPDF = (application) => {
                                 onChange={(e) => setRemarks({...remarks, [app._id]: e.target.value})}
                                 className="border border-slate-200 text-[10px] p-2 rounded-lg outline-none w-full bg-slate-50 text-slate-700 focus:bg-white focus:border-blue-400 focus:ring-1 focus:ring-blue-400/30 transition-all shadow-inner"
                               />
-                              <div className="flex gap-1.5 w-full">
-                                <button onClick={() => handleApplicationStatus(app._id, 'APPROVED')} className="w-1/2 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-black text-[10px] py-1.5 px-1 rounded-md transition-all shadow-sm">✓ Approve</button>
-                                <button onClick={() => handleApplicationStatus(app._id, 'REJECTED')} className="w-1/2 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white font-black text-[10px] py-1.5 px-1 rounded-md transition-all shadow-sm">✕ Reject</button>
+                              <div className="flex flex-col sm:flex-row gap-2 w-full mt-1">
+                                <button onClick={() => handleApplicationStatus(app._id, 'APPROVED')} className="w-full sm:w-1/2 bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white font-bold text-[10px] py-2 px-2 rounded-md transition-all shadow-sm flex items-center justify-center gap-1">
+                                  <span>✓</span> Approve
+                                </button>
+                                <button onClick={() => handleApplicationStatus(app._id, 'REJECTED')} className="w-full sm:w-1/2 bg-rose-500 hover:bg-rose-600 active:scale-95 text-white font-bold text-[10px] py-2 px-2 rounded-md transition-all shadow-sm flex items-center justify-center gap-1">
+                                  <span>✕</span> Reject
+                                </button>
                               </div>
                             </div>
                           ) : (

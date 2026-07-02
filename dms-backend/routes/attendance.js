@@ -144,6 +144,26 @@ router.post('/submit-leave', async (req, res) => {
         });
         
         await newApp.save();
+        
+        // --- Create Notification for Teacher ---
+        try {
+            const User = require('../models/User');
+            const student = await User.findById(studentId);
+            const Notice = require('../models/Notice');
+            
+            await Notice.create({
+                title: `New Leave Application`,
+                content: `${student ? student.name : 'A student'} has submitted a leave application: ${subject}`,
+                target: targetTeacherId ? 'teacher' : 'all',
+                targetUser: targetTeacherId || 'all',
+                targetDepartment: student ? student.department : 'all',
+                type: 'General',
+                link: 'attendance' // Directs teacher to attendance tab
+            });
+        } catch (err) {
+            console.error("Failed to create notice:", err);
+        }
+        
         res.status(201).json({ success: true });
     } catch (error) {
         console.error("❌ Backend Error:", error); // Details of the error will appear here

@@ -55,17 +55,17 @@ const StudentManagement = () => {
 
   const departments = ['All Departments', ...DEPARTMENTS_LIST];
 
-  const filteredStudents = selectedDepartment === '' 
-    ? [] 
+  const filteredStudents = selectedDepartment === ''
+    ? []
     : (selectedDepartment === 'All Departments' ? students : students.filter(student => {
-        const sDept = (student.department || "").toLowerCase().replace(/^bs\s+/, "").trim();
-        const selDept = selectedDepartment.toLowerCase().replace(/^bs\s+/, "").trim();
-        return sDept === selDept;
-      })).filter(student => {
-        if (!searchRoll) return true;
-        const roll = student.rollNo || "";
-        return roll.toLowerCase().includes(searchRoll.toLowerCase());
-      });
+      const sDept = (student.department || "").toLowerCase().replace(/^bs\s+/, "").trim();
+      const selDept = selectedDepartment.toLowerCase().replace(/^bs\s+/, "").trim();
+      return sDept === selDept;
+    })).filter(student => {
+      if (!searchRoll) return true;
+      const roll = student.rollNo || "";
+      return roll.toLowerCase().includes(searchRoll.toLowerCase());
+    });
 
   return (
     <div className="w-full animate-fadeIn">
@@ -85,9 +85,9 @@ const StudentManagement = () => {
             </select>
           </div>
           <div className="relative w-full md:w-auto">
-            <input 
-              type="text" 
-              placeholder="Search by Roll No..." 
+            <input
+              type="text"
+              placeholder="Search by Roll No..."
               value={searchRoll}
               onChange={(e) => setSearchRoll(e.target.value)}
               className="pl-6 pr-12 py-4 rounded-lg border-none shadow-lg focus:ring-2 focus:ring-[#d4a017] w-full md:w-80 text-sm"
@@ -97,47 +97,65 @@ const StudentManagement = () => {
       </div>
 
       {/* Table Container */}
-      <div className="bg-white rounded-lg shadow-xl border border-slate-100 flex flex-col max-h-[600px] overflow-hidden">
+      <div className="bg-white rounded-lg shadow-xl border border-slate-100 flex flex-col h-[calc(100vh-260px)] min-h-[400px] overflow-hidden">
         <div className="overflow-x-auto overflow-y-auto flex-1 custom-scrollbar w-full">
-          <table className="w-full text-left relative min-w-[800px]">
-            <thead className="bg-[#001f3f] text-white uppercase text-[11px] tracking-[0.2em] sticky top-0 z-10 shadow-sm">
-            <tr>
-              <th className="px-8 py-6">Roll No</th>
-              <th className="px-8 py-6">Full Name</th>
-              <th className="px-8 py-6">Department</th>
-              <th className="px-8 py-6">Semester</th>
-              <th className="px-8 py-6 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {selectedDepartment === '' ? (
+          <table className="w-full text-left min-w-[800px] border-collapse">
+            <thead className="bg-[#001f3f] text-white uppercase text-[12px] tracking-wider sticky top-0 z-20">
               <tr>
-                <td colSpan="5" className="px-8 py-12 text-left md:text-center text-slate-400 font-bold uppercase tracking-wider sticky left-0">
-                  Please select a department to view students
-                </td>
+                <th className="px-6 py-5 font-bold w-[15%]">Roll No</th>
+                <th className="px-6 py-5 font-bold w-[25%]">Full Name</th>
+                <th className="px-6 py-5 font-bold w-[25%]">Department</th>
+                <th className="px-6 py-5 font-bold text-center w-[15%]">Semester</th>
+                <th className="px-6 py-5 font-bold text-center w-[20%]">Actions</th>
               </tr>
-            ) : filteredStudents.length === 0 ? (
-              <tr>
-                <td colSpan="5" className="px-8 py-12 text-left md:text-center text-slate-400 font-bold uppercase tracking-wider sticky left-0">
-                  No students found in this department
-                </td>
-              </tr>
-            ) : (
-              filteredStudents.map((student) => (
-                <tr key={student._id} className="hover:bg-slate-50 transition-colors">
-                  <td className="px-8 py-6 font-black text-[#001f3f]">{student.rollNo || '888888'}</td>
-                  <td className="px-8 py-6 font-bold text-slate-600">{student.name}</td>
-                  <td className="px-8 py-6 text-xs font-black text-blue-500 uppercase">{student.department}</td>
-                  <td className="px-8 py-6 font-black text-[#d4a017]">{student.semester}</td>
-                  <td className="px-8 py-6 flex justify-center gap-3">
-                    <button onClick={() => handleEditClick(student)} className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-bold text-[10px] uppercase hover:bg-blue-600 hover:text-white transition-all">Edit</button>
-                    <button onClick={() => handleDeleteClick(student)} className="bg-red-100 text-red-500 px-4 py-2 rounded-lg font-bold text-[10px] uppercase hover:bg-red-500 hover:text-white transition-all">Delete</button>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {selectedDepartment === '' ? (
+                <tr>
+                  <td colSpan="5" className="px-6 py-12 text-center text-slate-400 font-bold uppercase tracking-wider">
+                    Please select a department to view students
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : filteredStudents.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="px-6 py-12 text-center text-slate-400 font-bold uppercase tracking-wider">
+                    No students found in this department
+                  </td>
+                </tr>
+              ) : (
+                filteredStudents.map((student) => (
+                  <tr key={student._id} className="hover:bg-slate-50 transition-colors group">
+                    <td className="px-6 py-2 h-16">
+                      <div className="flex items-center h-full font-black text-[#001f3f]">
+                        {student.rollNo || '888888'}
+                      </div>
+                    </td>
+                    <td className="px-6 py-2 h-16">
+                      <div className="flex items-center h-full font-bold text-slate-600">
+                        {student.name}
+                      </div>
+                    </td>
+                    <td className="px-6 py-2 h-16">
+                      <div className="flex items-center h-full text-xs font-black text-blue-500 uppercase">
+                        {student.department}
+                      </div>
+                    </td>
+                    <td className="px-6 py-2 h-16">
+                      <div className="flex items-center justify-center h-full font-black text-[#d4a017]">
+                        {student.semester}
+                      </div>
+                    </td>
+                    <td className="px-6 py-2 h-16">
+                      <div className="flex items-center justify-center gap-3 h-full">
+                        <button onClick={() => handleEditClick(student)} className="bg-blue-100 text-blue-600 px-4 py-2 rounded-lg font-bold text-[10px] uppercase hover:bg-blue-600 hover:text-white transition-all">Edit</button>
+                        <button onClick={() => handleDeleteClick(student)} className="bg-red-100 text-red-500 px-4 py-2 rounded-lg font-bold text-[10px] uppercase hover:bg-red-500 hover:text-white transition-all">Delete</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -149,22 +167,22 @@ const StudentManagement = () => {
             <div className="space-y-4">
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase">Roll No</label>
-                <input type="text" value={editingStudent?.rollNo || ''} onChange={(e) => setEditingStudent({...editingStudent, rollNo: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700" />
+                <input type="text" value={editingStudent?.rollNo || ''} onChange={(e) => setEditingStudent({ ...editingStudent, rollNo: e.target.value })} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700" />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase">Full Name</label>
-                <input type="text" value={editingStudent?.name || ''} onChange={(e) => setEditingStudent({...editingStudent, name: e.target.value})} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700" />
+                <input type="text" value={editingStudent?.name || ''} onChange={(e) => setEditingStudent({ ...editingStudent, name: e.target.value })} className="w-full mt-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700" />
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase">Department</label>
-                <select value={editingStudent?.department || ''} onChange={(e) => setEditingStudent({...editingStudent, department: e.target.value})} className="w-full mt-1 pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700 uppercase cursor-pointer">
+                <select value={editingStudent?.department || ''} onChange={(e) => setEditingStudent({ ...editingStudent, department: e.target.value })} className="w-full mt-1 pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700 uppercase cursor-pointer">
                   <option value="">Select Department</option>
                   {DEPARTMENTS_LIST.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
               </div>
               <div>
                 <label className="text-xs font-bold text-slate-500 uppercase">Semester</label>
-                <select value={editingStudent?.semester || ''} onChange={(e) => setEditingStudent({...editingStudent, semester: e.target.value})} className="w-full mt-1 pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700 cursor-pointer">
+                <select value={editingStudent?.semester || ''} onChange={(e) => setEditingStudent({ ...editingStudent, semester: e.target.value })} className="w-full mt-1 pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-[#d4a017] outline-none font-bold text-slate-700 cursor-pointer">
                   <option value="">Select Semester</option>
                   {SEMESTERS_LIST.map(s => <option key={s} value={s}>{s} Semester</option>)}
                 </select>

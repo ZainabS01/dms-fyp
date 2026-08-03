@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 // Import User model (Verify the path is models/User.js)
-const User = require('../models/User'); 
+const User = require('../models/User');
 const nodemailer = require('nodemailer');
 
 const transporter = nodemailer.createTransport({
@@ -11,14 +11,14 @@ const transporter = nodemailer.createTransport({
     secure: true,
     auth: {
         user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS 
+        pass: process.env.EMAIL_PASS
     }
 });
 
 // 1. Get All Faculty (Sirf wo jin ka role 'teacher' hai)
 router.get('/faculty', async (req, res) => {
     try {
-        const filter = { role: 'teacher' };
+        const filter = { role: { $in: ['teacher', 'admin'] } };
         if (req.query.status) {
             filter.status = new RegExp('^' + req.query.status + '$', 'i');
         }
@@ -27,6 +27,28 @@ router.get('/faculty', async (req, res) => {
     } catch (err) {
         console.error("Faculty fetch error:", err);
         res.status(500).json({ message: "Server error while fetching faculty" });
+    }
+});
+
+// 1.5 Toggle Admin Status for Faculty
+router.put('/faculty/:id/toggle-admin', async (req, res) => {
+    try {
+        const user = await User.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: "User not found" });
+        }
+
+        // Toggle logic based on role
+        if (user.role === 'admin') {
+            user.role = 'teacher';
+        } else {
+            user.role = 'admin';
+        }
+        await user.save();
+        res.json({ success: true, role: user.role, message: `Admin privileges ${user.role === 'admin' ? 'granted' : 'revoked'}` });
+    } catch (err) {
+        console.error("Toggle Admin error:", err);
+        res.status(500).json({ success: false, message: "Server error toggling Admin status" });
     }
 });
 
@@ -72,7 +94,7 @@ router.put('/students/:id/:action', async (req, res) => {
     try {
         const { id, action } = req.params;
         const user = await User.findById(id);
-        
+
         if (!user || user.role !== 'student') {
             return res.status(404).json({ message: "Student not found" });
         }
@@ -80,7 +102,7 @@ router.put('/students/:id/:action', async (req, res) => {
         if (action === 'approve') {
             user.status = 'ACTIVE';
             await user.save();
-            
+
             // Send email
             const mailOptions = {
                 from: `"DMS Admin" <${process.env.EMAIL_USER}>`,
@@ -88,14 +110,14 @@ router.put('/students/:id/:action', async (req, res) => {
                 subject: 'Account Verified - DMS Portal',
                 html: `<h3>Congratulations!</h3><p>Your registration request has been accepted by the teacher. You can now login and access your dashboard.</p>`
             };
-            transporter.sendMail(mailOptions).catch(() => {});
-            
+            transporter.sendMail(mailOptions).catch(() => { });
+
             return res.json({ success: true, message: "Student verified successfully" });
-            
+
         } else if (action === 'reject') {
             user.status = 'REJECTED';
             await user.save();
-            
+
             // Send email
             const mailOptions = {
                 from: `"DMS Admin" <${process.env.EMAIL_USER}>`,
@@ -103,8 +125,8 @@ router.put('/students/:id/:action', async (req, res) => {
                 subject: 'Account Rejected - DMS Portal',
                 html: `<h3>Account Update</h3><p>Your registration request has been rejected by the teacher.</p>`
             };
-            transporter.sendMail(mailOptions).catch(() => {});
-            
+            transporter.sendMail(mailOptions).catch(() => { });
+
             return res.json({ success: true, message: "Student rejected successfully" });
         } else {
             return res.status(400).json({ message: "Invalid action" });
@@ -151,14 +173,14 @@ router.put('/faculty/:id/toggle-hod', async (req, res) => {
     try {
         const { id } = req.params;
         const user = await User.findById(id);
-        
+
         if (!user || user.role !== 'teacher') {
             return res.status(404).json({ message: "Teacher not found" });
         }
-        
+
         user.isHOD = !user.isHOD;
         await user.save();
-        
+
         return res.json({ success: true, message: `Teacher is now ${user.isHOD ? 'an HOD' : 'not an HOD'}`, isHOD: user.isHOD });
     } catch (err) {
         console.error("HOD toggle error:", err);
@@ -171,7 +193,7 @@ router.put('/faculty/:id/:action', async (req, res) => {
     try {
         const { id, action } = req.params;
         const user = await User.findById(id);
-        
+
         if (!user || user.role !== 'teacher') {
             return res.status(404).json({ message: "Teacher not found" });
         }
@@ -179,7 +201,7 @@ router.put('/faculty/:id/:action', async (req, res) => {
         if (action === 'approve') {
             user.status = 'ACTIVE';
             await user.save();
-            
+
             // Send email
             const mailOptions = {
                 from: `"DMS Admin" <${process.env.EMAIL_USER}>`,
@@ -187,14 +209,14 @@ router.put('/faculty/:id/:action', async (req, res) => {
                 subject: 'Account Verified - DMS Portal',
                 html: `<h3>Congratulations!</h3><p>Your account has been approved by the admin. You can now access the Teacher Dashboard.</p>`
             };
-            transporter.sendMail(mailOptions).catch(() => {});
-            
+            transporter.sendMail(mailOptions).catch(() => { });
+
             return res.json({ success: true, message: "Teacher verified successfully" });
-            
+
         } else if (action === 'reject') {
             user.status = 'REJECTED';
             await user.save();
-            
+
             // Send email
             const mailOptions = {
                 from: `"DMS Admin" <${process.env.EMAIL_USER}>`,
@@ -202,8 +224,8 @@ router.put('/faculty/:id/:action', async (req, res) => {
                 subject: 'Account Rejected - DMS Portal',
                 html: `<h3>Account Update</h3><p>Your registration request has been rejected by the admin.</p>`
             };
-            transporter.sendMail(mailOptions).catch(() => {});
-            
+            transporter.sendMail(mailOptions).catch(() => { });
+
             return res.json({ success: true, message: "Teacher rejected successfully" });
         } else {
             return res.status(400).json({ message: "Invalid action" });
@@ -250,7 +272,7 @@ router.get('/dashboard-stats', async (req, res) => {
     try {
         const totalStudents = await User.countDocuments({ role: 'student' });
         const totalTeachers = await User.countDocuments({ role: 'teacher' });
-        
+
         const departmentStats = await User.aggregate([
             { $match: { role: 'student' } },
             { $group: { _id: "$department", students: { $sum: 1 } } },

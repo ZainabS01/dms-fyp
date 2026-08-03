@@ -2,19 +2,19 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
-import axios from 'axios'; 
-import ForgotPasswordModal from './ForgotPasswordModal'; 
-import { Eye, EyeOff } from 'lucide-react'; 
+import axios from 'axios';
+import ForgotPasswordModal from './ForgotPasswordModal';
+import { Eye, EyeOff } from 'lucide-react';
 
-const Login = ({ setUser }) => { 
+const Login = ({ setUser }) => {
   const navigate = useNavigate();
-  const [userRole, setUserRole] = useState('Student'); 
+  const [userRole, setUserRole] = useState('Student');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState(''); 
-  const [pin, setPin] = useState(''); 
-  const [otp, setOtp] = useState(''); 
+  const [password, setPassword] = useState('');
+  const [pin, setPin] = useState('');
+  const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
-  const [loginStep, setLoginStep] = useState(1); 
+  const [loginStep, setLoginStep] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
 
@@ -53,22 +53,18 @@ const Login = ({ setUser }) => {
     const lowerEmail = email.toLowerCase().trim();
 
     try {
-      // 1. Admin Logic
+      // 1. Admin Logic (OTP Only)
       if (userRole.toLowerCase() === 'admin') {
-        if (lowerEmail === 'zainabminhas294@gmail.com') {
-          const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/send-otp`, { email: lowerEmail });
-          if (res.data.success) {
-            toast.success("Security OTP sent to Admin Gmail!");
-            setLoginStep(2);
-          }
-        } else {
-          toast.error("Unauthorized Admin Email!");
+        const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/send-otp`, { email: lowerEmail });
+        if (res.data.success) {
+          toast.success("Security OTP sent to your Email!");
+          setLoginStep(2);
         }
         setLoading(false);
         return;
       }
 
-      // 2. Teacher & Student Logic
+      // 2. Teacher & Student Logic (Password required)
       const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/login`, {
         email: lowerEmail,
         password: password
@@ -76,18 +72,18 @@ const Login = ({ setUser }) => {
 
       if (res.data.success) {
         const userData = res.data.user;
-        
+
         // Role check
         if (userData.role.toLowerCase() !== userRole.toLowerCase()) {
-           toast.error(`You are not registered as a ${userRole}!`);
-           setLoading(false);
-           return;
+          toast.error(`You are not registered as a ${userRole}!`);
+          setLoading(false);
+          return;
         }
 
         // Multi-factor check for All Roles
         if (res.data.requiresOtp) {
-            toast.success(res.data.message || "OTP sent to your Gmail.");
-            setLoginStep(2);
+          toast.success(res.data.message || "OTP sent to your Gmail.");
+          setLoginStep(2);
         }
       }
     } catch (err) {
@@ -101,38 +97,33 @@ const Login = ({ setUser }) => {
   const handleOtpSubmit = async (e) => {
     if (e) e.preventDefault();
     setLoading(true);
-    
+
     try {
       // Note: The 'reset-password' logic on the backend can be used to verify OTP,
       // or you can create a dedicated 'verify-otp' route.
       // Currently, we simulate admin login and handle state for teachers.
-      
-      if (userRole.toLowerCase() === 'admin') {
-          // Admin secure check logic
-          const adminData = {
-            success: true,
-            user: { name: "Zainab", role: "admin", email: email },
-            token: "admin-secure-session-" + Date.now()
-          };
-          completeLogin(adminData);
-      } else {
-          const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/verify-login-otp`, {
-              email: email.toLowerCase(),
-              otp: otp
-          });
 
-          if (res.data.success) {
-              if (userRole.toLowerCase() === 'teacher') {
-                  toast.success("OTP Verified! Enter Security PIN.");
-                  setLoginStep(3);
-              } else {
-                  // Direct login for students after OTP
-                  completeLogin(res.data);
-              }
+      const res = await axios.post(`${process.env.REACT_APP_API_URL}/api/auth/verify-login-otp`, {
+        email: email.toLowerCase(),
+        otp: otp
+      });
+
+      if (res.data.success) {
+        if (res.data.message === "OTP Verified. Proceed to PIN." || userRole.toLowerCase() === 'teacher') {
+          toast.success("OTP Verified! Enter Security PIN.");
+          setLoginStep(3);
+        } else {
+          // Direct login for students and admin after OTP
+          if (!res.data.user) {
+             toast.error("Error: Database role does not match Admin.");
+             return;
           }
+          completeLogin(res.data);
+        }
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "OTP Verification Failed!");
+      console.error("OTP Error:", err);
+      toast.error(err.response?.data?.message || err.message || "OTP Verification Failed!");
       setOtp('');
     } finally {
       setLoading(false);
@@ -152,7 +143,7 @@ const Login = ({ setUser }) => {
       }
     } catch (err) {
       toast.error("Invalid Security PIN!");
-      setPin(''); 
+      setPin('');
     } finally {
       setLoading(false);
     }
@@ -167,7 +158,7 @@ const Login = ({ setUser }) => {
     };
 
     localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(userToSave)); 
+    localStorage.setItem('user', JSON.stringify(userToSave));
     setUser(userToSave);
 
     setTimeout(() => {
@@ -179,7 +170,7 @@ const Login = ({ setUser }) => {
   return (
     <div className="relative min-h-screen w-full bg-[#001f3f] flex items-center justify-center pt-[100px] pb-8 px-4">
       <motion.div className="w-full max-w-[750px] bg-white rounded-lg shadow-2xl flex flex-col lg:flex-row overflow-hidden min-h-[350px]">
-        
+
         <div className="w-full lg:w-[45%] bg-white p-3 flex items-center justify-center border-r border-gray-100">
           <img src="/login.png" alt="Login" className="w-full max-w-[250px]" />
         </div>
@@ -236,26 +227,26 @@ const Login = ({ setUser }) => {
             {loginStep === 2 && (
               <motion.div key="step2" initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ opacity: 0 }}>
                 <div className="text-center">
-                   <div className="text-5xl mb-4">📧</div>
-                   <h2 className="text-3xl font-black text-[#001f3f] uppercase">Verify OTP</h2>
-                   <p className="text-slate-400 text-[10px] uppercase font-bold mt-2">Sent to: {email}</p>
-                   
-                   <form onSubmit={handleOtpSubmit} className="mt-10 space-y-8">
-                     <input 
-                       type="text" 
-                       maxLength="4" 
-                       value={otp} 
-                       onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} 
-                       className="w-full text-center text-5xl p-4 border-b-4 border-[#d4a017] outline-none font-black tracking-[0.5em] bg-transparent" 
-                       placeholder="0000" 
-                       required 
-                       autoFocus 
-                     />
-                     <button type="submit" disabled={loading} className="w-full bg-[#d4a017] text-white py-5 rounded-lg font-black uppercase shadow-lg disabled:opacity-50">
-                        {loading ? 'Verifying...' : 'Continue'}
-                     </button>
-                     <button type="button" onClick={() => setLoginStep(1)} className="block mx-auto text-slate-400 text-[10px] uppercase font-bold hover:text-[#001f3f]">Back</button>
-                   </form>
+                  <div className="text-5xl mb-4">📧</div>
+                  <h2 className="text-3xl font-black text-[#001f3f] uppercase">Verify OTP</h2>
+                  <p className="text-slate-400 text-[10px] uppercase font-bold mt-2">Sent to: {email}</p>
+
+                  <form onSubmit={handleOtpSubmit} className="mt-10 space-y-8">
+                    <input
+                      type="text"
+                      maxLength="4"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                      className="w-full text-center text-5xl p-4 border-b-4 border-[#d4a017] outline-none font-black tracking-[0.5em] bg-transparent"
+                      placeholder="0000"
+                      required
+                      autoFocus
+                    />
+                    <button type="submit" disabled={loading} className="w-full bg-[#d4a017] text-white py-5 rounded-lg font-black uppercase shadow-lg disabled:opacity-50">
+                      {loading ? 'Verifying...' : 'Continue'}
+                    </button>
+                    <button type="button" onClick={() => setLoginStep(1)} className="block mx-auto text-slate-400 text-[10px] uppercase font-bold hover:text-[#001f3f]">Back</button>
+                  </form>
                 </div>
               </motion.div>
             )}
@@ -266,20 +257,20 @@ const Login = ({ setUser }) => {
                   <div className="text-5xl mb-4">🔐</div>
                   <h2 className="text-3xl font-black text-[#001f3f] uppercase">Security PIN</h2>
                   <p className="text-slate-400 text-[10px] uppercase font-bold mt-2">Enter your 4-Digit Teacher PIN</p>
-                  
+
                   <form onSubmit={handlePinSubmit} className="mt-10 space-y-6">
-                    <input 
-                      type="password" 
-                      maxLength="4" 
-                      value={pin} 
-                      onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))} 
-                      className="w-full p-6 bg-slate-50 border-4 border-[#d4a017] rounded-lg text-center text-5xl font-black tracking-[0.5em] outline-none" 
-                      placeholder="••••" 
-                      required 
-                      autoFocus 
+                    <input
+                      type="password"
+                      maxLength="4"
+                      value={pin}
+                      onChange={(e) => setPin(e.target.value.replace(/\D/g, ''))}
+                      className="w-full p-6 bg-slate-50 border-4 border-[#d4a017] rounded-lg text-center text-5xl font-black tracking-[0.5em] outline-none"
+                      placeholder="••••"
+                      required
+                      autoFocus
                     />
                     <button type="submit" disabled={loading} className="w-full bg-[#001f3f] text-white py-5 rounded-lg font-black uppercase shadow-2xl disabled:opacity-50">
-                        {loading ? 'Entering...' : 'Unlock Dashboard'}
+                      {loading ? 'Entering...' : 'Unlock Dashboard'}
                     </button>
                   </form>
                 </div>

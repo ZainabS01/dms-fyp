@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronRight, ChevronLeft } from 'lucide-react';
+import toast from 'react-hot-toast';
 
 
 const Contact = () => {
   const [showDropdown, setShowDropdown] = useState(false);
+  const [dropdownView, setDropdownView] = useState('main');
   const [submittedTo, setSubmittedTo] = useState("");
   const [activeFaq, setActiveFaq] = useState(null);
 
@@ -18,8 +20,9 @@ const Contact = () => {
     semester: "",
     message: ""
   });
-  
+
   const [departmentsList, setDepartmentsList] = useState([]);
+  const [teachersList, setTeachersList] = useState([]);
 
   useEffect(() => {
     axios.get(`${process.env.REACT_APP_API_URL}/api/departments`)
@@ -28,6 +31,10 @@ const Contact = () => {
         return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
       })))
       .catch(err => console.error("Error fetching departments:", err));
+
+    axios.get(`${process.env.REACT_APP_API_URL}/api/admin/faculty`)
+      .then(res => setTeachersList(res.data.filter(t => t.status === 'ACTIVE' && t.role === 'teacher' && t.name && t.name.trim() !== '')))
+      .catch(err => console.error("Error fetching teachers:", err));
   }, []);
 
   useEffect(() => {
@@ -53,7 +60,21 @@ const Contact = () => {
   };
 
   // 2. Handle Selection & Clear Fields
-  const handleSelection = async (target) => {
+  const handleOpenDropdown = () => {
+    if (!formData.fullName.trim() || !formData.email.trim() || !formData.message.trim() || !formData.status || !formData.department) {
+      return toast.error("Please fill all required fields before selecting a recipient!");
+    }
+    if (formData.status === "Student" && !formData.semester) {
+      return toast.error("Please select a semester!");
+    }
+    setShowDropdown(!showDropdown);
+    if (!showDropdown) setDropdownView('main');
+  };
+
+  const handleSelection = async (target, teacher = null) => {
+    if (!formData.fullName.trim() || !formData.email.trim() || !formData.message.trim()) {
+      return toast.error("Please fill all required fields before submitting!");
+    }
     try {
       const queryData = {
         studentName: formData.fullName || "Visitor",
@@ -63,14 +84,15 @@ const Contact = () => {
         semester: formData.status === "Student" ? formData.semester : "N/A",
         subject: "Contact Form Query",
         message: formData.message,
-        recipient: target.toLowerCase()
+        recipient: target.toLowerCase(),
+        targetTeacherId: teacher ? teacher._id : null
       };
 
       await axios.post(`${process.env.REACT_APP_API_URL}/api/query/add`, queryData);
 
-      setSubmittedTo(target);
+      setSubmittedTo(teacher ? teacher.name : target);
       setShowDropdown(false);
-      
+
       setFormData({
         fullName: "",
         status: "",
@@ -81,14 +103,14 @@ const Contact = () => {
       });
     } catch (err) {
       console.error("Failed to submit query:", err);
-      alert("Failed to submit query. Please try again.");
+      toast.error("Failed to submit query. Please try again.");
     }
   };
 
   return (
     <div className="bg-white min-h-screen font-sans pt-[90px] md:pt-[80px] w-full overflow-x-hidden">
-      
-      <motion.section 
+
+      <motion.section
         initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp}
         className="bg-[#001f3f] text-white py-8 md:py-12 px-6 text-center w-full"
       >
@@ -100,20 +122,20 @@ const Contact = () => {
 
       <div className="max-w-[1100px] mx-auto px-6 md:px-12 py-8 md:py-10">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-          
+
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeInUp} className="space-y-6">
             <h2 className="text-2xl md:text-3xl font-black text-[#001f3f] uppercase border-b-4 border-[#001f3f] inline-block mb-1">Reach Us</h2>
             <div className="space-y-5">
               <div className="flex items-center gap-4 group">
                 <div className="w-10 h-10 rounded-full border-2 border-[#001f3f] flex items-center justify-center group-hover:bg-[#001f3f] group-hover:text-white transition-all text-sm">📞</div>
-                <a href="tel:+923016101870" className="font-bold text-[#001f3f] hover:underline">+92 301 610 1870</a>
+                <a href="https://wa.me/923016101870" target="_blank" rel="noopener noreferrer" className="font-bold text-[#001f3f] hover:underline">+92 301 610 1870</a>
               </div>
               <div className="flex items-center gap-4 group">
                 <div className="w-10 h-10 rounded-full border-2 border-[#001f3f] flex items-center justify-center group-hover:bg-[#001f3f] group-hover:text-white transition-all text-sm">✉️</div>
-                <a 
-                  href="https://mail.google.com/mail/?view=cm&fs=1&to=departmentmanagementsystem300@gmail.com" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
+                <a
+                  href="https://mail.google.com/mail/?view=cm&fs=1&to=departmentmanagementsystem300@gmail.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="font-bold text-[#001f3f] text-xs md:text-sm break-all uppercase hover:underline"
                 >
                   departmentmanagementsystem300@gmail.com
@@ -123,23 +145,23 @@ const Contact = () => {
           </motion.div>
 
           {/* Form with State Binding */}
-          <motion.div 
-  id="contact-form" // This ID is mandatory
-  className="scroll-mt-32 bg-[#001f3f] p-5 md:p-6 rounded-lg shadow-2xl relative"
->
+          <motion.div
+            id="contact-form" // This ID is mandatory
+            className="scroll-mt-32 bg-[#001f3f] p-5 md:p-6 rounded-lg shadow-2xl relative"
+          >
             <h3 className="text-lg md:text-xl font-black text-white uppercase mb-5">Get In Touch</h3>
-            
+
             <form className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <input 
-                  type="text" placeholder="Full Name" 
+                <input
+                  type="text" placeholder="Full Name"
                   value={formData.fullName}
-                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                  className="bg-white p-3 rounded-lg font-bold text-sm outline-none focus:ring-2 ring-[#d4a017]" 
+                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+                  className="bg-white p-3 rounded-lg font-bold text-sm outline-none focus:ring-2 ring-[#d4a017]"
                 />
-                <select 
+                <select
                   value={formData.status}
-                  onChange={(e) => setFormData({...formData, status: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   className="bg-white p-3 rounded-lg font-bold text-sm outline-none focus:ring-2 ring-[#d4a017]"
                 >
                   <option value="" disabled hidden>Status</option>
@@ -147,44 +169,44 @@ const Contact = () => {
                   <option value="Teacher">Teacher</option>
                 </select>
               </div>
-              
-              <input 
-                type="email" placeholder="Email" 
+
+              <input
+                type="email" placeholder="Email"
                 value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-                className="bg-white p-3 rounded-lg font-bold text-sm outline-none focus:ring-2 ring-[#d4a017] w-full" 
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="bg-white p-3 rounded-lg font-bold text-sm outline-none focus:ring-2 ring-[#d4a017] w-full"
               />
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <select 
+                <select
                   value={formData.department}
-                  onChange={(e) => setFormData({...formData, department: e.target.value})}
-                  className="bg-white p-3 rounded-lg font-bold text-sm outline-none focus:ring-2 ring-[#d4a017]" 
+                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                  className="bg-white p-3 rounded-lg font-bold text-sm outline-none focus:ring-2 ring-[#d4a017]"
                 >
                   <option value="" disabled hidden>Department</option>
                   {departmentsList.map(d => <option key={d} value={d}>{d}</option>)}
                 </select>
-                <select 
+                <select
                   value={formData.semester}
-                  onChange={(e) => setFormData({...formData, semester: e.target.value})}
+                  onChange={(e) => setFormData({ ...formData, semester: e.target.value })}
                   className="bg-white p-3 rounded-lg font-bold text-sm outline-none focus:ring-2 ring-[#d4a017]"
                 >
                   <option value="" disabled hidden>Semester (If Student)</option>
-                  {[1,2,3,4,5,6,7,8].map(s => <option key={s} value={s}>{s} Semester</option>)}
+                  {[1, 2, 3, 4, 5, 6, 7, 8].map(s => <option key={s} value={s}>{s} Semester</option>)}
                 </select>
               </div>
 
-              <textarea 
-                placeholder="Message" rows="3" 
+              <textarea
+                placeholder="Message" rows="3"
                 value={formData.message}
-                onChange={(e) => setFormData({...formData, message: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                 className="bg-white p-3 rounded-lg font-bold text-sm outline-none focus:ring-2 ring-[#d4a017] w-full resize-none"
               ></textarea>
-              
+
               <div className="relative">
-                <button 
+                <button
                   type="button"
-                  onClick={() => setShowDropdown(!showDropdown)}
+                  onClick={handleOpenDropdown}
                   className="bg-white text-[#001f3f] w-full py-3 rounded-lg font-black hover:bg-gray-100 transition-all flex justify-center items-center gap-2 text-sm tracking-wide"
                 >
                   Submit To <span>{showDropdown ? <ChevronUp size={20} /> : <ChevronDown size={20} />}</span>
@@ -192,12 +214,34 @@ const Contact = () => {
 
                 <AnimatePresence>
                   {showDropdown && (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
                       className="absolute top-full left-0 w-full mt-2 bg-white rounded-lg shadow-2xl overflow-hidden z-30 border-2 border-[#d4a017]"
                     >
-                      <button onClick={() => handleSelection("Admin")} type="button" className="w-full py-3 px-4 text-[#001f3f] font-black text-sm hover:bg-[#d4a017] hover:text-white transition-colors border-b border-gray-100 text-left">Admin</button>
-                      <button onClick={() => handleSelection("Teacher")} type="button" className="w-full py-3 px-4 text-[#001f3f] font-black text-sm hover:bg-[#d4a017] hover:text-white transition-colors text-left">Teacher</button>
+                      {dropdownView === 'main' ? (
+                        <>
+                          <button onClick={() => handleSelection("Admin")} type="button" className="w-full py-3 px-4 text-[#001f3f] font-black text-sm hover:bg-[#d4a017] hover:text-white transition-colors border-b border-gray-100 text-left">Admin</button>
+                          <button onClick={() => setDropdownView('teachers')} type="button" className="w-full py-3 px-4 text-[#001f3f] font-black text-sm hover:bg-[#d4a017] hover:text-white transition-colors text-left flex justify-between items-center">
+                            Teacher <ChevronRight size={16} />
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button onClick={() => setDropdownView('main')} type="button" className="w-full py-2 px-4 bg-gray-50 text-slate-500 font-black text-xs hover:bg-gray-100 transition-colors text-left flex items-center gap-1 border-b border-gray-100 uppercase tracking-widest">
+                            <ChevronLeft size={14} /> Back
+                          </button>
+                          <div className="max-h-48 overflow-y-auto">
+                            {teachersList.length > 0 ? teachersList.map(t => (
+                              <button key={t._id} onClick={() => handleSelection("Teacher", t)} type="button" className="w-full py-3 px-4 text-[#001f3f] font-black text-sm hover:bg-[#d4a017] group hover:text-white transition-colors text-left border-b border-gray-100 flex justify-between items-center">
+                                <span>{t.name}</span>
+                                <span className="text-[10px] font-bold bg-slate-100 group-hover:bg-[#b08514] px-2 py-1 rounded text-[#001f3f] group-hover:text-white opacity-80 transition-colors">{t.department || 'N/A'}</span>
+                              </button>
+                            )) : (
+                              <div className="w-full py-3 px-4 text-slate-500 font-bold text-xs text-left">No teachers available</div>
+                            )}
+                          </div>
+                        </>
+                      )}
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -223,7 +267,7 @@ const Contact = () => {
             <div className="w-24 h-1 bg-[#d4a017] mx-auto mt-4 rounded-full"></div>
           </div>
 
-          <motion.div 
+          <motion.div
             initial="hidden" whileInView="visible" viewport={{ once: true, amount: 0.2 }}
             className="max-w-[800px] mx-auto px-4"
           >
@@ -235,9 +279,9 @@ const Contact = () => {
                 { q: "How do teachers update attendance or upload data?", a: "Teachers have a specialized Teacher Panel where they can mark attendance, upload course materials, and enter marks for students easily." },
                 { q: "Is my data secure in the DMS system?", a: "Absolutely. We use secure authentication and encrypted storage to ensure that all academic and personal records remain private and protected." }
               ].map((faq, index) => (
-                <motion.div 
-                  key={index} 
-                  variants={fadeInUp} 
+                <motion.div
+                  key={index}
+                  variants={fadeInUp}
                   className="bg-white border-2 border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300"
                 >
                   <button
@@ -249,7 +293,7 @@ const Contact = () => {
                       <ChevronDown size={20} />
                     </span>
                   </button>
-                  
+
                   <AnimatePresence>
                     {activeFaq === index && (
                       <motion.div

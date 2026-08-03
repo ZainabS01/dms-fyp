@@ -11,12 +11,36 @@ const FacultyManagement = () => {
 
   useEffect(() => {
     fetchFaculty();
+    
+    // Auto-refresh data every 5 seconds to sync with database changes
+    const intervalId = setInterval(() => {
+      fetchFaculty();
+    }, 5000);
+    
+    return () => clearInterval(intervalId);
   }, []);
 
   const fetchFaculty = async () => {
     try {
       const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/admin/faculty`);
-      setFaculty(res.data);
+      
+      // Get current logged-in user to hide them from the list
+      const currentUserStr = localStorage.getItem('user');
+      let currentUserId = null;
+      if (currentUserStr) {
+        try {
+          const currentUser = JSON.parse(currentUserStr);
+          currentUserId = currentUser.id || currentUser._id;
+        } catch (e) {
+          console.error("Error parsing user from localStorage", e);
+        }
+      }
+
+      if (currentUserId) {
+        setFaculty(res.data.filter(f => f._id !== currentUserId));
+      } else {
+        setFaculty(res.data);
+      }
     } catch (err) { console.error(err); }
   };
 
@@ -28,6 +52,17 @@ const FacultyManagement = () => {
       }
     } catch (err) {
       console.error('Error toggling HOD status', err);
+    }
+  };
+
+  const handleToggleAdmin = async (id, currentRole) => {
+    try {
+      const res = await axios.put(`${process.env.REACT_APP_API_URL}/api/admin/faculty/${id}/toggle-admin`);
+      if (res.data.success) {
+        setFaculty(faculty.map(f => f._id === id ? { ...f, role: res.data.role } : f));
+      }
+    } catch (err) {
+      console.error('Error toggling admin status', err);
     }
   };
 
@@ -109,6 +144,14 @@ const FacultyManagement = () => {
               </div>
             )}
 
+            {/* Admin Badge */}
+            {f.role === 'admin' && (
+              <div className="absolute top-6 left-6 bg-gradient-to-r from-[#001f3f] to-[#002d5a] text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-md flex items-center gap-1 z-10">
+                <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                ADMIN
+              </div>
+            )}
+
             {/* Avatar */}
             <div className="w-24 h-24 bg-slate-50 rounded-full flex items-center justify-center text-4xl mb-4 border-4 border-white shadow-md relative z-10 group-hover:scale-105 transition-transform duration-300 overflow-hidden">
               {f.profilePic ? (
@@ -139,26 +182,35 @@ const FacultyManagement = () => {
             </div>
 
             {/* Actions */}
-            <div className="w-full flex gap-2 relative z-10 mt-auto">
-              <button 
-                onClick={() => handleToggleHOD(f._id, f.isHOD)}
-                className={`flex-1 text-[10px] font-black uppercase px-2 py-3 rounded-lg transition-all duration-300 flex items-center justify-center gap-1
-                  ${f.isHOD 
-                    ? 'bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200/50' 
-                    : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/50'}`}
-              >
-                {f.isHOD ? 'Revoke HOD' : 'Make HOD'}
-              </button>
-              <button 
-                onClick={() => openEditModal(f)}
-                className="w-10 bg-blue-50 hover:bg-blue-500 text-blue-500 hover:text-white border border-blue-100 flex items-center justify-center rounded-lg transition-all duration-300 shrink-0">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-              </button>
-              <button 
-                onClick={() => setDeleteTarget(f._id)}
-                className="w-10 bg-red-50 hover:bg-red-500 text-red-500 hover:text-white border border-red-100 flex items-center justify-center rounded-lg transition-all duration-300 shrink-0">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-              </button>
+            <div className="w-full flex flex-col gap-2 relative z-10 mt-auto">
+              <div className="w-full flex gap-2">
+                <button 
+                  onClick={() => handleToggleHOD(f._id, f.isHOD)}
+                  className={`flex-1 text-[10px] font-black uppercase px-2 py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-1
+                    ${f.isHOD ? 'bg-amber-50 text-amber-600 hover:bg-amber-100 border border-amber-200/50' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/50'}`}
+                >
+                  {f.isHOD ? 'Revoke HOD' : 'Make HOD'}
+                </button>
+                <button 
+                  onClick={() => handleToggleAdmin(f._id, f.role)}
+                  className={`flex-1 text-[10px] font-black uppercase px-2 py-2 rounded-lg transition-all duration-300 flex items-center justify-center gap-1
+                    ${f.role === 'admin' ? 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200/50' : 'bg-slate-50 text-slate-600 hover:bg-slate-100 border border-slate-200/50'}`}
+                >
+                  {f.role === 'admin' ? 'Revoke Admin' : 'Make Admin'}
+                </button>
+              </div>
+              <div className="w-full flex gap-2">
+                <button 
+                  onClick={() => openEditModal(f)}
+                  className="flex-1 bg-slate-50 hover:bg-blue-500 text-blue-500 hover:text-white border border-slate-200/50 flex items-center justify-center rounded-lg py-2 transition-all duration-300">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                </button>
+                <button 
+                  onClick={() => setDeleteTarget(f._id)}
+                  className="flex-1 bg-slate-50 hover:bg-red-500 text-red-500 hover:text-white border border-slate-200/50 flex items-center justify-center rounded-lg py-2 transition-all duration-300">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                </button>
+              </div>
             </div>
           </div>
         ))}

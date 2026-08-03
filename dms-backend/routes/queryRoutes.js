@@ -99,7 +99,7 @@ router.post('/add', async (req, res) => {
             title: `New Message from ${savedQuery.studentName}`,
             content: `Subject: ${savedQuery.subject}\nMessage: ${savedQuery.message.substring(0, 50)}...`,
             target: noticeTarget,
-            targetUser: noticeTarget === 'teacher' ? savedQuery.targetTeacherId : 'all',
+            targetUser: noticeTarget === 'teacher' && savedQuery.targetTeacherId ? savedQuery.targetTeacherId.toString() : 'all',
             type: 'Query',
             link: 'queries'
         });

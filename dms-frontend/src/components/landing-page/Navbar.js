@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 // Menu icons for mobile
@@ -24,7 +24,7 @@ const Navbar = () => {
       <Link to="/" className="flex items-center">
         <div className="h-12 md:h-[60px] shrink-0 flex items-center justify-center my-auto">
           <img 
-            src="/logo.png" 
+            src="/assets/logo.png" 
             alt="DMS Logo" 
             className="h-full w-auto object-contain"
           />

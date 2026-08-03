@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import HeroSection from '../components/landing-page/HeroSection';
 import { 
   Users, ShieldCheck, Zap, Database, Search, 
@@ -106,7 +106,7 @@ const Home = () => {
           </div>
           <div className="lg:w-1/2 w-full mt-8 lg:mt-0">
             <img 
-              src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?q=80&w=800" 
+              src="/assets/what_we_stand_for.jpg" 
               alt="Team" 
               className="rounded-lg w-full h-[250px] md:h-[350px] object-cover shadow-2xl border-4 md:border-8 border-yellow-500"
             />

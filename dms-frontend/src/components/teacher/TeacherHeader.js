@@ -116,7 +116,7 @@ const TeacherHeader = ({ activeTab, teacherName, teacherProfilePic, isHOD, onOpe
             whileHover={{ scale: 1.02 }}
             className="flex items-center gap-1 sm:gap-3 px-1.5 sm:px-4 py-1.5 md:py-2.5 bg-[#f8fbff] border border-blue-100 rounded-lg cursor-pointer hover:bg-blue-50 transition-all h-8 sm:h-12 md:h-14 flex-shrink-0"
           >
-             <img src="/nexi.png" alt="Nexi" className="w-5 h-5 sm:w-8 sm:h-8 object-contain flex-shrink-0" />
+             <img src="/assets/nexi.png" alt="Nexi" className="w-5 h-5 sm:w-8 sm:h-8 object-contain flex-shrink-0" />
              <div className="text-left leading-tight hidden sm:block">
                 <p className="text-[9px] font-black text-blue-400 uppercase tracking-tighter leading-none">AI Assistant</p>
                 <p className="text-[11px] md:text-[13px] font-black text-[#001f3f] uppercase tracking-wider leading-tight">NEXI AI</p>

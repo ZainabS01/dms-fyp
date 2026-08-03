@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { motion } from 'framer-motion';
 
 const About = () => {
@@ -67,13 +67,13 @@ const About = () => {
               </p>
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn} className="order-1 md:order-2">
-              <img src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=500" alt="Vision" className="rounded-lg border-4 border-[#001f3f] shadow-xl w-full h-40 md:h-56 object-cover" />
+              <img src="/assets/about_vision.jpg" alt="Vision" className="rounded-lg border-4 border-[#001f3f] shadow-xl w-full h-40 md:h-56 object-cover" />
             </motion.div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
-              <img src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=500" alt="Mission" className="rounded-lg border-4 border-[#001f3f] shadow-xl w-full h-40 md:h-56 object-cover" />
+              <img src="/assets/hero_student.jpg" alt="Mission" className="rounded-lg border-4 border-[#001f3f] shadow-xl w-full h-40 md:h-56 object-cover" />
             </motion.div>
             <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={fadeIn}>
               <h2 className="text-2xl md:text-3xl font-black text-[#001f3f] mb-3 uppercase">Our Mission</h2>

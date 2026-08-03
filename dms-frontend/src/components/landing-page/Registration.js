@@ -109,7 +109,7 @@ const Registration = () => {
         {/* Left Side: Sidebar */}
         <div className="w-full lg:w-[40%] p-3 md:p-4 flex flex-col items-center justify-center bg-white border-b lg:border-b-0 lg:border-r border-gray-100 text-center">
           <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white shadow-2xl border-4 border-[#001f3f] p-2 mb-4 flex items-center justify-center overflow-hidden">
-             <img src="/logo.png" alt="DMS Logo" className="w-full h-full object-contain" />
+             <img src="/assets/logo.png" alt="DMS Logo" className="w-full h-full object-contain" />
           </div>
           <div className="bg-[#001f3f] text-white rounded-lg p-4 w-full max-w-[380px] shadow-lg">
             <h2 className="text-lg md:text-xl font-black mb-2 uppercase">Welcome To DMS</h2>

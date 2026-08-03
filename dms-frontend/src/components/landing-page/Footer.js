@@ -40,7 +40,7 @@ const Footer = () => {
           <Link to="/" onClick={handleScrollToTop} className="flex items-center gap-2">
             <div className="w-10 h-10 shrink-0">
               <img
-                src="/logo.png"
+                src="/assets/logo.png"
                 alt="DMS Logo"
                 className="w-full h-full object-contain"
               />
@@ -126,7 +126,7 @@ const Footer = () => {
 
       {/* 3. Bottom Copyright Bar */}
       <div className="border-t border-gray-100 py-6 text-center text-gray-400 text-xs font-semibold tracking-widest uppercase">
-        © 2026 Department Management System. All rights reserved.
+        Â© 2026 Department Management System. All rights reserved.
       </div>
     </footer>
   );

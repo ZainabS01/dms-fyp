@@ -6,7 +6,7 @@ import toast from 'react-hot-toast';
 // Real logo component using the nexi.png asset
 const NexiLogo = ({ className = "w-10 h-10" }) => (
   <img 
-    src="/nexi.png" 
+    src="/assets/nexi.png" 
     alt="Nexi Logo" 
     className={`${className} object-contain`} 
   />
@@ -852,6 +852,21 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
                               />
                             )}
                             {formatResponseText(msg.text)}
+                            
+                            {/* AI suggestions inside the bubble */}
+                            {msg.suggestions && msg.suggestions.length > 0 && (
+                              <div className="flex flex-wrap gap-2 mt-4 pt-3 border-t border-[#001f3f]/10">
+                                {msg.suggestions.map((sug, idx) => (
+                                  <button
+                                    key={idx}
+                                    onClick={() => sendMessage(sug)}
+                                    className="bg-white hover:bg-[#d4a017]/10 text-[#001f3f] hover:text-[#d4a017] border border-slate-200 hover:border-[#d4a017] px-3.5 py-2 rounded-md text-[10px] font-black transition-all cursor-pointer shadow-sm hover:shadow active:scale-95 block"
+                                  >
+                                    {sug}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
                           </div>
                         </div>
 
@@ -873,21 +888,6 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
                             <span>📄</span> Download PDF
                           </button>
                         </div>
-
-                        {/* AI suggestions matching buttons under AI message bubble */}
-                        {msg.suggestions && msg.suggestions.length > 0 && (
-                          <div className="flex flex-wrap gap-3 mt-3 ml-11">
-                            {msg.suggestions.map((sug, idx) => (
-                              <button
-                                key={idx}
-                                onClick={() => sendMessage(sug)}
-                                className="bg-slate-100 hover:bg-[#d4a017]/10 text-[#001f3f] hover:text-[#d4a017] border border-slate-200 hover:border-[#d4a017] px-4.5 py-2.5 rounded-lg text-xs font-black transition-all cursor-pointer shadow-sm hover:shadow active:scale-95 block"
-                              >
-                                {sug}
-                              </button>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     )}
                   </div>
@@ -972,39 +972,10 @@ const NexiChat = ({ user, setActiveTab, isOpen, onClose, backTab = 'overview' })
                 onChange={(e) => setInputText(e.target.value)}
                 onKeyDown={handleKeyDown}
                 disabled={isLoading}
-                placeholder={
-                  isListening 
-                    ? "Listening..." 
-                    : (voiceError 
-                        ? `Error: ${voiceError}` 
-                        : (isLoading ? "Wait..." : "Type Your Message..."))
-                } 
+                placeholder={isLoading ? "Wait..." : "Type Your Message..."} 
                 className="flex-1 bg-transparent outline-none text-xs sm:text-sm font-bold text-slate-700 placeholder:text-slate-400 disabled:opacity-50 min-w-0" 
               />
-
               <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
-                {/* Language Toggle Badge */}
-                <button
-                  onClick={() => setVoiceLang(prev => prev === 'en-US' ? 'ur-PK' : 'en-US')}
-                  className="text-[9px] sm:text-[10px] font-black bg-slate-200/80 hover:bg-slate-200 text-[#001f3f] px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-lg transition-all cursor-pointer select-none"
-                  title={`Switch Speech Recognition Language (Current: ${voiceLang === 'en-US' ? 'English' : 'Urdu'})`}
-                >
-                  {voiceLang === 'en-US' ? 'EN' : 'UR'}
-                </button>
-
-                {/* Microphone Button (Speech-to-Text) */}
-                <button
-                  onClick={toggleListening}
-                  className={`p-1.5 sm:p-2 rounded-lg transition-all flex items-center justify-center cursor-pointer ${
-                    isListening 
-                      ? 'bg-red-500 text-white animate-pulse shadow-md' 
-                      : 'text-slate-400 hover:text-[#d4a017] hover:bg-slate-200/60'
-                  }`}
-                  title={isListening ? "Stop Listening" : `Voice Input`}
-                >
-                  <FiMic size={18} />
-                </button>
-
                 {/* Send Button */}
                 <button 
                   onClick={() => sendMessage(inputText)}

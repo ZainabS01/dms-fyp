@@ -172,7 +172,7 @@ const Login = ({ setUser }) => {
       <motion.div className="w-full max-w-[750px] bg-white rounded-lg shadow-2xl flex flex-col lg:flex-row overflow-hidden min-h-[350px]">
 
         <div className="w-full lg:w-[45%] bg-white p-3 flex items-center justify-center border-r border-gray-100">
-          <img src="/login.png" alt="Login" className="w-full max-w-[250px]" />
+          <img src="/assets/login.png" alt="Login" className="w-full max-w-[250px]" />
         </div>
 
         <div className="w-full lg:w-[55%] p-5 flex flex-col justify-center">
@@ -254,7 +254,7 @@ const Login = ({ setUser }) => {
             {loginStep === 3 && (
               <motion.div key="step3" initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }}>
                 <div className="text-center">
-                  <div className="text-5xl mb-4">🔐</div>
+                  <div className="text-5xl mb-4">🔒</div>
                   <h2 className="text-3xl font-black text-[#001f3f] uppercase">Security PIN</h2>
                   <p className="text-slate-400 text-[10px] uppercase font-bold mt-2">Enter your 4-Digit Teacher PIN</p>
 

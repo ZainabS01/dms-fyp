@@ -100,7 +100,7 @@ const AdminDashboard = ({ user }) => {
       <main className={`flex-1 ml-0 md:ml-64 h-full flex flex-col transition-all duration-300 ease-in-out ${(activeTab === 'nexi' || activeTab === 'dashboard') ? 'overflow-hidden' : 'overflow-y-auto custom-scrollbar'}`}>
         
         {/* Sticky Header Area */}
-        <div className={`sticky top-0 z-30 bg-[#f1f3f6]/80 backdrop-blur-md flex-shrink-0 ${activeTab === 'nexi' ? 'p-1.5 sm:p-3 md:p-4' : 'p-0'}`}>
+        <div className="sticky top-0 z-30 bg-[#f1f3f6]/80 backdrop-blur-md flex-shrink-0 p-0">
            <AdminHeader 
              activeTab={activeTab} 
              adminName={adminInfo.name} 

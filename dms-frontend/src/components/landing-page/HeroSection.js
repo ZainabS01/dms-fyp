@@ -33,7 +33,7 @@ const Hero = () => {
           <div className="order-1 md:order-2 flex justify-center md:justify-end items-start gap-4 md:gap-6">
             <div className="w-28 h-52 md:w-36 md:h-64 rounded-full border-[3px] border-[#001f3f] overflow-hidden shadow-lg hover:scale-105 transition-transform duration-500">
               <img 
-                src="https://images.unsplash.com/photo-1523240795612-9a054b0db644?q=80&w=500" 
+                src="/assets/hero_student.jpg" 
                 alt="Student" 
                 className="w-full h-full object-cover"
               />
@@ -41,7 +41,7 @@ const Hero = () => {
             {/* Floating effect given to this pill using animate-bounce or custom margin-top */}
             <div className="w-28 h-52 md:w-36 md:h-64 rounded-full border-[3px] border-[#001f3f] overflow-hidden mt-8 md:mt-12 shadow-lg hover:scale-105 transition-transform duration-500">
               <img 
-                src="https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=500" 
+                src="/assets/hero_library.jpg" 
                 alt="Library" 
                 className="w-full h-full object-cover"
               />
@@ -52,7 +52,7 @@ const Hero = () => {
         {/* Bottom Quote with Fade-in Effect */}
         <div className="mt-10 flex flex-col md:flex-row justify-center items-center gap-4 text-center">
           <h2 className="text-xl md:text-2xl font-extrabold text-[#001f3f] tracking-tight">
-            “Learning today, leading tomorrow.”
+            “Learning today, leading tomorrow.” 
           </h2>
           <div className="animate-bounce mt-3 md:mt-0 text-[#001f3f]">
             <GraduationCap className="w-10 h-10 md:w-12 md:h-12" />

@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import axios from 'axios';
 import { Eye, EyeOff } from 'lucide-react';
-import ForgotPasswordModal from './ForgotPasswordModal';
 import { SEMESTERS_LIST } from '../../constants/data';
 
 const Registration = () => {
@@ -43,7 +42,6 @@ const Registration = () => {
   const [semester, setSemester] = useState('');
 
   const [isVerifying] = useState(false); 
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handlePhoneChange = (e) => {
     const val = e.target.value.replace(/\D/g, '');
@@ -214,9 +212,6 @@ const Registration = () => {
                                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                               </button>
                             </div>
-                            <div className="text-right mt-1">
-                              <button type="button" onClick={() => setIsModalOpen(true)} className="text-[9px] font-black text-[#d4a017] uppercase hover:underline">Forgot Password?</button>
-                            </div>
                           </div>
                         </div>
 
@@ -236,7 +231,6 @@ const Registration = () => {
           </p>
         </div>
       </motion.div>
-      <ForgotPasswordModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </div>
   );
 };

@@ -113,16 +113,33 @@ router.post('/login', async (req, res) => {
         const otp = Math.floor(1000 + Math.random() * 9000).toString();
         await User.findByIdAndUpdate(user._id, { $set: { resetOtp: otp } });
         
-        const activeTransporter = nodemailer.createTransport({
-            service: 'gmail',
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
+        const activeTransporter = {
+            sendMail: async (mailOptions) => {
+                if (process.env.SENDGRID_API_KEY) {
+                    const sgMail = require('@sendgrid/mail');
+                    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+                    return sgMail.send({
+                        to: mailOptions.to,
+                        from: mailOptions.from,
+                        subject: mailOptions.subject,
+                        html: mailOptions.html
+                    });
+                } else {
+                    const nodemailer = require('nodemailer');
+                    const transporter = nodemailer.createTransport({
+                        service: 'gmail',
+                        host: 'smtp.gmail.com',
+                        port: 465,
+                        secure: true,
+                        auth: {
+                            user: process.env.EMAIL_USER,
+                            pass: process.env.EMAIL_PASS
+                        }
+                    });
+                    return transporter.sendMail(mailOptions);
+                }
             }
-        });
+        };
 
         const adminEmail = process.env.EMAIL_USER || 'zainabminhas294@gmail.com';
         const mailOptions = {
@@ -194,16 +211,33 @@ router.post('/register', async (req, res) => {
 
         await newUser.save();
 
-        const activeTransporter = nodemailer.createTransport({
-            service: 'gmail',
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
+        const activeTransporter = {
+            sendMail: async (mailOptions) => {
+                if (process.env.SENDGRID_API_KEY) {
+                    const sgMail = require('@sendgrid/mail');
+                    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+                    return sgMail.send({
+                        to: mailOptions.to,
+                        from: mailOptions.from,
+                        subject: mailOptions.subject,
+                        html: mailOptions.html
+                    });
+                } else {
+                    const nodemailer = require('nodemailer');
+                    const transporter = nodemailer.createTransport({
+                        service: 'gmail',
+                        host: 'smtp.gmail.com',
+                        port: 465,
+                        secure: true,
+                        auth: {
+                            user: process.env.EMAIL_USER,
+                            pass: process.env.EMAIL_PASS
+                        }
+                    });
+                    return transporter.sendMail(mailOptions);
+                }
             }
-        });
+        };
 
         const baseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -287,16 +321,33 @@ router.get('/quick-action', async (req, res) => {
             return res.status(400).send('<h1 style="color:red; text-align:center; font-family:sans-serif; margin-top:50px;">Invalid or Expired Link!</h1>');
         }
 
-        const activeTransporter = nodemailer.createTransport({
-            service: 'gmail',
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
+        const activeTransporter = {
+            sendMail: async (mailOptions) => {
+                if (process.env.SENDGRID_API_KEY) {
+                    const sgMail = require('@sendgrid/mail');
+                    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+                    return sgMail.send({
+                        to: mailOptions.to,
+                        from: mailOptions.from,
+                        subject: mailOptions.subject,
+                        html: mailOptions.html
+                    });
+                } else {
+                    const nodemailer = require('nodemailer');
+                    const transporter = nodemailer.createTransport({
+                        service: 'gmail',
+                        host: 'smtp.gmail.com',
+                        port: 465,
+                        secure: true,
+                        auth: {
+                            user: process.env.EMAIL_USER,
+                            pass: process.env.EMAIL_PASS
+                        }
+                    });
+                    return transporter.sendMail(mailOptions);
+                }
             }
-        });
+        };
 
         if (action === 'approve') {
             user.status = 'ACTIVE';
@@ -422,16 +473,33 @@ router.post('/send-otp', async (req, res) => {
             return res.status(404).json({ success: false, message: "This email is not registered!" });
         }
 
-        const activeTransporter = nodemailer.createTransport({
-            service: 'gmail',
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
+        const activeTransporter = {
+            sendMail: async (mailOptions) => {
+                if (process.env.SENDGRID_API_KEY) {
+                    const sgMail = require('@sendgrid/mail');
+                    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+                    return sgMail.send({
+                        to: mailOptions.to,
+                        from: mailOptions.from,
+                        subject: mailOptions.subject,
+                        html: mailOptions.html
+                    });
+                } else {
+                    const nodemailer = require('nodemailer');
+                    const transporter = nodemailer.createTransport({
+                        service: 'gmail',
+                        host: 'smtp.gmail.com',
+                        port: 465,
+                        secure: true,
+                        auth: {
+                            user: process.env.EMAIL_USER,
+                            pass: process.env.EMAIL_PASS
+                        }
+                    });
+                    return transporter.sendMail(mailOptions);
+                }
             }
-        });
+        };
         const mailOptions = {
             from: `"DMS Security" <${process.env.EMAIL_USER || 'zainabminhas294@gmail.com'}>`,
             to: lowerEmail,
@@ -480,16 +548,33 @@ router.post('/forgot-password', async (req, res) => {
             return res.status(404).json({ success: false, message: "This email is not registered!" });
         }
 
-        const activeTransporter = nodemailer.createTransport({
-            service: 'gmail',
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
+        const activeTransporter = {
+            sendMail: async (mailOptions) => {
+                if (process.env.SENDGRID_API_KEY) {
+                    const sgMail = require('@sendgrid/mail');
+                    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+                    return sgMail.send({
+                        to: mailOptions.to,
+                        from: mailOptions.from,
+                        subject: mailOptions.subject,
+                        html: mailOptions.html
+                    });
+                } else {
+                    const nodemailer = require('nodemailer');
+                    const transporter = nodemailer.createTransport({
+                        service: 'gmail',
+                        host: 'smtp.gmail.com',
+                        port: 465,
+                        secure: true,
+                        auth: {
+                            user: process.env.EMAIL_USER,
+                            pass: process.env.EMAIL_PASS
+                        }
+                    });
+                    return transporter.sendMail(mailOptions);
+                }
             }
-        });
+        };
         const mailOptions = {
             from: `"DMS Recovery" <${process.env.EMAIL_USER || 'zainabminhas294@gmail.com'}>`,
             to: lowerEmail,

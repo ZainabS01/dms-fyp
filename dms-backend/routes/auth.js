@@ -119,8 +119,8 @@ router.post('/login', async (req, res) => {
             port: 465,
             secure: true,
             auth: {
-                user: process.env.EMAIL_USER || 'zainabminhas294@gmail.com',
-                pass: process.env.EMAIL_PASS || 'qlye rshi phqp osky'
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
             }
         });
 
@@ -200,8 +200,8 @@ router.post('/register', async (req, res) => {
             port: 465,
             secure: true,
             auth: {
-                user: process.env.EMAIL_USER || 'zainabminhas294@gmail.com',
-                pass: process.env.EMAIL_PASS || 'qlye rshi phqp osky'
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
             }
         });
 
@@ -293,8 +293,8 @@ router.get('/quick-action', async (req, res) => {
             port: 465,
             secure: true,
             auth: {
-                user: process.env.EMAIL_USER || 'zainabminhas294@gmail.com',
-                pass: process.env.EMAIL_PASS || 'qlye rshi phqp osky'
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
             }
         });
 
@@ -428,8 +428,8 @@ router.post('/send-otp', async (req, res) => {
             port: 465,
             secure: true,
             auth: {
-                user: process.env.EMAIL_USER || 'zainabminhas294@gmail.com',
-                pass: process.env.EMAIL_PASS || 'qlye rshi phqp osky'
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
             }
         });
         const mailOptions = {
@@ -486,8 +486,8 @@ router.post('/forgot-password', async (req, res) => {
             port: 465,
             secure: true,
             auth: {
-                user: process.env.EMAIL_USER || 'zainabminhas294@gmail.com',
-                pass: process.env.EMAIL_PASS || 'qlye rshi phqp osky'
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
             }
         });
         const mailOptions = {

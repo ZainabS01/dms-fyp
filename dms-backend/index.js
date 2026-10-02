@@ -24,7 +24,7 @@ const noticeRoutes = require('./routes/noticeRoutes');
 // Socket.io Setup
 const io = new Server(server, {
     cors: {
-        origin: "http://localhost:3000", // Frontend URL
+        origin: ["http://localhost:3000", "https://departmentmanagementsystem.vercel.app"], // Frontend URLs
         methods: ["GET", "POST"]
     }
 });

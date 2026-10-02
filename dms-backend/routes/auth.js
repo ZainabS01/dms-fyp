@@ -156,12 +156,9 @@ router.post('/login', async (req, res) => {
             `
         };
         
-        try {
-            const info = await activeTransporter.sendMail(mailOptions);
-            console.log("Realtime OTP Email sent successfully to:", lowerEmail, "MessageID:", info.messageId);
-        } catch (mailErr) {
-            console.error("Nodemailer real-time sendMail error during login:", mailErr);
-        }
+        activeTransporter.sendMail(mailOptions)
+            .then(info => console.log("Realtime OTP Email sent successfully to:", lowerEmail, "MessageID:", info.messageId))
+            .catch(mailErr => console.error("Nodemailer real-time sendMail error during login:", mailErr));
         
         return res.json({ ...responseData, requiresOtp: true, message: "Security Check: Password Correct. OTP sent to your email." });
 

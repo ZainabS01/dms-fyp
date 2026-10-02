@@ -100,8 +100,7 @@ router.put('/students/:id/:action', async (req, res) => {
         }
 
         if (action === 'approve') {
-            user.status = 'ACTIVE';
-            await user.save();
+            await User.findByIdAndUpdate(user._id, { status: 'ACTIVE' });
 
             // Send email
             const mailOptions = {
@@ -115,8 +114,7 @@ router.put('/students/:id/:action', async (req, res) => {
             return res.json({ success: true, message: "Student verified successfully" });
 
         } else if (action === 'reject') {
-            user.status = 'REJECTED';
-            await user.save();
+            await User.findByIdAndDelete(user._id);
 
             // Send email
             const mailOptions = {
